@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from os import environ
+import sys
 from typing import TYPE_CHECKING
 
 from sqlalchemy.ext.asyncio import create_async_engine
@@ -20,7 +21,7 @@ try:
     POSTGRES_DB = environ["POSTGRES_DB"]
 except KeyError as e:
     db_logger.critical(f"Missing environment variable {e}.")
-    exit(1)
+    sys.exit(1)
 
 db: AsyncEngine = create_async_engine(
     f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@database:5432/{POSTGRES_DB}"
