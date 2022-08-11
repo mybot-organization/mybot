@@ -1,0 +1,4 @@
+wheel
+asyncpg
+sqlalchemy[asyncio]
+git+https://github.com/Rapptz/discord.py@master

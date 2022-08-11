@@ -1,0 +1,7 @@
+black
+bandit
+toml
+tox
+pyright
+sqlalchemy[mypy]
+isort
