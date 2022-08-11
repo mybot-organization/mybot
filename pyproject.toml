@@ -9,10 +9,10 @@ deps =
     -r requirements-dev.txt
 commands =
     # pytest
-    pyright src/
     black --check src/
     bandit -r src/ tests/ -c pyproject.toml
     isort ./src/ --check
+    pyright src/
 """
 
 [tool.bandit.assert_used]
