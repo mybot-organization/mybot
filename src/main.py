@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from os import environ
+import sys
 from typing import TYPE_CHECKING, cast
 
 import discord
@@ -66,4 +67,4 @@ if __name__ == "__main__":
         mybot.run(environ["BOT_TOKEN"], reconnect=True)
     except KeyError as e:
         logger.critical(f"Missing environment variable {e}.")
-        exit(1)
+        sys.exit(1)
