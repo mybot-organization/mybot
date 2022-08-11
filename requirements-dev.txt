@@ -5,3 +5,4 @@ tox
 pyright
 sqlalchemy[mypy]
 isort
+pytest

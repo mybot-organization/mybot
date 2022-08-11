@@ -6,9 +6,9 @@ skipsdist = true
 [testenv]
 deps = 
     -r requirements.txt 
-    -r requirements_dev.txt
+    -r requirements-dev.txt
 commands =
-    pytest
+    # pytest
     pyright src/
     black --check src/
     bandit -r src/ tests/ -c pyproject.toml
@@ -31,3 +31,4 @@ combine_star = true
 line_length = 120
 
 [tool.pyright]
+reportImportCycles = false
