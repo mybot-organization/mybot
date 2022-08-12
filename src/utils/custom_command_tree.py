@@ -1,26 +1,26 @@
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
 import discord
 from discord.app_commands import AppCommandError, CommandNotFound, CommandTree
 
+from utils import ResponseType, response_constructor
 from utils.errors import BaseError
 
 if TYPE_CHECKING:
-    from main import MyBot
+    from mybot import MyBot
+
+
+logger = logging.getLogger(__name__)
 
 
 class CustomCommandTree(CommandTree["MyBot"]):
     @staticmethod
     async def send_error(inter: discord.Interaction, error_message: str) -> None:
         """A function to send an error message."""
-        embed = discord.Embed(colour=discord.Color.brand_red())
-        embed.set_author(
-            name=error_message,
-            icon_url="https://cdn.discordapp.com/attachments/584397334608084992/1005925420639735870/discord_error_icon.png",
-        )
-        await inter.response.send_message(embed=embed, ephemeral=True)
+        await inter.response.send_message(**response_constructor(ResponseType.error, error_message), ephemeral=True)
 
     async def on_error(self, interaction: discord.Interaction, error: AppCommandError) -> None:
         """Function called when a command raise an error."""
@@ -33,4 +33,4 @@ class CustomCommandTree(CommandTree["MyBot"]):
             case _:
                 await self.send_error(interaction, "Une erreur inconnue est survenue.")
 
-        self.client.logger.error(error)
+        logger.error(error)

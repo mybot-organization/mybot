@@ -3,7 +3,6 @@
 import logging
 import os
 import sys
-from logging import CRITICAL as CRITICAL, DEBUG as DEBUG, ERROR as ERROR, INFO as INFO, WARNING as WARNING
 from typing import Any
 
 
@@ -65,7 +64,7 @@ class _ColorFormatter(logging.Formatter):
         return output
 
 
-def create_logger(name: str, log_file: str | None = None, level: int = 3) -> logging.Logger:
+def create_logger(name: str | None = None, log_file: str | None = None, level: int = logging.INFO) -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
