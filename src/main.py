@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from os import environ
 import sys
+from os import environ
 from typing import TYPE_CHECKING, cast
 
 import discord
-from discord.ext.commands import AutoShardedBot  # type: ignore # Stubs missing from discord.py
+from discord.ext.commands import AutoShardedBot, errors  # type: ignore # Stubs missing from discord.py
 
 from utils.custom_command_tree import CustomCommandTree
 from utils.db import db
@@ -46,7 +46,7 @@ class MyBot(AutoShardedBot):
         for ext in self.extensions_names:
             try:
                 await self.load_extension(ext)
-            except Exception as e:
+            except errors.ExtensionError as e:
                 logger.error(f"Failed to load extension {ext}.", exc_info=e)
 
     async def on_ready(self) -> None:
@@ -62,7 +62,7 @@ class MyBot(AutoShardedBot):
 
 
 if __name__ == "__main__":
-    mybot = MyBot()
+    mybot: MyBot = MyBot()
     try:
         mybot.run(environ["BOT_TOKEN"], reconnect=True)
     except KeyError as e:

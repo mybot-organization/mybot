@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from os import environ
 import sys
+from os import environ
 from typing import TYPE_CHECKING
 
 from sqlalchemy.ext.asyncio import create_async_engine

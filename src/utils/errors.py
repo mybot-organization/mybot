@@ -5,5 +5,3 @@ class BaseError(errors.AppCommandError):
     """
     The base error used for non-specific errors.
     """
-
-    pass
