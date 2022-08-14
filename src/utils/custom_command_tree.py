@@ -7,7 +7,7 @@ import discord
 from discord.app_commands import AppCommandError, CommandNotFound, CommandTree
 
 from utils import ResponseType, response_constructor
-from utils.errors import BaseError
+from utils.errors import BaseError, MaxConcurrencyReached
 
 if TYPE_CHECKING:
     from mybot import MyBot
@@ -30,7 +30,11 @@ class CustomCommandTree(CommandTree["MyBot"]):
                 return
             case BaseError():
                 return await self.send_error(interaction, str(error))
+            case MaxConcurrencyReached():
+                return await self.send_error(
+                    interaction, f"This command is already executed the max amount of times. (Max: {error.rate})"
+                )
             case _:
-                await self.send_error(interaction, "Une erreur inconnue est survenue.")
+                await self.send_error(interaction, f"An unhandled error happened.\n{error}")
 
-        logger.error(error)
+        logger.error(f"An unhandled error happened : {error} ({type(error)})")
