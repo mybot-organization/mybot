@@ -4,18 +4,12 @@ services:
   mybot:
     build:
       context: .
+      dockerfile: ./Dockerfile
+      target: prod
     env_file:
       - .env
     tty: true
-    command:
-      [
-        "./wait-for-it.sh",
-        "database:5432",
-        "--",
-        "python",
-        "main.py"
-      ]
-    # restart: always
+    restart: always
     depends_on:
       - "database"
   database:
@@ -25,5 +19,7 @@ services:
     restart: always
     volumes:
       - ./data/database:/var/lib/postgresql/data
+    expose:
+      - 5432
     ports:
-      - "5432:5432"
+      - "54321:5432"
