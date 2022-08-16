@@ -41,6 +41,7 @@ class MyBot(AutoShardedBot):
     async def setup_hook(self) -> None:
         await self.load_extensions()
 
+
     async def on_ready(self) -> None:
         bot_user = cast(discord.ClientUser, self.user)  # Bot is logged in, so it's a ClientUser
 
@@ -51,6 +52,7 @@ class MyBot(AutoShardedBot):
 
         logger.info(f"Logged in as : {bot_user.name}")
         logger.info(f"ID : {bot_user.id}")
+
 
     async def load_extensions(self) -> None:
         for ext in self.extensions_names:
