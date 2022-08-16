@@ -4,12 +4,14 @@ import logging
 from typing import TYPE_CHECKING
 
 import discord
-from discord.app_commands import AppCommandError, CommandNotFound, CommandTree
+from discord.app_commands import CommandNotFound, CommandTree
 
 from utils import ResponseType, response_constructor
 from utils.errors import BaseError, MaxConcurrencyReached
 
 if TYPE_CHECKING:
+    from discord.app_commands import AppCommandError
+
     from mybot import MyBot
 
 
