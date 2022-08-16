@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, AsyncGenerator, Awaitable, Callable, NamedTupl
 
 import discord
 from discord import app_commands, ui
+from discord.app_commands import locale_str as __
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import get
 from typing_extensions import Self
@@ -17,6 +18,7 @@ from typing_extensions import Self
 from utils import ResponseType, response_constructor
 from utils.checks import MaxConcurrency
 from utils.errors import BaseError, MaxConcurrencyReached
+from utils.i18n import _
 
 if TYPE_CHECKING:
     from discord import TextChannel, Thread, VoiceChannel
@@ -76,33 +78,43 @@ class Clear(Cog):
     @app_commands.guild_only()
     @app_commands.choices(
         has=[
-            app_commands.Choice(name="image", value=Has.image.value),
-            app_commands.Choice(name="video", value=Has.video.value),
-            app_commands.Choice(name="audio", value=Has.audio.value),
-            app_commands.Choice(name="stickers", value=Has.stickers.value),
-            app_commands.Choice(name="files", value=Has.files.value),
-            app_commands.Choice(name="any attachment", value=Has.any_attachment.value),
-            app_commands.Choice(name="embed", value=Has.embed.value),
-            app_commands.Choice(name="link (any URL)", value=Has.link.value),
-            app_commands.Choice(name="mention", value=Has.mention.value),
-            app_commands.Choice(name="discord invitation", value=Has.discord_invite.value),
+            app_commands.Choice(name=__("image"), value=Has.image.value),
+            app_commands.Choice(name=__("video"), value=Has.video.value),
+            app_commands.Choice(name=__("audio"), value=Has.audio.value),
+            app_commands.Choice(name=__("stickers"), value=Has.stickers.value),
+            app_commands.Choice(name=__("files"), value=Has.files.value),
+            app_commands.Choice(name=__("any attachment"), value=Has.any_attachment.value),
+            app_commands.Choice(name=__("embed"), value=Has.embed.value),
+            app_commands.Choice(name=__("link (any URL)"), value=Has.link.value),
+            app_commands.Choice(name=__("mention"), value=Has.mention.value),
+            app_commands.Choice(name=__("discord invitation"), value=Has.discord_invite.value),
         ],
         pinned=[
-            app_commands.Choice(name="include", value=Pinned.include.value),
-            app_commands.Choice(name="exclude", value=Pinned.exclude.value),
-            app_commands.Choice(name="only", value=Pinned.only.value),
+            app_commands.Choice(name=__("include"), value=Pinned.include.value),
+            app_commands.Choice(name=__("exclude"), value=Pinned.exclude.value),
+            app_commands.Choice(name=__("only"), value=Pinned.only.value),
         ],
     )
     @app_commands.describe(
-        amount="The amount of messages to delete.",
-        user="Delete only messages from the specified user.",
-        role="Delete only messages where the user who sent it have the specified role.",
-        search="Delete only messages that match the specified search (can be regex).",  # e.g. regex:hello will delete the message "hello world".
-        has="Delete only messages that contains the selected entry. #TODO",  # e.g. attachement:image will delete messages that has an image attached.
-        length="Delete only messages where length match the specified entry. (e.g. '<=100', '5', '>10)' #TODO",
-        before="Delete only messages sent before the specified entry. Entry can be a date (yyyy-mm-dd) or a message ID. #TODO",
-        after="Delete only messages sent after the specified entry. Entry can be a date (yyyy-mm-dd) or a message ID. #TODO",
-        pinned='Include/exclude pinned messages in deletion, or deletes "only" pinned messages. (default to exclude)',
+        amount=__("The amount of messages to delete."),
+        user=__("Delete only messages from the specified user."),
+        role=__("Delete only messages where the user who sent it have the specified role."),
+        search=__(
+            "Delete only messages that match the specified search (can be regex)."
+        ),  # e.g. regex:hello will delete the message "hello world".
+        has=__(
+            "Delete only messages that contains the selected entry. #TODO"
+        ),  # e.g. attachement:image will delete messages that has an image attached.
+        length=__("Delete only messages where length match the specified entry. (e.g. '<=100', '5', '>10)' #TODO"),
+        before=__(
+            "Delete only messages sent before the specified entry. Entry can be a date (yyyy-mm-dd) or a message ID. #TODO"
+        ),
+        after=__(
+            "Delete only messages sent after the specified entry. Entry can be a date (yyyy-mm-dd) or a message ID. #TODO"
+        ),
+        pinned=__(
+            'Include/exclude pinned messages in deletion, or deletes "only" pinned messages. (default to exclude)'
+        ),
     )
     async def clear(
         self,
@@ -127,7 +139,7 @@ class Clear(Cog):
         channel = cast("PurgeableChannel", inter.channel)
 
         if not 0 < amount < 251:
-            raise ValueError(f"You must supply a number between 1 and 250. (0 < {amount} < 251)")
+            raise ValueError(_("You must supply a number between 1 and 250. (0 < {amount} < 251)", amount=amount))
 
         if search:
             pattern: re.Pattern[str] | None = re.compile(
@@ -161,7 +173,7 @@ class Clear(Cog):
                 await interaction.response.defer()
                 return interaction.user.id == inter.user.id
 
-            @ui.button(label="Cancel", style=discord.ButtonStyle.red)
+            @ui.button(label=_("Cancel"), style=discord.ButtonStyle.red)
             async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
                 self.pressed = True
                 self.stop()
@@ -169,7 +181,9 @@ class Clear(Cog):
         view = CancelClearView(timeout=3 * 60)
 
         await inter.response.send_message(
-            **response_constructor(ResponseType.info, f"Clearing {amount} messages..."), ephemeral=True, view=view
+            **response_constructor(ResponseType.info, _("Clearing {amount} messages...", amount=amount)),
+            ephemeral=True,
+            view=view,
         )
 
         deleted_messages: list[discord.Message] = []
@@ -192,8 +206,8 @@ class Clear(Cog):
 
         if tasks[0] in done:
             text_response = (
-                f"Cannot clear more than 3 minutes. {len(deleted_messages)} messages deleted.",
-                f"Clear cancelled. {len(deleted_messages)} messages deleted.",
+                _("Cannot clear more than 3 minutes. {} messages deleted.", len(deleted_messages)),
+                _("Clear cancelled. {} messages deleted.", len(deleted_messages)),
             )
             await inter.edit_original_response(
                 **response_constructor(ResponseType.warning, text_response[view.pressed]),
@@ -201,7 +215,8 @@ class Clear(Cog):
             )
         else:
             await inter.edit_original_response(
-                **response_constructor(ResponseType.success, f"{len(deleted_messages)} messages deleted."), view=None
+                **response_constructor(ResponseType.success, _("{} messages deleted.", len(deleted_messages))),
+                view=None,
             )
 
         await self.clear_max_concurrency.release(inter)
