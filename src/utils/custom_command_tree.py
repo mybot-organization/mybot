@@ -20,6 +20,7 @@ class CustomCommandTree(CommandTree["MyBot"]):
     @staticmethod
     async def send_error(inter: discord.Interaction, error_message: str) -> None:
         """A function to send an error message."""
+        # TODO: inter is possibly already replied.
         await inter.response.send_message(**response_constructor(ResponseType.error, error_message), ephemeral=True)
 
     async def on_error(self, interaction: discord.Interaction, error: AppCommandError) -> None:
