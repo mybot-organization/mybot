@@ -1,62 +1,144 @@
-from __future__ import annotations
+msgid ""
+msgstr ""
+"Project-Id-Version: mybot-discord\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-08-17 00:47+0200\n"
+"PO-Revision-Date: 2022-08-16 23:14\n"
+"Last-Translator: \n"
+"Language-Team: French\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Crowdin-Project: mybot-discord\n"
+"X-Crowdin-Project-ID: 532668\n"
+"X-Crowdin-Language: fr\n"
+"X-Crowdin-File: /[mybot-organization.mybot] master/data/locale/mybot.po\n"
+"X-Crowdin-File-ID: 38\n"
 
-import logging
-from typing import TYPE_CHECKING, Optional, cast
+#: src/cogs/clear.py:81
+msgid "image"
+msgstr ""
 
-import discord
-from discord.ext.commands import AutoShardedBot, errors  # pyright: ignore[reportMissingTypeStubs]
+#: src/cogs/clear.py:82
+msgid "video"
+msgstr ""
 
-from utils.custom_command_tree import CustomCommandTree
+#: src/cogs/clear.py:83
+msgid "audio"
+msgstr ""
 
-if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncEngine
+#: src/cogs/clear.py:84
+msgid "stickers"
+msgstr ""
 
+#: src/cogs/clear.py:85
+msgid "files"
+msgstr ""
 
-logger = logging.getLogger(__name__)
+#: src/cogs/clear.py:86
+msgid "any attachment"
+msgstr ""
 
+#: src/cogs/clear.py:87
+msgid "embed"
+msgstr ""
 
-class MyBot(AutoShardedBot):
-    db: AsyncEngine
+#: src/cogs/clear.py:88
+msgid "link (any URL)"
+msgstr ""
 
-    def __init__(self, database_engine: Optional[AsyncEngine] = None) -> None:
-        if database_engine:
-            self.db = database_engine
+#: src/cogs/clear.py:89
+msgid "mention"
+msgstr ""
 
-        intents = discord.Intents.default()
-        intents.members = True
-        intents.presences = True
+#: src/cogs/clear.py:90
+msgid "discord invitation"
+msgstr ""
 
-        super().__init__(
-            command_prefix="unimplemented",  # Maybe consider use of IntegrationBot instead of AutoShardedBot
-            tree_cls=CustomCommandTree,
-            member_cache_flags=discord.MemberCacheFlags.all(),
-            chunk_guilds_at_startup=True,
-            allowed_mentions=discord.AllowedMentions.none(),
-            intents=intents,
-            help_command=None,
-        )
+#: src/cogs/clear.py:93
+msgid "include"
+msgstr ""
 
-        self.extensions_names: list[str] = ["cogs.clear"]
+#: src/cogs/clear.py:94
+msgid "exclude"
+msgstr ""
 
-    async def setup_hook(self) -> None:
-        await self.load_extensions()
+#: src/cogs/clear.py:95
+msgid "only"
+msgstr ""
 
-    async def on_ready(self) -> None:
-        bot_user = cast(discord.ClientUser, self.user)  # Bot is logged in, so it's a ClientUser
+#: src/cogs/clear.py:99
+msgid "The amount of messages to delete."
+msgstr ""
 
-        await self.tree.sync()
+#: src/cogs/clear.py:100
+msgid "Delete only messages from the specified user."
+msgstr ""
 
-        activity = discord.Game("WIP!")
-        await self.change_presence(status=discord.Status.online, activity=activity)
+#: src/cogs/clear.py:101
+msgid "Delete only messages where the user who sent it have the specified role."
+msgstr ""
 
-        logger.info(f"Logged in as : {bot_user.name}")
-        logger.info(f"ID : {bot_user.id}")
+#: src/cogs/clear.py:103
+msgid "Delete only messages that match the specified search (can be regex)."
+msgstr ""
 
-    async def load_extensions(self) -> None:
-        for ext in self.extensions_names:
-            try:
-                await self.load_extension(ext)
-            except errors.ExtensionError as e:
-                logger.error(f"Failed to load extension {ext}.", exc_info=e)
-            else:
-                logger.info(f"Extension {ext} loaded successfully.")
+#: src/cogs/clear.py:106
+msgid "Delete only messages that contains the selected entry. #TODO"
+msgstr ""
+
+#: src/cogs/clear.py:108
+msgid "Delete only messages where length match the specified entry. (e.g. '<=100', '5', '>10)' #TODO"
+msgstr ""
+
+#: src/cogs/clear.py:110
+msgid "Delete only messages sent before the specified entry. Entry can be a date (yyyy-mm-dd) or a message ID. #TODO"
+msgstr ""
+
+#: src/cogs/clear.py:113
+msgid "Delete only messages sent after the specified entry. Entry can be a date (yyyy-mm-dd) or a message ID. #TODO"
+msgstr ""
+
+#: src/cogs/clear.py:116
+msgid "Include/exclude pinned messages in deletion, or deletes \"only\" pinned messages. (default to exclude)"
+msgstr ""
+
+#: src/cogs/clear.py:142
+#, python-brace-format
+msgid "You must supply a number between 1 and 250. (0 < {amount} < 251)"
+msgstr ""
+
+#: src/cogs/clear.py:176
+msgid "Cancel"
+msgstr ""
+
+#: src/cogs/clear.py:184
+#, python-brace-format
+msgid "Clearing {amount} messages..."
+msgstr ""
+
+#: src/cogs/clear.py:209
+msgid "Cannot clear more than 3 minutes. {} messages deleted."
+msgstr ""
+
+#: src/cogs/clear.py:210
+msgid "Clear cancelled. {} messages deleted."
+msgstr ""
+
+#: src/cogs/clear.py:218
+msgid "{} messages deleted."
+msgstr ""
+
+#: src/utils/custom_command_tree.py:40
+#, python-brace-format
+msgid "This command is already executed the max amount of times. (Max: {error.rate})"
+msgstr ""
+
+#: src/utils/custom_command_tree.py:43
+#, python-brace-format
+msgid "An unhandled error happened.\n"
+"{error}"
+msgstr ""
+
