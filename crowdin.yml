@@ -1,0 +1,3 @@
+files:
+  - source: /src/**/*.py
+    translation: /data/locale/%locale%/LC_MESSAGES/mybot.po
