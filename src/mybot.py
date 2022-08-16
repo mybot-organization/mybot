@@ -7,6 +7,7 @@ import discord
 from discord.ext.commands import AutoShardedBot, errors  # pyright: ignore[reportMissingTypeStubs]
 
 from utils.custom_command_tree import CustomCommandTree
+from utils.i18n import Translator
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncEngine
@@ -39,6 +40,7 @@ class MyBot(AutoShardedBot):
         self.extensions_names: list[str] = ["cogs.clear"]
 
     async def setup_hook(self) -> None:
+        await self.tree.set_translator(Translator())
         await self.load_extensions()
 
     async def on_ready(self) -> None:
