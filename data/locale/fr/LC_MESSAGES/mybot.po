@@ -1,0 +1,145 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: mybot-discord\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-08-17 00:47+0200\n"
+"PO-Revision-Date: 2022-08-17 00:12\n"
+"Last-Translator: \n"
+"Language-Team: French\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Crowdin-Project: mybot-discord\n"
+"X-Crowdin-Project-ID: 532668\n"
+"X-Crowdin-Language: fr\n"
+"X-Crowdin-File: /[mybot-organization.mybot] master/data/locale/mybot.po\n"
+"X-Crowdin-File-ID: 38\n"
+
+#: src/cogs/clear.py:81
+msgid "image"
+msgstr "image"
+
+#: src/cogs/clear.py:82
+msgid "video"
+msgstr "vidéo"
+
+#: src/cogs/clear.py:83
+msgid "audio"
+msgstr "audio"
+
+#: src/cogs/clear.py:84
+msgid "stickers"
+msgstr "autocollants"
+
+#: src/cogs/clear.py:85
+msgid "files"
+msgstr "fichiers"
+
+#: src/cogs/clear.py:86
+msgid "any attachment"
+msgstr "n'importe quel fichier"
+
+#: src/cogs/clear.py:87
+msgid "embed"
+msgstr "embed"
+
+#: src/cogs/clear.py:88
+msgid "link (any URL)"
+msgstr "lien (n'importe quelle URL)"
+
+#: src/cogs/clear.py:89
+msgid "mention"
+msgstr "mention"
+
+#: src/cogs/clear.py:90
+msgid "discord invitation"
+msgstr "invitation discord"
+
+#: src/cogs/clear.py:93
+msgid "include"
+msgstr "inclus"
+
+#: src/cogs/clear.py:94
+msgid "exclude"
+msgstr "exclus"
+
+#: src/cogs/clear.py:95
+msgid "only"
+msgstr "seulement"
+
+#: src/cogs/clear.py:99
+msgid "The amount of messages to delete."
+msgstr "Le nombre de messages à supprimer."
+
+#: src/cogs/clear.py:100
+msgid "Delete only messages from the specified user."
+msgstr "Supprimer uniquement les messages de l'utilisateur spécifié."
+
+#: src/cogs/clear.py:101
+msgid "Delete only messages where the user who sent it have the specified role."
+msgstr "Supprimer uniquement les messages dont l'utilisateur a le rôle spécifié."
+
+#: src/cogs/clear.py:103
+msgid "Delete only messages that match the specified search (can be regex)."
+msgstr "Supprimer uniquement les messages qui correspondent à la recherche spécifiée (peut être une regex)."
+
+#: src/cogs/clear.py:106
+msgid "Delete only messages that contains the selected entry. #TODO"
+msgstr "Supprimer uniquement les messages qui contiennent l'entrée sélectionnée. #TODO"
+
+#: src/cogs/clear.py:108
+msgid "Delete only messages where length match the specified entry. (e.g. '<=100', '5', '>10)' #TODO"
+msgstr "Supprimer uniquement les messages dont la longueur correspond à l'entrée spécifiée. (par exemple '<=100', '5', '>10)' #TODO"
+
+#: src/cogs/clear.py:110
+msgid "Delete only messages sent before the specified entry. Entry can be a date (yyyy-mm-dd) or a message ID. #TODO"
+msgstr "Supprimer uniquement les messages envoyés avant l'entrée spécifiée. L'entrée peut être une date (aaaa-mm-jj) ou un ID de message. #TODO"
+
+#: src/cogs/clear.py:113
+msgid "Delete only messages sent after the specified entry. Entry can be a date (yyyy-mm-dd) or a message ID. #TODO"
+msgstr "Supprimer uniquement les messages envoyés après l'entrée spécifiée. L'entrée peut être une date (aaaa-mm-jj) ou un ID de message. #TODO"
+
+#: src/cogs/clear.py:116
+msgid "Include/exclude pinned messages in deletion, or deletes \"only\" pinned messages. (default to exclude)"
+msgstr "Inclure/exclure les messages épinglés dans la suppression ou supprimer \"seulement\" les messages épinglés. (\"exclure\" par défaut)"
+
+#: src/cogs/clear.py:142
+#, python-brace-format
+msgid "You must supply a number between 1 and 250. (0 < {amount} < 251)"
+msgstr "Vous devez fournir un nombre entre 1 et 250. (0 < {amount} < 251)"
+
+#: src/cogs/clear.py:176
+msgid "Cancel"
+msgstr "Annuler"
+
+#: src/cogs/clear.py:184
+#, python-brace-format
+msgid "Clearing {amount} messages..."
+msgstr "Suppression de {amount} message(s)..."
+
+#: src/cogs/clear.py:209
+msgid "Cannot clear more than 3 minutes. {} messages deleted."
+msgstr "Impossible de supprimer plus de 3 minutes. {} message(s) supprimé(s)."
+
+#: src/cogs/clear.py:210
+msgid "Clear cancelled. {} messages deleted."
+msgstr "Suppression annulée. {} message(s) supprimé(s)."
+
+#: src/cogs/clear.py:218
+msgid "{} messages deleted."
+msgstr "{} message(s) supprimé(s)."
+
+#: src/utils/custom_command_tree.py:40
+#, python-brace-format
+msgid "This command is already executed the max amount of times. (Max: {error.rate})"
+msgstr "Cette commande est déjà exécutée le nombre maximal de fois. (Max : {error.rate})"
+
+#: src/utils/custom_command_tree.py:43
+#, python-brace-format
+msgid "An unhandled error happened.\n"
+"{error}"
+msgstr "Une erreur non gérée s'est produite.\n"
+"{error}"
+
