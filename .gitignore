@@ -68,9 +68,6 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
-# Translations
-*.mo
-
 # Django stuff:
 *.log
 local_settings.py
