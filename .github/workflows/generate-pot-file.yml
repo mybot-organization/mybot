@@ -1,0 +1,20 @@
+name: Generate po template file
+
+on:
+  push:
+    branches: [ auto/crowdin ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Execute xgettext
+        run: xgettext -d mybot -p ./data/locale -o mybot.pot -L python -k__ ./src/**/*.py
+        
+      - uses: EndBug/add-and-commit@v9
+        with:
+          message: 'POT file generated.'
+          
