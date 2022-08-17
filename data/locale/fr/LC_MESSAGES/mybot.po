@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-08-17 13:27+0200\n"
-"PO-Revision-Date: 2022-08-17 12:50\n"
+"PO-Revision-Date: 2022-08-17 14:32\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -103,7 +103,7 @@ msgstr "Supprimer uniquement les messages envoyés après le message ou la date 
 
 #: src/cogs/clear.py:112
 msgid "Include/exclude pinned messages in deletion, or deletes \"only\" pinned messages. (default to exclude)"
-msgstr "Inclure/exclure les messages épinglés dans la suppression ou supprimer \"seulement\" les messages épinglés. (\"exclure\" par défaut)"
+msgstr "Inclure/exclure les messages épinglés dans la suppression ou supprimer \"seulement\" ces derniers."
 
 #: src/cogs/clear.py:138
 #, python-brace-format
