@@ -106,12 +106,8 @@ class Clear(Cog):
             "Delete only messages that contains the selected entry. #TODO"
         ),  # e.g. attachement:image will delete messages that has an image attached.
         length=__("Delete only messages where length match the specified entry. (e.g. '<=100', '5', '>10)' #TODO"),
-        before=__(
-            "Delete only messages sent before the specified entry. Entry can be a date (yyyy-mm-dd) or a message ID. #TODO"
-        ),
-        after=__(
-            "Delete only messages sent after the specified entry. Entry can be a date (yyyy-mm-dd) or a message ID. #TODO"
-        ),
+        before=__("Delete only messages sent before the specified message or date. (yyyy-mm-dd) #TODO"),
+        after=__("Delete only messages sent after the specified message or date.  (yyyy-mm-dd) #TODO"),
         pinned=__(
             'Include/exclude pinned messages in deletion, or deletes "only" pinned messages. (default to exclude)'
         ),
@@ -173,7 +169,7 @@ class Clear(Cog):
                 await interaction.response.defer()
                 return interaction.user.id == inter.user.id
 
-            @ui.button(label=_("Cancel"), style=discord.ButtonStyle.red)
+            @ui.button(label=_("Cancel", _locale=inter.locale), style=discord.ButtonStyle.red)
             async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
                 self.pressed = True
                 self.stop()

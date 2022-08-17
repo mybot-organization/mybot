@@ -12,6 +12,8 @@ services:
     restart: always
     depends_on:
       - "database"
+    volumes:
+      - ./data/locale:/app/locale
   database:
     image: postgres:14.4-alpine
     env_file:
