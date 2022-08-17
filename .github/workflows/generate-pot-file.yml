@@ -11,6 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: install xgettext
+        run: |
+          apt-get update
+          apt-get install gettext
+
       - name: Execute xgettext
         run: xgettext -d mybot -p ./data/locale -o mybot.pot -L python -k__ ./src/**/*.py
 
