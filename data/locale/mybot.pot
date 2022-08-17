@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-17 13:27+0200\n"
+"POT-Creation-Date: 2022-08-17 16:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -78,8 +78,7 @@ msgid "Delete only messages from the specified user."
 msgstr ""
 
 #: src/cogs/clear.py:101
-msgid ""
-"Delete only messages where the user who sent it have the specified role."
+msgid "Delete only messages whose user has the specified role."
 msgstr ""
 
 #: src/cogs/clear.py:103
@@ -93,7 +92,7 @@ msgstr ""
 #: src/cogs/clear.py:108
 msgid ""
 "Delete only messages where length match the specified entry. (e.g. '<=100', "
-"'5', '>10)' #TODO"
+"'5', '>10') #TODO"
 msgstr ""
 
 #: src/cogs/clear.py:109
@@ -114,30 +113,66 @@ msgid ""
 "messages. (default to exclude)"
 msgstr ""
 
-#: src/cogs/clear.py:138
+#: src/cogs/clear.py:116
+msgid "amount"
+msgstr ""
+
+#: src/cogs/clear.py:117
+msgid "user"
+msgstr ""
+
+#: src/cogs/clear.py:118
+msgid "role"
+msgstr ""
+
+#: src/cogs/clear.py:119
+msgid "search"
+msgstr ""
+
+#: src/cogs/clear.py:120
+msgid "has"
+msgstr ""
+
+#: src/cogs/clear.py:121
+msgid "length"
+msgstr ""
+
+#: src/cogs/clear.py:122
+msgid "before"
+msgstr ""
+
+#: src/cogs/clear.py:123
+msgid "after"
+msgstr ""
+
+#: src/cogs/clear.py:124
+msgid "pinned"
+msgstr ""
+
+#: src/cogs/clear.py:149
 #, python-brace-format
 msgid "You must supply a number between 1 and 250. (0 < {amount} < 251)"
 msgstr ""
 
-#: src/cogs/clear.py:172
+#: src/cogs/clear.py:183
 msgid "Cancel"
 msgstr ""
 
-#: src/cogs/clear.py:180
+#: src/cogs/clear.py:191
 #, python-brace-format
 msgid "Clearing {amount} messages..."
 msgstr ""
 
-#: src/cogs/clear.py:205
-msgid "Cannot clear more than 3 minutes. {} messages deleted."
+#: src/cogs/clear.py:216
+msgid "Cannot clear more than 3 minutes. {} message(s) deleted."
 msgstr ""
 
-#: src/cogs/clear.py:206
-msgid "Clear cancelled. {} messages deleted."
+#: src/cogs/clear.py:217
+msgid "Clear cancelled. {} message(s) deleted."
 msgstr ""
 
-#: src/cogs/clear.py:214
-msgid "{} messages deleted."
+#: src/cogs/clear.py:225
+msgid "{} message(s) deleted."
 msgstr ""
 
 #: src/utils/custom_command_tree.py:40

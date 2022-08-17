@@ -98,19 +98,30 @@ class Clear(Cog):
     @app_commands.describe(
         amount=__("The amount of messages to delete."),
         user=__("Delete only messages from the specified user."),
-        role=__("Delete only messages where the user who sent it have the specified role."),
+        role=__("Delete only messages whose user has the specified role."),
         search=__(
             "Delete only messages that match the specified search (can be regex)."
         ),  # e.g. regex:hello will delete the message "hello world".
         has=__(
             "Delete only messages that contains the selected entry. #TODO"
         ),  # e.g. attachement:image will delete messages that has an image attached.
-        length=__("Delete only messages where length match the specified entry. (e.g. '<=100', '5', '>10)' #TODO"),
+        length=__("Delete only messages where length match the specified entry. (e.g. '<=100', '5', '>10') #TODO"),
         before=__("Delete only messages sent before the specified message or date. (yyyy-mm-dd) #TODO"),
         after=__("Delete only messages sent after the specified message or date.  (yyyy-mm-dd) #TODO"),
         pinned=__(
             'Include/exclude pinned messages in deletion, or deletes "only" pinned messages. (default to exclude)'
         ),
+    )
+    @app_commands.rename(
+        amount=__("amount"),
+        user=__("user"),
+        role=__("role"),
+        search=__("search"),
+        has=__("has"),
+        length=__("length"),
+        before=__("before"),
+        after=__("after"),
+        pinned=__("pinned"),
     )
     async def clear(
         self,
@@ -202,8 +213,8 @@ class Clear(Cog):
 
         if tasks[0] in done:
             text_response = (
-                _("Cannot clear more than 3 minutes. {} messages deleted.", len(deleted_messages)),
-                _("Clear cancelled. {} messages deleted.", len(deleted_messages)),
+                _("Cannot clear more than 3 minutes. {} message(s) deleted.", len(deleted_messages)),
+                _("Clear cancelled. {} message(s) deleted.", len(deleted_messages)),
             )
             await inter.edit_original_response(
                 **response_constructor(ResponseType.warning, text_response[view.pressed]),
@@ -211,7 +222,7 @@ class Clear(Cog):
             )
         else:
             await inter.edit_original_response(
-                **response_constructor(ResponseType.success, _("{} messages deleted.", len(deleted_messages))),
+                **response_constructor(ResponseType.success, _("{} message(s) deleted.", len(deleted_messages))),
                 view=None,
             )
 
