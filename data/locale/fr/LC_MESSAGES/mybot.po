@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-17 00:47+0200\n"
-"PO-Revision-Date: 2022-08-17 01:23\n"
+"POT-Creation-Date: 2022-08-17 13:27+0200\n"
+"PO-Revision-Date: 2022-08-17 12:50\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -14,8 +14,8 @@ msgstr ""
 "X-Crowdin-Project: mybot-discord\n"
 "X-Crowdin-Project-ID: 532668\n"
 "X-Crowdin-Language: fr\n"
-"X-Crowdin-File: /[mybot-organization.mybot] master/data/locale/mybot.po\n"
-"X-Crowdin-File-ID: 38\n"
+"X-Crowdin-File: /[mybot-organization.mybot] master/data/locale/mybot.pot\n"
+"X-Crowdin-File-ID: 40\n"
 
 #: src/cogs/clear.py:81
 msgid "image"
@@ -93,41 +93,41 @@ msgstr "Supprimer uniquement les messages qui contiennent l'entrée sélectionn�
 msgid "Delete only messages where length match the specified entry. (e.g. '<=100', '5', '>10)' #TODO"
 msgstr "Supprimer uniquement les messages dont la longueur correspond à l'entrée spécifiée. (par exemple '<=100', '5', '>10)' #TODO"
 
+#: src/cogs/clear.py:109
+msgid "Delete only messages sent before the specified message or date. (yyyy-mm-dd) #TODO"
+msgstr "Supprimer uniquement les messages envoyés avant le message ou la date spécifiés. (aaaa-mm-jj) #TODO"
+
 #: src/cogs/clear.py:110
-msgid "Delete only messages sent before the specified entry. Entry can be a date (yyyy-mm-dd) or a message ID. #TODO"
-msgstr "Supprimer uniquement les messages envoyés avant un message ou une date. (AAAA-MM-JJ) # TODO"
+msgid "Delete only messages sent after the specified message or date.  (yyyy-mm-dd) #TODO"
+msgstr "Supprimer uniquement les messages envoyés après le message ou la date spécifiés. (aaaa-mm-jj) #TODO"
 
-#: src/cogs/clear.py:113
-msgid "Delete only messages sent after the specified entry. Entry can be a date (yyyy-mm-dd) or a message ID. #TODO"
-msgstr "Supprimer uniquement les messages envoyés après un message ou une date. (AAAA-MM-JJ) # TODO"
-
-#: src/cogs/clear.py:116
+#: src/cogs/clear.py:112
 msgid "Include/exclude pinned messages in deletion, or deletes \"only\" pinned messages. (default to exclude)"
 msgstr "Inclure/exclure les messages épinglés dans la suppression ou supprimer \"seulement\" les messages épinglés. (\"exclure\" par défaut)"
 
-#: src/cogs/clear.py:142
+#: src/cogs/clear.py:138
 #, python-brace-format
 msgid "You must supply a number between 1 and 250. (0 < {amount} < 251)"
 msgstr "Vous devez fournir un nombre entre 1 et 250. (0 < {amount} < 251)"
 
-#: src/cogs/clear.py:176
+#: src/cogs/clear.py:172
 msgid "Cancel"
 msgstr "Annuler"
 
-#: src/cogs/clear.py:184
+#: src/cogs/clear.py:180
 #, python-brace-format
 msgid "Clearing {amount} messages..."
 msgstr "Suppression de {amount} message(s)..."
 
-#: src/cogs/clear.py:209
+#: src/cogs/clear.py:205
 msgid "Cannot clear more than 3 minutes. {} messages deleted."
 msgstr "Impossible de supprimer plus de 3 minutes. {} message(s) supprimé(s)."
 
-#: src/cogs/clear.py:210
+#: src/cogs/clear.py:206
 msgid "Clear cancelled. {} messages deleted."
 msgstr "Suppression annulée. {} message(s) supprimé(s)."
 
-#: src/cogs/clear.py:218
+#: src/cogs/clear.py:214
 msgid "{} messages deleted."
 msgstr "{} message(s) supprimé(s)."
 
