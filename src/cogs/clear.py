@@ -188,7 +188,7 @@ class Clear(Cog):
         view = CancelClearView(timeout=3 * 60)
 
         await inter.response.send_message(
-            **response_constructor(ResponseType.info, _("Clearing {amount} messages...", amount=amount)),
+            **response_constructor(ResponseType.info, _("Clearing {amount} message(s)...", amount=amount)),
             ephemeral=True,
             view=view,
         )
