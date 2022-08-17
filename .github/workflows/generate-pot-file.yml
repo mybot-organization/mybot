@@ -1,7 +1,15 @@
 name: Generate po template file
 
 on:
+  push:
+    branches: [ dev ]
+    paths:
+      - '**.py'
   pull_request:
+    branches: [ dev ]
+    paths: 
+      - '**.py'
+
 
 jobs:
   build:
@@ -9,11 +17,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: install xgettext
+        run: |
+          sudo apt-get update
+          sudo apt-get install gettext
 
       - name: Execute xgettext
-        run: xgettext -d mybot -p ./data/locale -o mybot.pot -L python -k__ ./src/**/*.py
-        
+        run: xgettext -d mybot -p ./data/locale -o mybot.pot -L python -k__ --from-code UTF-8 ./src/**/*.py
+
       - uses: EndBug/add-and-commit@v9
         with:
+          push: --force
           message: 'POT file generated.'
-          
