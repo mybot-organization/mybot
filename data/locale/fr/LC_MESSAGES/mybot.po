@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-08-17 00:47+0200\n"
-"PO-Revision-Date: 2022-08-17 00:12\n"
+"PO-Revision-Date: 2022-08-17 01:23\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -95,11 +95,11 @@ msgstr "Supprimer uniquement les messages dont la longueur correspond à l'entr�
 
 #: src/cogs/clear.py:110
 msgid "Delete only messages sent before the specified entry. Entry can be a date (yyyy-mm-dd) or a message ID. #TODO"
-msgstr "Supprimer uniquement les messages envoyés avant l'entrée spécifiée. L'entrée peut être une date (aaaa-mm-jj) ou un ID de message. #TODO"
+msgstr "Supprimer uniquement les messages envoyés avant un message ou une date. (AAAA-MM-JJ) # TODO"
 
 #: src/cogs/clear.py:113
 msgid "Delete only messages sent after the specified entry. Entry can be a date (yyyy-mm-dd) or a message ID. #TODO"
-msgstr "Supprimer uniquement les messages envoyés après l'entrée spécifiée. L'entrée peut être une date (aaaa-mm-jj) ou un ID de message. #TODO"
+msgstr "Supprimer uniquement les messages envoyés après un message ou une date. (AAAA-MM-JJ) # TODO"
 
 #: src/cogs/clear.py:116
 msgid "Include/exclude pinned messages in deletion, or deletes \"only\" pinned messages. (default to exclude)"
