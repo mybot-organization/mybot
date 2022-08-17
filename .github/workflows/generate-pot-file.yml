@@ -1,6 +1,8 @@
 name: Generate po template file
 
 on:
+  push:
+    branches: [ dev ]
   pull_request:
     branches: [ dev ]
 
