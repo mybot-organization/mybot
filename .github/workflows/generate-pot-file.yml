@@ -1,8 +1,7 @@
 name: Generate po template file
 
 on:
-  push:
-    branches: [ auto/crowdin ]
+  pull_request:
 
 jobs:
   build:
