@@ -142,4 +142,3 @@ msgid "An unhandled error happened.\n"
 "{error}"
 msgstr "Une erreur non gérée s'est produite.\n"
 "{error}"
-
