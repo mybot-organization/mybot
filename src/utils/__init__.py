@@ -1,10 +1,14 @@
 import logging
 from enum import Enum, auto
-from typing import Any
+from typing import TypedDict
 
 import discord
 
 logger = logging.getLogger(__name__)
+
+
+class Response(TypedDict):
+    embed: discord.Embed
 
 
 class ResponseType(Enum):
@@ -29,7 +33,7 @@ _embed_author_icon_urls = {
 }
 
 
-def response_constructor(response_type: ResponseType, message: str, embedded: bool = True) -> dict[str, Any]:
+def response_constructor(response_type: ResponseType, message: str, embedded: bool = True) -> Response:
     embed = discord.Embed(
         color=_embed_colors[response_type],
     )
