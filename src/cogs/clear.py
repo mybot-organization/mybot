@@ -73,7 +73,7 @@ class Clear(Cog):
     def ChannelBucket(inter: discord.Interaction):
         return inter.channel_id
 
-    @app_commands.command()
+    @app_commands.command(description=__("Delete multiple messages with some filters."), extras={"beta": True})
     @app_commands.default_permissions(manage_messages=True)
     @app_commands.guild_only()
     @app_commands.choices(
