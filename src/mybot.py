@@ -37,16 +37,15 @@ class MyBot(AutoShardedBot):
             help_command=None,
         )
 
-        self.extensions_names: list[str] = ["cogs.clear"]
+        self.extensions_names: list[str] = ["clear", "help"]
 
     async def setup_hook(self) -> None:
         await self.tree.set_translator(Translator())
         await self.load_extensions()
+        self.app_commands = await self.tree.sync()
 
     async def on_ready(self) -> None:
         bot_user = cast(discord.ClientUser, self.user)  # Bot is logged in, so it's a ClientUser
-
-        await self.tree.sync()
 
         activity = discord.Game("WIP!")
         await self.change_presence(status=discord.Status.online, activity=activity)
@@ -56,6 +55,9 @@ class MyBot(AutoShardedBot):
 
     async def load_extensions(self) -> None:
         for ext in self.extensions_names:
+            if not ext.startswith("cogs."):
+                ext = "cogs." + ext
+
             try:
                 await self.load_extension(ext)
             except errors.ExtensionError as e:
