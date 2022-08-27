@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-17 18:17+0000\n"
+"POT-Creation-Date: 2022-08-27 10:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -175,13 +175,17 @@ msgstr ""
 msgid "{} message(s) deleted."
 msgstr ""
 
-#: src/utils/custom_command_tree.py:40
+#: src/utils/custom_command_tree.py:47
+msgid "Support server"
+msgstr ""
+
+#: src/utils/custom_command_tree.py:65
 #, python-brace-format
 msgid ""
 "This command is already executed the max amount of times. (Max: {error.rate})"
 msgstr ""
 
-#: src/utils/custom_command_tree.py:43
+#: src/utils/custom_command_tree.py:68
 #, python-brace-format
 msgid ""
 "An unhandled error happened.\n"
