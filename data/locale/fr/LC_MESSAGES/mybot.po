@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-17 16:10+0000\n"
-"PO-Revision-Date: 2022-08-17 17:38\n"
+"POT-Creation-Date: 2022-08-27 10:58+0000\n"
+"PO-Revision-Date: 2022-08-27 11:02\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -152,8 +152,8 @@ msgstr "Annuler"
 
 #: src/cogs/clear.py:191
 #, python-brace-format
-msgid "Clearing {amount} messages..."
-msgstr "Suppression de {amount} message(s)..."
+msgid "Clearing {amount} message(s)..."
+msgstr ""
 
 #: src/cogs/clear.py:216
 msgid "Cannot clear more than 3 minutes. {} message(s) deleted."
@@ -167,12 +167,16 @@ msgstr "Suppression annulée. {} message(s) supprimé(s)."
 msgid "{} message(s) deleted."
 msgstr "{} message(s) supprimé(s)."
 
-#: src/utils/custom_command_tree.py:40
+#: src/utils/custom_command_tree.py:47
+msgid "Support server"
+msgstr ""
+
+#: src/utils/custom_command_tree.py:65
 #, python-brace-format
 msgid "This command is already executed the max amount of times. (Max: {error.rate})"
 msgstr "Cette commande est déjà exécutée le nombre maximal de fois. (Max : {error.rate})"
 
-#: src/utils/custom_command_tree.py:43
+#: src/utils/custom_command_tree.py:68
 #, python-brace-format
 msgid "An unhandled error happened.\n"
 "{error}"
