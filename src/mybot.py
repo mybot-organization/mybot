@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 import logging
+import sys
 from typing import TYPE_CHECKING, Optional, cast
 
 import discord
 from discord.ext.commands import AutoShardedBot, errors  # pyright: ignore[reportMissingTypeStubs]
 
+from utils.constants import SUPPORT_GUILD_ID
 from utils.custom_command_tree import CustomCommandTree
 from utils.i18n import Translator
 
 if TYPE_CHECKING:
+    from discord import Guild
     from sqlalchemy.ext.asyncio import AsyncEngine
 
 
@@ -18,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 class MyBot(AutoShardedBot):
     db: AsyncEngine
+    support: Guild
 
     def __init__(self, database_engine: Optional[AsyncEngine] = None) -> None:
         if database_engine:
@@ -49,6 +53,12 @@ class MyBot(AutoShardedBot):
 
         activity = discord.Game("WIP!")
         await self.change_presence(status=discord.Status.online, activity=activity)
+
+        tmp = self.get_guild(SUPPORT_GUILD_ID)
+        if not tmp:
+            logger.critical("Support server cannot be retrieved")
+            sys.exit(1)
+        self.support = tmp
 
         logger.info(f"Logged in as : {bot_user.name}")
         logger.info(f"ID : {bot_user.id}")

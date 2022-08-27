@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from utils._types import Snowflake
 
+SUPPORT_GUILD_ID: Snowflake = 332209340780118016
+
 
 class Emoji(str):
     def __new__(cls, id: Snowflake) -> Emoji:
@@ -22,6 +24,3 @@ class Emoji(str):
 class Emojis:
     beta_1 = Emoji(1012449366449078384)
     beta_2 = Emoji(1012449349424390265)
-
-
-print(Emojis.beta_1)
