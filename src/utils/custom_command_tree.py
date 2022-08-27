@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-import discord
+from discord import ButtonStyle, ui
 from discord.app_commands import CommandNotFound, CommandTree
+from discord.utils import get
 
 from utils import ResponseType, response_constructor
 from utils.errors import BaseError, MaxConcurrencyReached
 from utils.i18n import _
 
 if TYPE_CHECKING:
+    from discord import Interaction, Invite
     from discord.app_commands import AppCommandError
 
     from mybot import MyBot
@@ -20,13 +22,36 @@ logger = logging.getLogger(__name__)
 
 
 class CustomCommandTree(CommandTree["MyBot"]):
-    @staticmethod
-    async def send_error(inter: discord.Interaction, error_message: str) -> None:
-        """A function to send an error message."""
-        # TODO: inter is possibly already replied.
-        await inter.response.send_message(**response_constructor(ResponseType.error, error_message), ephemeral=True)
+    def __init__(self, *args: Any, **kwargs: Any):
+        self._invite: Invite | None = None
+        super().__init__(*args, **kwargs)
 
-    async def on_error(self, interaction: discord.Interaction, error: AppCommandError) -> None:
+    @property
+    async def support_invite(self) -> Invite:
+        if self._invite is None:
+            self._invite = get(await self.client.support.invites(), max_age=0, max_uses=0, inviter=self.client.user)
+
+        if self._invite is None:  # If invite is STILL None
+            if tmp := self.client.support.rules_channel:
+                channel = tmp
+            else:
+                channel = self.client.support.channels[0]
+
+            self._invite = await channel.create_invite(reason="Support guild invite.")
+
+        return self._invite
+
+    async def send_error(self, inter: Interaction, error_message: str) -> None:
+        """A function to send an error message."""
+        view = ui.View()
+        view.add_item(ui.Button(style=ButtonStyle.url, label=_("Support server"), url=(await self.support_invite).url))
+
+        strategy = inter.response.send_message
+        if inter.response.is_done():
+            strategy = inter.followup.send
+        await strategy(**response_constructor(ResponseType.error, error_message), ephemeral=True, view=view)
+
+    async def on_error(self, interaction: Interaction, error: AppCommandError) -> None:
         """Function called when a command raise an error."""
 
         match error:
