@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-08-27 10:58+0000\n"
-"PO-Revision-Date: 2022-08-27 11:02\n"
+"PO-Revision-Date: 2022-08-27 11:03\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -153,7 +153,7 @@ msgstr "Annuler"
 #: src/cogs/clear.py:191
 #, python-brace-format
 msgid "Clearing {amount} message(s)..."
-msgstr ""
+msgstr "Suppression de {amount} message(s)..."
 
 #: src/cogs/clear.py:216
 msgid "Cannot clear more than 3 minutes. {} message(s) deleted."
@@ -169,7 +169,7 @@ msgstr "{} message(s) supprimé(s)."
 
 #: src/utils/custom_command_tree.py:47
 msgid "Support server"
-msgstr ""
+msgstr "Serveur support"
 
 #: src/utils/custom_command_tree.py:65
 #, python-brace-format
