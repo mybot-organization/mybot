@@ -2,4 +2,4 @@ wheel
 asyncpg
 sqlalchemy[asyncio]
 typing_extensions
-git+https://github.com/Rapptz/discord.py@master
+discord.py
