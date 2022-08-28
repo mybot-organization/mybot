@@ -3,7 +3,8 @@ from __future__ import annotations
 import asyncio
 import json
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal, TypedDict, cast
+from enum import Enum
+from typing import TYPE_CHECKING, TypedDict, cast
 
 from discord import app_commands
 from typing_extensions import NotRequired
@@ -12,28 +13,33 @@ if TYPE_CHECKING:
     from mybot import MyBot
 
 
-@dataclass
-class Features:
-    slash_commands: list[SlashCommand]
-    context_commands: list[ContextCommand]
+Features = list["Feature"]
 
 
-@dataclass
-class Command:
+class FeatureType(Enum):
+    chat_input = "chat_input"
+    context_user = "context_user"
+    context_message = "context_message"
+
+
+@dataclass(kw_only=True)
+class Feature:
+    type: FeatureType
     name: str
     guild_only: bool
     nsfw: bool
     default_permissions: int | None
     beta: bool
-
-
-@dataclass
-class SlashCommand(Command):
     description: str
+
+
+@dataclass(kw_only=True)
+class SlashCommand(Feature):
+    type: FeatureType = FeatureType.chat_input
     parameters: list[SlashCommandParameter]
 
 
-@dataclass
+@dataclass()
 class SlashCommandParameter:
     name: str
     description: str
@@ -41,16 +47,18 @@ class SlashCommandParameter:
     type: int
 
 
+@dataclass(kw_only=True)
+class ContextCommand(Feature):
+    pass
+
+
 class Extras(TypedDict):
     beta: NotRequired[bool]
-
-
-class ContextCommand(Command):
-    type: Literal["user", "message"]
+    description: NotRequired[str]
 
 
 def features_to_dict(mybot: MyBot) -> Features:
-    features = Features(slash_commands=[], context_commands=[])
+    features: Features = []
 
     for app_command in mybot.tree.get_commands():
         extras = cast(Extras, app_command.extras)
@@ -75,7 +83,7 @@ def features_to_dict(mybot: MyBot) -> Features:
                 )
                 slash_command.parameters.append(parameter_payload)
 
-            features.slash_commands.append(slash_command)
+            features.append(slash_command)
 
     return features
 
