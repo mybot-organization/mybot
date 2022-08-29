@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-27 10:58+0000\n"
-"PO-Revision-Date: 2022-08-27 11:03\n"
+"POT-Creation-Date: 2022-08-29 19:23+0000\n"
+"PO-Revision-Date: 2022-08-29 20:59\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -16,6 +16,10 @@ msgstr ""
 "X-Crowdin-Language: fr\n"
 "X-Crowdin-File: /dev/data/locale/mybot.pot\n"
 "X-Crowdin-File-ID: 48\n"
+
+#: src/cogs/clear.py:76
+msgid "Delete multiple messages with some filters."
+msgstr "Supprimer plusieurs messages avec des filtres."
 
 #: src/cogs/clear.py:81
 msgid "image"
@@ -167,16 +171,52 @@ msgstr "Suppression annulée. {} message(s) supprimé(s)."
 msgid "{} message(s) deleted."
 msgstr "{} message(s) supprimé(s)."
 
-#: src/utils/custom_command_tree.py:47
+#: src/cogs/help.py:28
+msgid "chat input"
+msgstr "entrée tchat"
+
+#: src/cogs/help.py:29
+msgid "message context"
+msgstr "contexte de message"
+
+#: src/cogs/help.py:30
+msgid "user context"
+msgstr "contexte d'utilisateur"
+
+#: src/cogs/help.py:46
+msgid "help"
+msgstr "aide"
+
+#: src/cogs/help.py:46
+msgid "Get help about the bot."
+msgstr "Obtenir de l'aide à propos du bot."
+
+#: src/cogs/help.py:47
+msgid "feature"
+msgstr "fonctionnalité"
+
+#: src/cogs/help.py:81
+msgid "Commands of MyBot"
+msgstr "Commandes de MyBot"
+
+#: src/cogs/help.py:91
+msgid "Chat input commands"
+msgstr "Commandes d'entrée tchat"
+
+#: src/cogs/help.py:96
+msgid "Help about {} [{}]"
+msgstr "Aide à propos de {} [{}]"
+
+#: src/utils/custom_command_tree.py:51
 msgid "Support server"
 msgstr "Serveur support"
 
-#: src/utils/custom_command_tree.py:65
+#: src/utils/custom_command_tree.py:69
 #, python-brace-format
 msgid "This command is already executed the max amount of times. (Max: {error.rate})"
 msgstr "Cette commande est déjà exécutée le nombre maximal de fois. (Max : {error.rate})"
 
-#: src/utils/custom_command_tree.py:68
+#: src/utils/custom_command_tree.py:72
 #, python-brace-format
 msgid "An unhandled error happened.\n"
 "{error}"
