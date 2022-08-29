@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-29 13:39+0000\n"
-"PO-Revision-Date: 2022-08-29 14:39\n"
+"POT-Creation-Date: 2022-08-29 19:23+0000\n"
+"PO-Revision-Date: 2022-08-29 19:31\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -16,6 +16,10 @@ msgstr ""
 "X-Crowdin-Language: fr\n"
 "X-Crowdin-File: /dev/data/locale/mybot.pot\n"
 "X-Crowdin-File-ID: 48\n"
+
+#: src/cogs/clear.py:76
+msgid "Delete multiple messages with some filters."
+msgstr ""
 
 #: src/cogs/clear.py:81
 msgid "image"
@@ -166,6 +170,42 @@ msgstr "Suppression annulée. {} message(s) supprimé(s)."
 #: src/cogs/clear.py:225
 msgid "{} message(s) deleted."
 msgstr "{} message(s) supprimé(s)."
+
+#: src/cogs/help.py:28
+msgid "chat input"
+msgstr ""
+
+#: src/cogs/help.py:29
+msgid "message context"
+msgstr ""
+
+#: src/cogs/help.py:30
+msgid "user context"
+msgstr ""
+
+#: src/cogs/help.py:46
+msgid "help"
+msgstr ""
+
+#: src/cogs/help.py:46
+msgid "Get help about the bot."
+msgstr ""
+
+#: src/cogs/help.py:47
+msgid "feature"
+msgstr ""
+
+#: src/cogs/help.py:81
+msgid "Commands of MyBot"
+msgstr ""
+
+#: src/cogs/help.py:91
+msgid "Chat input commands"
+msgstr ""
+
+#: src/cogs/help.py:96
+msgid "Help about {} [{}]"
+msgstr ""
 
 #: src/utils/custom_command_tree.py:51
 msgid "Support server"
