@@ -13,6 +13,7 @@ from utils.i18n import Translator
 
 if TYPE_CHECKING:
     from discord import Guild
+    from discord.app_commands import AppCommand
     from sqlalchemy.ext.asyncio import AsyncEngine
 
 
@@ -42,7 +43,7 @@ class MyBot(AutoShardedBot):
             help_command=None,
         )
 
-        self.extensions_names: list[str] = ["cogs.clear", "cogs.admin"]
+        self.extensions_names: list[str] = ["clear", "help", "admin"]
 
     async def setup_hook(self) -> None:
         await self.tree.set_translator(Translator())
@@ -53,7 +54,7 @@ class MyBot(AutoShardedBot):
     async def sync_tree(self) -> None:
         for guild_id in self.tree.active_guild_ids:
             await self.tree.sync(guild=discord.Object(guild_id))
-        await self.tree.sync()
+        self.app_commands: list[AppCommand] = await self.tree.sync()
 
     async def on_ready(self) -> None:
         bot_user = cast(discord.ClientUser, self.user)  # Bot is logged in, so it's a ClientUser
@@ -72,6 +73,9 @@ class MyBot(AutoShardedBot):
 
     async def load_extensions(self) -> None:
         for ext in self.extensions_names:
+            if not ext.startswith("cogs."):
+                ext = "cogs." + ext
+
             try:
                 await self.load_extension(ext)
             except errors.ExtensionError as e:

@@ -2,48 +2,67 @@ from __future__ import annotations
 
 import asyncio
 import json
-from typing import Literal, TypedDict
+from dataclasses import dataclass
+from enum import Enum
+from typing import TYPE_CHECKING, TypedDict, cast
 
 from discord import app_commands
+from typing_extensions import NotRequired
 
-from mybot import MyBot
-
-
-class Features(TypedDict):
-    slash_commands: list[SlashCommand]
-    context_commands: list[ContextCommand]
+if TYPE_CHECKING:
+    from mybot import MyBot
 
 
-class Command(TypedDict):
+Features = list["Feature"]
+
+
+class FeatureType(Enum):
+    chat_input = "chat_input"
+    context_user = "context_user"
+    context_message = "context_message"
+
+
+@dataclass(kw_only=True)
+class Feature:
+    type: FeatureType
     name: str
     guild_only: bool
     nsfw: bool
     default_permissions: int | None
-
-
-class SlashCommand(Command):
+    beta: bool
     description: str
+
+
+@dataclass(kw_only=True)
+class SlashCommand(Feature):
+    type: FeatureType = FeatureType.chat_input
     parameters: list[SlashCommandParameter]
 
 
-class SlashCommandParameter(TypedDict):
+@dataclass()
+class SlashCommandParameter:
     name: str
     description: str
     required: bool
     type: int
 
 
-class ContextCommand(Command):
-    type: Literal["user", "message"]
+@dataclass(kw_only=True)
+class ContextCommand(Feature):
+    pass
 
 
-async def features_to_dict() -> Features:
-    mybot = MyBot()
-    features = Features(slash_commands=[], context_commands=[])
+class Extras(TypedDict):
+    beta: NotRequired[bool]
+    description: NotRequired[str]
 
-    await mybot.load_extensions()
+
+def features_to_dict(mybot: MyBot) -> Features:
+    features: Features = []
 
     for app_command in mybot.tree.get_commands():
+        extras = cast(Extras, app_command.extras)
+
         if type(app_command) is app_commands.Command:
             slash_command = SlashCommand(
                 name=app_command.name,
@@ -52,6 +71,7 @@ async def features_to_dict() -> Features:
                 default_permissions=app_command.default_permissions.value if app_command.default_permissions else None,
                 description=app_command.description,
                 parameters=[],
+                beta=extras.get("beta", False),
             )
 
             for parameter in app_command.parameters:
@@ -61,18 +81,27 @@ async def features_to_dict() -> Features:
                     type=parameter.type.value,
                     required=parameter.required,
                 )
-                slash_command["parameters"].append(parameter_payload)
+                slash_command.parameters.append(parameter_payload)
 
-            features["slash_commands"].append(slash_command)
+            features.append(slash_command)
 
     return features
 
 
-async def export(filename: str = "features.json") -> None:
-    features: Features = await features_to_dict()
+async def export(mybot: MyBot, filename: str = "features.json") -> None:
+    features: Features = features_to_dict(mybot)
     with open(filename, "w") as file:
         json.dump(features, file, indent=4)
 
 
+async def main():
+    mybot = MyBot()
+    await mybot.load_extensions()
+
+    await export(mybot)
+
+
 if __name__ == "__main__":
-    asyncio.run(export())
+    from mybot import MyBot
+
+    asyncio.run(main())

@@ -8,9 +8,11 @@ from os import path
 from typing import TYPE_CHECKING, Any
 
 from discord import Interaction, Locale, app_commands
-from discord.utils import find
+from discord.utils import MISSING, find
 
 if TYPE_CHECKING:
+    from types import FrameType
+
     from discord.app_commands import TranslationContextTypes, locale_str
 
 BASE_DIR = "."
@@ -26,7 +28,6 @@ def load_translations():
     global translations
 
     _locales = frozenset(map(path.basename, filter(path.isdir, glob(path.join(BASE_DIR, LOCALE_DIR, "*")))))
-    print(_locales)
 
     translations = {
         Locale(locale): gettext.translation("mybot", languages=(locale,), localedir=path.join(BASE_DIR, LOCALE_DIR))
@@ -48,16 +49,26 @@ class Translator(app_commands.Translator):
         return new_string
 
 
-def i18n(string: str, /, *args: Any, _locale: Locale | None = None, **kwargs: Any) -> str:
-    if not _locale:
-        f_locals = inspect.stack()[1].frame.f_locals
-        if item := find((lambda _item: isinstance(_item[1], Interaction)), f_locals.items()):
-            inter: Interaction = item[1]
+def i18n(string: str, /, *args: Any, _locale: Locale | None = MISSING, **kwargs: Any) -> str:
+    if _locale is MISSING:
+        frame: FrameType | None = inspect.currentframe()
+
+        while frame is not None:
+            inter: Interaction | None = find((lambda _item: isinstance(_item, Interaction)), frame.f_locals.values())
+            if inter is not None:
+                del frame
+                break
+            frame = frame.f_back
         else:
-            logger.warning("i18n function called without local from a non-command context.")
+            inter = None
+
+        if inter is None:
+            logger.warning(f"i18n function cannot retrieve an interaction for this string.\n{string=}")
             return string
 
         _locale = inter.locale
+    elif _locale is None:
+        return string
 
     return translations.get(_locale, translations[LOCALE_DEFAULT]).gettext(string).format(*args, **kwargs)
 
