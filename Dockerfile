@@ -10,6 +10,7 @@ COPY ./src ./
 CMD ["python", "./main.py"]
 
 FROM base as debug
+ENV DEBUG=1
+ENV LOG_LEVEL=DEBUG
 RUN pip install debugpy
-COPY ./src ./
-CMD ["python", "-m", "debugpy", "--wait-for-client", "--listen", "0.0.0.0:5678", "./main.py"]
+CMD ["python", "-m", "debugpy", "--wait-for-client", "--listen", "0.0.0.0:5678", "./src/main.py"]

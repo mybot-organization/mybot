@@ -27,7 +27,11 @@ class CustomCommandTree(CommandTree["MyBot"]):
         super().__init__(*args, **kwargs)
 
     @property
-    async def support_invite(self) -> Invite:
+    def active_guild_ids(self) -> set[int]:
+        return self._guild_commands.keys() | {g for _, g, _ in self._context_menus if g is not None}  # type: ignore
+
+    @property
+    async def _support_invite(self) -> Invite:
         if self._invite is None:
             self._invite = get(await self.client.support.invites(), max_age=0, max_uses=0, inviter=self.client.user)
 
@@ -44,7 +48,7 @@ class CustomCommandTree(CommandTree["MyBot"]):
     async def send_error(self, inter: Interaction, error_message: str) -> None:
         """A function to send an error message."""
         view = ui.View()
-        view.add_item(ui.Button(style=ButtonStyle.url, label=_("Support server"), url=(await self.support_invite).url))
+        view.add_item(ui.Button(style=ButtonStyle.url, label=_("Support server"), url=(await self._support_invite).url))
 
         strategy = inter.response.send_message
         if inter.response.is_done():

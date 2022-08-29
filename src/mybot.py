@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 class MyBot(AutoShardedBot):
     db: AsyncEngine
     support: Guild
+    tree: CustomCommandTree  # type: ignore
 
     def __init__(self, database_engine: Optional[AsyncEngine] = None) -> None:
         if database_engine:
@@ -41,16 +42,21 @@ class MyBot(AutoShardedBot):
             help_command=None,
         )
 
-        self.extensions_names: list[str] = ["cogs.clear"]
+        self.extensions_names: list[str] = ["cogs.clear", "cogs.admin"]
 
     async def setup_hook(self) -> None:
         await self.tree.set_translator(Translator())
         await self.load_extensions()
 
+        await self.sync_tree()
+
+    async def sync_tree(self) -> None:
+        for guild_id in self.tree.active_guild_ids:
+            await self.tree.sync(guild=discord.Object(guild_id))
+        await self.tree.sync()
+
     async def on_ready(self) -> None:
         bot_user = cast(discord.ClientUser, self.user)  # Bot is logged in, so it's a ClientUser
-
-        await self.tree.sync()
 
         activity = discord.Game("WIP!")
         await self.change_presence(status=discord.Status.online, activity=activity)
