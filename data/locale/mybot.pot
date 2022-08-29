@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-29 13:39+0000\n"
+"POT-Creation-Date: 2022-08-29 20:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,10 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: src/cogs/clear.py:76
+msgid "Delete multiple messages with some filters."
+msgstr ""
 
 #: src/cogs/clear.py:81
 msgid "image"
@@ -173,6 +177,42 @@ msgstr ""
 
 #: src/cogs/clear.py:225
 msgid "{} message(s) deleted."
+msgstr ""
+
+#: src/cogs/help.py:28
+msgid "chat input"
+msgstr ""
+
+#: src/cogs/help.py:29
+msgid "message context"
+msgstr ""
+
+#: src/cogs/help.py:30
+msgid "user context"
+msgstr ""
+
+#: src/cogs/help.py:46
+msgid "help"
+msgstr ""
+
+#: src/cogs/help.py:46
+msgid "Get help about the bot."
+msgstr ""
+
+#: src/cogs/help.py:47
+msgid "feature"
+msgstr ""
+
+#: src/cogs/help.py:81
+msgid "Commands of MyBot"
+msgstr ""
+
+#: src/cogs/help.py:91
+msgid "Chat input commands"
+msgstr ""
+
+#: src/cogs/help.py:96
+msgid "Help about {} [{}]"
 msgstr ""
 
 #: src/utils/custom_command_tree.py:51
