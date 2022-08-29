@@ -13,6 +13,7 @@ from utils.i18n import Translator
 
 if TYPE_CHECKING:
     from discord import Guild
+    from discord.app_commands import AppCommand
     from sqlalchemy.ext.asyncio import AsyncEngine
 
 
@@ -46,7 +47,7 @@ class MyBot(AutoShardedBot):
     async def setup_hook(self) -> None:
         await self.tree.set_translator(Translator())
         await self.load_extensions()
-        self.app_commands = await self.tree.sync()
+        self.app_commands: list[AppCommand] = await self.tree.sync()
 
     async def on_ready(self) -> None:
         bot_user = cast(discord.ClientUser, self.user)  # Bot is logged in, so it's a ClientUser
