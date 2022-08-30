@@ -62,7 +62,6 @@ class Help(Cog):
 
     @_help.autocomplete("feature_identifier")
     async def feature_identifier_autocompleter(self, inter: Interaction, current: str) -> list[Choice[str]]:
-        print(inter)
         return sorted(
             [
                 Choice(
