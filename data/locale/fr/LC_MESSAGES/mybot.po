@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-29 19:23+0000\n"
-"PO-Revision-Date: 2022-08-29 20:59\n"
+"POT-Creation-Date: 2022-08-30 10:18+0000\n"
+"PO-Revision-Date: 2022-08-30 10:22\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -95,7 +95,7 @@ msgstr "Supprimer uniquement les messages qui contiennent l'entrée sélectionn�
 
 #: src/cogs/clear.py:108
 msgid "Delete only messages where length match the specified entry. (e.g. '<=100', '5', '>10') #TODO"
-msgstr "Supprimer uniquement les messages dont la longueur correspond à l'entrée spécifiée. (par exemple '<=100', '5', '>10') #TODO"
+msgstr "Supprimer uniquement les messages dont la longueur correspond à l'entrée. (ex : '<=100', '5', '>10')"
 
 #: src/cogs/clear.py:109
 msgid "Delete only messages sent before the specified message or date. (yyyy-mm-dd) #TODO"
@@ -107,7 +107,7 @@ msgstr "Supprimer uniquement les messages envoyés après le message ou la date 
 
 #: src/cogs/clear.py:112
 msgid "Include/exclude pinned messages in deletion, or deletes \"only\" pinned messages. (default to exclude)"
-msgstr "Inclure/exclure les messages épinglés dans la suppression ou supprimer \"seulement\" les messages épinglés. (\"exclure\" par défaut)"
+msgstr "Inclure/exclure les messages épinglés dans la suppression ou supprimer \"seulement\" ces messages."
 
 #: src/cogs/clear.py:116
 msgid "amount"
@@ -195,15 +195,15 @@ msgstr "Obtenir de l'aide à propos du bot."
 msgid "feature"
 msgstr "fonctionnalité"
 
-#: src/cogs/help.py:81
+#: src/cogs/help.py:80
 msgid "Commands of MyBot"
 msgstr "Commandes de MyBot"
 
-#: src/cogs/help.py:91
+#: src/cogs/help.py:90
 msgid "Chat input commands"
 msgstr "Commandes d'entrée tchat"
 
-#: src/cogs/help.py:96
+#: src/cogs/help.py:95
 msgid "Help about {} [{}]"
 msgstr "Aide à propos de {} [{}]"
 
