@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Self, cast
 
 import discord
 from discord import app_commands, ui
 from discord.app_commands import Choice, locale_str as __
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import get
-from typing_extensions import Self
 
 from commands_exporter import FeatureType, SlashCommand, features_to_dict
 from utils import ResponseType, response_constructor
@@ -132,7 +131,7 @@ class HelpView(ui.View):
             else:
                 option.default = False
 
-    @ui.select()
+    @ui.select()  # type: ignore  # TODO : check for fix
     async def select_feature(self, inter: Interaction, select: ui.Select[Self]):
         feature_identifier = select.values[0]
         feature = cast("Feature", self.cog.retrieve_feature_from_identifier(feature_identifier))
