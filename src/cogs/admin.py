@@ -30,7 +30,9 @@ class Admin(Cog):  # TODO: add checkers
     @reload_extension.autocomplete("extension")
     async def extension_autocompleter(self, inter: Interaction, current: str) -> list[app_commands.Choice[str]]:
         return [
-            app_commands.Choice(name=ext, value=ext) for ext in self.bot.extensions_names if ext.startswith(current)
+            app_commands.Choice(name=ext, value=f"cogs.{ext}")
+            for ext in self.bot.extensions_names
+            if ext.startswith(current)
         ]
 
     @app_commands.command()
