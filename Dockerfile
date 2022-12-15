@@ -1,4 +1,4 @@
-FROM python:3.10.5 as base
+FROM python:3.11.0 as base
 WORKDIR /app
 ENV PYTHONUNBUFFERED=0
 COPY bin/wait-for-it.sh requirements.txt ./
