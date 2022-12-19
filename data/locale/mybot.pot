@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-30 10:18+0000\n"
+"POT-Creation-Date: 2022-12-19 23:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -179,39 +179,39 @@ msgstr ""
 msgid "{} message(s) deleted."
 msgstr ""
 
-#: src/cogs/help.py:28
+#: src/cogs/help.py:27
 msgid "chat input"
 msgstr ""
 
-#: src/cogs/help.py:29
+#: src/cogs/help.py:28
 msgid "message context"
 msgstr ""
 
-#: src/cogs/help.py:30
+#: src/cogs/help.py:29
 msgid "user context"
 msgstr ""
 
-#: src/cogs/help.py:46
+#: src/cogs/help.py:45
 msgid "help"
 msgstr ""
 
-#: src/cogs/help.py:46
+#: src/cogs/help.py:45
 msgid "Get help about the bot."
 msgstr ""
 
-#: src/cogs/help.py:47
+#: src/cogs/help.py:46
 msgid "feature"
 msgstr ""
 
-#: src/cogs/help.py:80
+#: src/cogs/help.py:79
 msgid "Commands of MyBot"
 msgstr ""
 
-#: src/cogs/help.py:90
+#: src/cogs/help.py:89
 msgid "Chat input commands"
 msgstr ""
 
-#: src/cogs/help.py:95
+#: src/cogs/help.py:94
 msgid "Help about {} [{}]"
 msgstr ""
 
