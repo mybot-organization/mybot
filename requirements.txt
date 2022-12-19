@@ -3,3 +3,4 @@ asyncpg
 sqlalchemy[asyncio]
 typing_extensions
 discord.py
+click

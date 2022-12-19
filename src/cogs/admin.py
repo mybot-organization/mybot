@@ -6,13 +6,12 @@ from typing import TYPE_CHECKING
 from discord import app_commands
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 
-from utils.constants import SUPPORT_GUILD_ID
+from utils import config
 
 if TYPE_CHECKING:
     from discord import Interaction
 
     from mybot import MyBot
-
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +21,7 @@ class Admin(Cog):  # TODO: add checkers
         self.bot: MyBot = bot
 
     @app_commands.command()
-    @app_commands.guilds(SUPPORT_GUILD_ID)
+    @app_commands.guilds(config.SUPPORT_GUILD_ID)
     async def reload_extension(self, inter: Interaction, extension: str):
         await self.bot.reload_extension(extension)
         await inter.response.send_message(f"Extension [{extension}] reloaded successfully")
@@ -36,7 +35,7 @@ class Admin(Cog):  # TODO: add checkers
         ]
 
     @app_commands.command()
-    @app_commands.guilds(SUPPORT_GUILD_ID)
+    @app_commands.guilds(config.SUPPORT_GUILD_ID)
     async def sync_tree(self, inter: Interaction):
         await inter.response.defer()
         await self.bot.sync_tree()

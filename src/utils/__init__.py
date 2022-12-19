@@ -6,6 +6,8 @@ from typing import Any, Iterator, Literal, Mapping, TypedDict, overload
 import discord
 from discord import Embed
 
+from ._config import config as config
+
 logger = logging.getLogger(__name__)
 
 

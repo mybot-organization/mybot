@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Optional, cast
 import discord
 from discord.ext.commands import AutoShardedBot, errors  # pyright: ignore[reportMissingTypeStubs]
 
-from utils.constants import SUPPORT_GUILD_ID
+from utils import config
 from utils.custom_command_tree import CustomCommandTree
 from utils.i18n import Translator
 
@@ -15,7 +15,6 @@ if TYPE_CHECKING:
     from discord import Guild
     from discord.app_commands import AppCommand
     from sqlalchemy.ext.asyncio import AsyncEngine
-
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +24,9 @@ class MyBot(AutoShardedBot):
     support: Guild
     tree: CustomCommandTree  # type: ignore
 
-    def __init__(self, database_engine: Optional[AsyncEngine] = None) -> None:
+    def __init__(self, database_engine: Optional[AsyncEngine] = None, startup_sync: bool = False) -> None:
+        self.startup_sync: bool = startup_sync
+
         if database_engine:
             self.db = database_engine
 
@@ -44,12 +45,14 @@ class MyBot(AutoShardedBot):
         )
 
         self.extensions_names: list[str] = ["clear", "help", "admin"]
+        self.config = config
 
     async def setup_hook(self) -> None:
         await self.tree.set_translator(Translator())
         await self.load_extensions()
 
-        await self.sync_tree()
+        if self.startup_sync:
+            await self.sync_tree()
 
     async def sync_tree(self) -> None:
         for guild_id in self.tree.active_guild_ids:
@@ -62,7 +65,7 @@ class MyBot(AutoShardedBot):
         activity = discord.Game("WIP!")
         await self.change_presence(status=discord.Status.online, activity=activity)
 
-        tmp = self.get_guild(SUPPORT_GUILD_ID)
+        tmp = self.get_guild(self.config.SUPPORT_GUILD_ID)
         if not tmp:
             logger.critical("Support server cannot be retrieved")
             sys.exit(1)
