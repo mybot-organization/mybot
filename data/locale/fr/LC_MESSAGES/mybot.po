@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-30 10:18+0000\n"
-"PO-Revision-Date: 2022-08-30 10:22\n"
+"POT-Creation-Date: 2022-12-19 23:30+0000\n"
+"PO-Revision-Date: 2022-12-19 23:36\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -171,39 +171,39 @@ msgstr "Suppression annulée. {} message(s) supprimé(s)."
 msgid "{} message(s) deleted."
 msgstr "{} message(s) supprimé(s)."
 
-#: src/cogs/help.py:28
+#: src/cogs/help.py:27
 msgid "chat input"
 msgstr "entrée tchat"
 
-#: src/cogs/help.py:29
+#: src/cogs/help.py:28
 msgid "message context"
 msgstr "contexte de message"
 
-#: src/cogs/help.py:30
+#: src/cogs/help.py:29
 msgid "user context"
 msgstr "contexte d'utilisateur"
 
-#: src/cogs/help.py:46
+#: src/cogs/help.py:45
 msgid "help"
 msgstr "aide"
 
-#: src/cogs/help.py:46
+#: src/cogs/help.py:45
 msgid "Get help about the bot."
 msgstr "Obtenir de l'aide à propos du bot."
 
-#: src/cogs/help.py:47
+#: src/cogs/help.py:46
 msgid "feature"
 msgstr "fonctionnalité"
 
-#: src/cogs/help.py:80
+#: src/cogs/help.py:79
 msgid "Commands of MyBot"
 msgstr "Commandes de MyBot"
 
-#: src/cogs/help.py:90
+#: src/cogs/help.py:89
 msgid "Chat input commands"
 msgstr "Commandes d'entrée tchat"
 
-#: src/cogs/help.py:95
+#: src/cogs/help.py:94
 msgid "Help about {} [{}]"
 msgstr "Aide à propos de {} [{}]"
 
