@@ -1,6 +1,6 @@
 wheel
 asyncpg
-sqlalchemy[asyncio]
+sqlalchemy[asyncio]==2.0.0b4
 typing_extensions
 discord.py
 click

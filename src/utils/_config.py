@@ -38,17 +38,11 @@ def define_config(config_path: str | None = None, **kwargs: Any):
     global config
 
     if config_path:
-        overwrite_config(config_path, **kwargs)
+        with open(config_path) as f:
+            kwargs |= tomllib.load(f.buffer)
 
+    config.__init__(**kwargs)
     config.define()
-
-
-def overwrite_config(config_path: str, **kwargs: Any):
-    global config
-    with open(config_path) as f:
-        raw = tomllib.load(f.buffer)
-
-    config.__init__(**(raw | kwargs))
 
 
 config = Config()

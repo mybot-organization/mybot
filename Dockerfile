@@ -7,10 +7,10 @@ ENTRYPOINT ["./wait-for-it.sh", "database:5432", "--"]
 
 FROM base as prod
 COPY ./src ./
-CMD ["python", "./main.py", "--sync"]
+CMD ["python", "./main.py", "bot", "--sync"]
 
 FROM base as debug
 ENV DEBUG=1
 ENV LOG_LEVEL=DEBUG
 RUN pip install debugpy
-CMD ["python", "-m", "debugpy", "--wait-for-client", "--listen", "0.0.0.0:5678", "./src/main.py", "-c", "./config.toml"]
+CMD ["python", "-m", "debugpy", "--wait-for-client", "--listen", "0.0.0.0:5678", "./src/main.py", "bot", "-c", "./config.toml"]
