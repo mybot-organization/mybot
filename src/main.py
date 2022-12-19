@@ -79,9 +79,9 @@ def bot(
     if sync_only:
         raise NotImplementedError("The option is not implemented yet. Will probably never be.")
 
-    from utils.db import db
+    from utils.db import engine
 
-    mybot: MyBot = MyBot(db, sync)
+    mybot: MyBot = MyBot(engine, sync)
 
     mybot.run(token, reconnect=True, log_handler=None)
 
