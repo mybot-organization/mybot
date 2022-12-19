@@ -44,7 +44,7 @@ class MyBot(AutoShardedBot):
             help_command=None,
         )
 
-        self.extensions_names: list[str] = ["clear", "help", "admin"]
+        self.extensions_names: list[str] = ["clear", "help", "admin", "stats"]
         self.config = config
 
     async def setup_hook(self) -> None:
