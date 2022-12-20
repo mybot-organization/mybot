@@ -73,10 +73,19 @@ class MyBot(AutoShardedBot):
         self.app_commands: list[AppCommand] = await self.tree.sync()
 
     async def sync_database(self) -> None:
-        stmt = db.select(db.GuildDB.guild_id)
-        async with self.async_session() as session:
+        async with self.async_session.begin() as session:
+            stmt = db.select(db.GuildDB.guild_id)
+            result = await session.execute(stmt)
+            db_guilds_ids = result.scalars().all()
+
             for guild in self.guilds:
-                pass
+                if guild.id not in db_guilds_ids:
+                    guild_db = db.GuildDB(
+                        guild_id=guild.id, premium_type=db.PremiumType.NONE, translations_are_public=False
+                    )
+                    session.add(guild_db)
+                    logger.debug(f"Synced new guild {guild.id}.")
+        logger.info("Database synced.")
 
     async def on_ready(self) -> None:
         bot_user = cast(discord.ClientUser, self.user)  # Bot is logged in, so it's a ClientUser

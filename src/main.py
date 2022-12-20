@@ -38,9 +38,11 @@ def db(
     # this part will probably contains some migrations informations.
     # I need to take a look at Alembic. There is no use currently.
 
-    # from utils.db import main
+    import asyncio
 
-    # asyncio.run(main())
+    from utils.db import main
+
+    asyncio.run(main())
 
 
 @cli.command()

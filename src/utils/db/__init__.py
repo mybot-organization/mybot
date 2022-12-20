@@ -54,7 +54,7 @@ async def main():
         end_date=None,
     )
 
-    async with async_session.begin() as session:
+    async with async_session() as session:
         session.add(guild)
         session.add(poll)
 

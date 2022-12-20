@@ -3,7 +3,7 @@ from __future__ import annotations
 import enum
 from datetime import datetime
 
-from sqlalchemy import Boolean, Date, Enum, ForeignKey, Integer, String
+from sqlalchemy import BigInteger, Boolean, Date, Enum, ForeignKey, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -26,7 +26,7 @@ class Base(DeclarativeBase):
 class GuildDB(Base):
     __tablename__ = "guild"
 
-    guild_id: Mapped[int] = mapped_column(primary_key=True)
+    guild_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     premium_type: Mapped[PremiumType] = mapped_column(Enum(PremiumType))
     translations_are_public: Mapped[bool] = mapped_column(Boolean)
 
@@ -34,17 +34,17 @@ class GuildDB(Base):
 class UserDB(Base):
     __tablename__ = "user"
 
-    user_id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
 
 class Poll(Base):
     __tablename__ = "poll"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    message_id: Mapped[int] = mapped_column(Integer)
-    channel_id: Mapped[int] = mapped_column(Integer)
+    message_id: Mapped[int] = mapped_column(BigInteger)
+    channel_id: Mapped[int] = mapped_column(BigInteger)
     guild_id: Mapped[GuildDB] = mapped_column(ForeignKey(GuildDB.guild_id))
-    author_id: Mapped[int] = mapped_column(Integer)
+    author_id: Mapped[int] = mapped_column(BigInteger)
     type: Mapped[PollType] = mapped_column(Enum(PollType))
     multiple: Mapped[bool] = mapped_column(Boolean)
     label: Mapped[str] = mapped_column(String)
@@ -68,7 +68,7 @@ class PollAnswer(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     poll_id: Mapped[int] = mapped_column(ForeignKey(Poll.id))
     value: Mapped[str] = mapped_column(String)
-    user_id: Mapped[int] = mapped_column(Integer)
+    user_id: Mapped[int] = mapped_column(BigInteger)
 
 
 class Usage(Base):
