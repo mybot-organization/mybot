@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-19 23:30+0000\n"
-"PO-Revision-Date: 2022-12-19 23:36\n"
+"POT-Creation-Date: 2022-12-20 01:07+0000\n"
+"PO-Revision-Date: 2022-12-20 02:06\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -183,29 +183,41 @@ msgstr "contexte de message"
 msgid "user context"
 msgstr "contexte d'utilisateur"
 
-#: src/cogs/help.py:45
+#: src/cogs/help.py:37
 msgid "help"
 msgstr "aide"
 
-#: src/cogs/help.py:45
+#: src/cogs/help.py:37
 msgid "Get help about the bot."
 msgstr "Obtenir de l'aide à propos du bot."
 
-#: src/cogs/help.py:46
+#: src/cogs/help.py:38
 msgid "feature"
 msgstr "fonctionnalité"
 
-#: src/cogs/help.py:79
+#: src/cogs/help.py:71
 msgid "Commands of MyBot"
 msgstr "Commandes de MyBot"
 
-#: src/cogs/help.py:89
+#: src/cogs/help.py:81
 msgid "Chat input commands"
 msgstr "Commandes d'entrée tchat"
 
-#: src/cogs/help.py:94
+#: src/cogs/help.py:86
 msgid "Help about {} [{}]"
 msgstr "Aide à propos de {} [{}]"
+
+#: src/cogs/stats.py:42
+msgid "stats"
+msgstr ""
+
+#: src/cogs/stats.py:42
+msgid "Obtenir des stats sur le bot."
+msgstr ""
+
+#: src/cogs/stats.py:44
+msgid "Quelques statistiques sur MyBot"
+msgstr ""
 
 #: src/utils/custom_command_tree.py:51
 msgid "Support server"
