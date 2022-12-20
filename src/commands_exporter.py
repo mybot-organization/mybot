@@ -90,12 +90,15 @@ def features_to_dict(mybot: MyBot) -> Features:
 
 async def export(mybot: MyBot, filename: str = "features.json") -> None:
     features: Features = features_to_dict(mybot)
+
+    # TODO : fix features export to json.
+
     with open(filename, "w") as file:
         json.dump(features, file, indent=4)
 
 
 async def main():
-    mybot = MyBot()
+    mybot = MyBot(False)
     await mybot.load_extensions()
 
     await export(mybot)

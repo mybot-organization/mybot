@@ -9,7 +9,7 @@ from discord.app_commands import Choice, locale_str as __
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import get
 
-from commands_exporter import FeatureType, SlashCommand, features_to_dict
+from commands_exporter import FeatureType, SlashCommand
 from utils import ResponseType, response_constructor
 from utils.constants import Emojis
 from utils.i18n import _
@@ -33,14 +33,6 @@ friendly_commands_types = {
 class Help(Cog):
     def __init__(self, bot: MyBot) -> None:
         self.bot = bot
-
-        self.bot.loop.create_task(self.load_features_info())
-
-    async def load_features_info(self):
-        if not self.bot.is_ready():
-            await self.bot.wait_for("ready")
-
-        self.features_infos = features_to_dict(self.bot)
 
     @app_commands.command(name=__("help"), description=__("Get help about the bot."), extras={"beta": True})
     @app_commands.rename(feature_identifier=__("feature"))
@@ -67,7 +59,7 @@ class Help(Cog):
                     name=f"{feature.name} [{_(friendly_commands_types[feature.type])}]",
                     value=f"{feature.type.value}.{feature.name}",
                 )
-                for feature in self.features_infos
+                for feature in self.bot.features_infos
                 if feature.name.startswith(current) or current in feature.name
             ],
             key=lambda choice: (choice.name.startswith(current), choice.name),
@@ -79,7 +71,7 @@ class Help(Cog):
         embed = response_constructor(ResponseType.info, _("Commands of MyBot"))["embed"]
         description = ""
 
-        for feature in self.features_infos:  # TODO: check for feature type
+        for feature in self.bot.features_infos:  # TODO: check for feature type
             app_command = get(self.bot.app_commands, name=feature.name, type=discord.AppCommandType.chat_input)
             if app_command is None:
                 logger.warning(f"Feature {feature.name} didn't get its app_command for some reason.")
@@ -108,7 +100,7 @@ class Help(Cog):
 
     def retrieve_feature_from_identifier(self, feature_identifier: str) -> Feature | None:
         type_, name = feature_identifier.split(".")
-        return get(self.features_infos, name=name, type=FeatureType(type_))
+        return get(self.bot.features_infos, name=name, type=FeatureType(type_))
 
 
 class HelpView(ui.View):
@@ -116,7 +108,7 @@ class HelpView(ui.View):
         super().__init__()
         self.cog = cog
 
-        for feature in self.cog.features_infos:
+        for feature in self.cog.bot.features_infos:
             self.select_feature.options.append(
                 discord.SelectOption(
                     label=f"{feature.name} [{_(friendly_commands_types[feature.type])}]",

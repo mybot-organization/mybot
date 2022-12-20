@@ -26,16 +26,17 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-if config.POSTGRES_PASSWORD is None:
-    logger.critical(f"Missing environment variable POSTGRES_PASSWORD.")
-    sys.exit(1)
-
-engine: AsyncEngine = create_async_engine(
-    f"postgresql+asyncpg://{config.POSTGRES_USER}:{config.POSTGRES_PASSWORD}@database:5432/{config.POSTGRES_DB}"
-)
-
 
 async def main():
+    if config.POSTGRES_PASSWORD is None:
+        logger.critical(f"Missing environment variable POSTGRES_PASSWORD.")
+        sys.exit(1)
+
+    engine: AsyncEngine = create_async_engine(
+        f"postgresql+asyncpg://{config.POSTGRES_USER}:{config.POSTGRES_PASSWORD}@database:5432/{config.POSTGRES_DB}"
+    )
+    async_session = async_sessionmaker(engine, expire_on_commit=False)
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
@@ -52,9 +53,8 @@ async def main():
         creation_date=datetime.now(),
         end_date=None,
     )
-    async_session = async_sessionmaker(engine, expire_on_commit=False)
 
-    async with async_session() as session:
+    async with async_session.begin() as session:
         session.add(guild)
         session.add(poll)
 
