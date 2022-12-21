@@ -14,8 +14,10 @@ from utils.custom_command_tree import CustomCommandTree
 from utils.i18n import Translator
 
 if TYPE_CHECKING:
-    from discord import Guild
+    from discord import Guild, Thread, User
+    from discord.abc import PrivateChannel
     from discord.app_commands import AppCommand
+    from discord.guild import GuildChannel
     from sqlalchemy.ext.asyncio import AsyncEngine
 
 logger = logging.getLogger(__name__)
@@ -117,3 +119,35 @@ class MyBot(AutoShardedBot):
                 logger.error(f"Failed to load extension {ext}.", exc_info=e)
             else:
                 logger.info(f"Extension {ext} loaded successfully.")
+
+    async def getch_user(self, id: int, /) -> User | None:
+        """Get a user, or fetch it if not in cache.
+
+        Args:
+            id (int): the user id
+
+        Returns:
+            User | None: the user, or None if not found.
+        """
+        try:
+            usr = self.get_user(id) or await self.fetch_user(id)
+        except discord.NotFound:
+            return None
+        else:
+            return usr
+
+    async def getch_channel(self, id: int, /) -> GuildChannel | PrivateChannel | Thread | None:
+        """Get a channel, or fetch is if not in cache.
+
+        Args:
+            id (int): the channel id
+
+        Returns:
+            GuildChannel | PrivateChannel | Thread | None: the channel, or None if not found.
+        """
+        try:
+            channel = self.get_channel(id) or await self.fetch_channel(id)
+        except discord.NotFound | discord.Forbidden:
+            return None
+        else:
+            return channel

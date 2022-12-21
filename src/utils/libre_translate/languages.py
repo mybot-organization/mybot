@@ -15,7 +15,7 @@ class Language(Enum):
     KOREAN = "ko"
     POLISH = "pl"
     PORTUGUESE = "pt"
-    ROSSIAN = "ru"
+    RUSSIAN = "ru"
     SPANISH = "es"
     TURK = "tr"
     VIETNAMESE = "vi"

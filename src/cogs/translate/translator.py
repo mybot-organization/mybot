@@ -35,7 +35,7 @@ relations: tuple[Relation, ...] = (
         emotes=("🇦🇮", "🇦🇬", "🇦🇺", "🇧🇸", "🇧🇧", "🇧🇿", "🇧🇲", "🇧🇼", "🇮🇴", "🇨🇦", "🇰🇾", "🇨🇽", "🇨🇨", "🇨🇰", "🇩🇲", "🇫🇰", "🇫🇯", "🇬🇲",
                 "🇬🇭", "🇬🇮", "🇬🇩", "🇬🇺", "🇬🇬", "🇬🇾", "🇭🇲", "🇮🇲", "🇯🇲", "🇯🇪", "🇰🇮", "🇱🇷", "🇲🇼", "🇲🇻", "🇲🇭", "🇲🇺", "🇫🇲", "🇲🇸",
                 "🇳🇦", "🇳🇷", "🇳🇬", "🇳🇺", "🇳🇫", "🇲🇵", "🇵🇼", "🇵🇬", "🇵🇳", "🇷🇼", "🇸🇭", "🇰🇳", "🇱🇨", "🇻🇨", "🇸🇱", "🇸🇧", "🇬🇸", "🇸🇸",
-                "🇸🇿", "🇹🇴", "🇹🇹", "🇹🇨", "🇹🇻", "🇬🇧", "🇺🇸", "🇺🇲", "🇻🇬", "🇻🇮", "🇿🇲"),
+                "🇸🇿", "🇹🇴", "🇹🇹", "🇹🇨", "🇹🇻", "🇬🇧", "🇺🇸", "🇺🇲", "🇻🇬", "🇻🇮", "🇿🇲", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"),
     ),
     Relation(
         name='arabic',
@@ -59,6 +59,98 @@ relations: tuple[Relation, ...] = (
         discord_locales=(Locale.french,),
         emotes=("🇧🇯", "🇧🇫", "🇧🇮", "🇨🇲", "🇨🇫", "🇹🇩", "🇨🇩", "🇨🇬", "🇨🇮", "🇬🇶", "🇫🇷", "🇬🇫", "🇵🇫", "🇹🇫", "🇬🇦", "🇬🇵", "🇬🇳", "🇲🇱",
                 "🇲🇶", "🇾🇹", "🇲🇨", "🇳🇨", "🇳🇪", "🇷🇪", "🇧🇱", "🇲🇫", "🇵🇲", "🇸🇳", "🇸🇨", "🇹🇬", "🇻🇺", "🇼🇫")
+    ),
+    Relation(
+        name='german',
+        code='de',
+        adapter=LibreLanguage.GERMAN,
+        discord_locales=(Locale.german,),
+        emotes=("🇦🇹", "🇩🇪", "🇱🇮", "🇨🇭")
+    ),
+    Relation(
+        name='hindi',
+        code='hi',
+        adapter=LibreLanguage.HINDI,
+        discord_locales=(Locale.hindi,),
+        emotes=("🇮🇳",)
+    ),
+    Relation(
+        name='indonesian',
+        code='id',
+        adapter=LibreLanguage.INDONESIAN,
+        discord_locales=(),
+        emotes=("🇮🇩",)
+    ),
+    Relation(
+        name='irish',
+        code='ga',
+        adapter=LibreLanguage.IRISH,
+        discord_locales=(),
+        emotes=("🇮🇪",)
+    ),
+    Relation(
+        name="italian",
+        code='it',
+        adapter=LibreLanguage.ITALIAN,
+        discord_locales=(Locale.italian,),
+        emotes=("🇮🇹", "🇸🇲", "🇻🇦")
+    ),
+    Relation(
+        name="japanese",
+        code="ja",
+        adapter=LibreLanguage.JAPANESE,
+        discord_locales=(Locale.japanese,),
+        emotes=("🇯🇵",)
+    ),
+    Relation(
+        name="korean",
+        code="ko",
+        adapter=LibreLanguage.KOREAN,
+        discord_locales=(Locale.korean,),
+        emotes=("🇰🇵", "🇰🇷",)
+    ),
+    Relation(
+        name="polish",
+        code="pl",
+        adapter=LibreLanguage.POLISH,
+        discord_locales=(Locale.polish,),
+        emotes=("🇵🇱",)
+    ),
+    Relation(
+        name="portuguese",
+        code="pt",
+        adapter=LibreLanguage.PORTUGUESE,
+        discord_locales=(Locale.brazil_portuguese,),
+        emotes=("🇦🇴", "🇧🇷", "🇨🇻", "🇬🇼", "🇲🇿", "🇵🇹", "🇸🇹", "🇹🇱")
+    ),
+    Relation(
+        name="russian",
+        code="ru",
+        adapter=LibreLanguage.RUSSIAN,
+        discord_locales=(Locale.russian,),
+        emotes=("🇦🇶", "🇷🇺")
+    ),
+    Relation(
+        name="spanish",
+        code="es",
+        adapter=LibreLanguage.SPANISH,
+        discord_locales=(Locale.spain_spanish,),
+        emotes=("🇦🇷", "🇧🇴", "🇨🇱", "🇨🇴", "🇨🇷", "🇨🇺", "🇩🇴", "🇪🇨", "🇸🇻", "🇬🇹", "🇭🇳", "🇲🇽", "🇳🇮", "🇵🇦", "🇵🇾", "🇵🇪", "🇵🇷", "🇪🇸", 
+                "🇺🇾", "🇻🇪"),
+    ),
+    Relation(
+        name="turk",
+        code="tr",
+        adapter=LibreLanguage.TURK,
+        discord_locales=(Locale.turkish,),
+        emotes=("🇹🇷",)
+    ),
+    Relation(
+        name="vietnames",
+        code="vi",
+        adapter=LibreLanguage.VIETNAMESE,
+        discord_locales=(Locale.vietnamese,),
+        emotes=("🇻🇳",)
     )
 )
 # fmt: on

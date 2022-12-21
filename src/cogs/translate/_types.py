@@ -4,8 +4,7 @@ from typing import Any, NamedTuple, Protocol, TypeVar
 
 from discord import Locale
 
-T = TypeVar("T")
-L = TypeVar("L", covariant=True)
+LI = TypeVar("LI", bound="LanguageImplementation")
 
 
 class LanguageImplementation(Protocol):
@@ -30,7 +29,7 @@ class LanguageImplementation(Protocol):
 
 
 class TranslatorFunction(Protocol):
-    async def __call__(self, text: str, to: LanguageImplementation, from_: LanguageImplementation | None = None) -> str:
+    async def __call__(self, text: str, to: LI, from_: LI | None = None) -> str:
         ...
 
 
@@ -44,11 +43,11 @@ class PreSendStrategy(Protocol):
         ...
 
 
-class StrategyNatures(NamedTuple):
+class Strategies(NamedTuple):
     pre: PreSendStrategy
     send: SendStrategy
 
 
-class Strategies(NamedTuple):
-    private: StrategyNatures
-    public: StrategyNatures
+class StrategiesSet(NamedTuple):
+    private: Strategies
+    public: Strategies

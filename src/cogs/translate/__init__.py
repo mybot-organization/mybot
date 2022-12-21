@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from functools import partial
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, cast
 
 from discord import Message, app_commands
 from discord.app_commands import locale_str as __
@@ -10,10 +10,11 @@ from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 
 from utils.i18n import _
 
-from ._types import LanguageImplementation, Strategies, StrategyNatures, TranslatorFunction
-from .translator import Language, translate  # type: ignore # TODO: ask
+from ._types import LanguageImplementation, StrategiesSet, Strategies, TranslatorFunction
+from .translator import Language, translate
 
 if TYPE_CHECKING:
+    from discord.abc import MessageableChannel
     from discord import Interaction, RawReactionActionEvent
 
     from mybot import MyBot
@@ -24,6 +25,25 @@ logger = logging.getLogger(__name__)
 
 translate: TranslatorFunction
 Language: LanguageImplementation
+
+
+# fmt: off
+EVERY_FLAGS = (
+    "🇦🇫", "🇦🇱", "🇩🇿", "🇦🇸", "🇦🇩", "🇦🇴", "🇦🇮", "🇦🇶", "🇦🇬", "🇦🇷", "🇦🇲", "🇦🇼", "🇦🇺", "🇦🇹", "🇦🇿", "🇧🇸", "🇧🇭", "🇧🇩", "🇧🇧", "🇧🇾",
+    "🇧🇪", "🇧🇿", "🇧🇯", "🇧🇲", "🇧🇹", "🇧🇴", "🇧🇶", "🇧🇦", "🇧🇼", "🇧🇻", "🇧🇷", "🇮🇴", "🇧🇳", "🇧🇬", "🇧🇫", "🇧🇮", "🇰🇭", "🇨🇲", "🇨🇦", "🇨🇻",
+    "🇰🇾", "🇨🇫", "🇹🇩", "🇨🇱", "🇨🇳", "🇨🇽", "🇨🇨", "🇨🇴", "🇰🇲", "🇨🇩", "🇨🇬", "🇨🇰", "🇨🇷", "🇭🇷", "🇨🇺", "🇨🇼", "🇨🇾", "🇨🇿", "🇨🇮", "🇩🇰",
+    "🇩🇯", "🇩🇲", "🇩🇴", "🇪🇨", "🇪🇬", "🇸🇻", "🇬🇶", "🇪🇷", "🇪🇪", "🇪🇹", "🇫🇰", "🇫🇴", "🇫🇯", "🇫🇮", "🇫🇷", "🇬🇫", "🇵🇫", "🇹🇫", "🇬🇦", "🇬🇲",
+    "🇬🇪", "🇩🇪", "🇬🇭", "🇬🇮", "🇬🇷", "🇬🇱", "🇬🇩", "🇬🇵", "🇬🇺", "🇬🇹", "🇬🇬", "🇬🇳", "🇬🇼", "🇬🇾", "🇭🇹", "🇭🇲", "🇭🇳", "🇭🇰", "🇭🇺", "🇮🇸",
+    "🇮🇳", "🇮🇩", "🇮🇷", "🇮🇶", "🇮🇪", "🇮🇲", "🇮🇱", "🇮🇹", "🇯🇲", "🇯🇵", "🇯🇪", "🇯🇴", "🇰🇿", "🇰🇪", "🇰🇮", "🇽🇰", "🇰🇼", "🇰🇬", "🇱🇦", "🇱🇻",
+    "🇱🇧", "🇱🇸", "🇱🇷", "🇱🇾", "🇱🇮", "🇱🇹", "🇱🇺", "🇲🇴", "🇲🇰", "🇲🇬", "🇲🇼", "🇲🇾", "🇲🇻", "🇲🇱", "🇲🇹", "🇲🇭", "🇲🇶", "🇲🇷", "🇲🇺", "🇾🇹",
+    "🇲🇽", "🇫🇲", "🇲🇩", "🇲🇨", "🇲🇳", "🇲🇪", "🇲🇸", "🇲🇦", "🇲🇿", "🇲🇲", "🇳🇦", "🇳🇷", "🇳🇵", "🇳🇱", "🇳🇨", "🇳🇿", "🇳🇮", "🇳🇪", "🇳🇬", "🇳🇺",
+    "🇳🇫", "🇰🇵", "🇲🇵", "🇳🇴", "🇴🇲", "🇵🇰", "🇵🇼", "🇵🇸", "🇵🇦", "🇵🇬", "🇵🇾", "🇵🇪", "🇵🇭", "🇵🇳", "🇵🇱", "🇵🇹", "🇵🇷", "🇶🇦", "🇷🇴", "🇷🇺",
+    "🇷🇼", "🇷🇪", "🇧🇱", "🇸🇭", "🇰🇳", "🇱🇨", "🇲🇫", "🇵🇲", "🇻🇨", "🇼🇸", "🇸🇲", "🇸🇹", "🇸🇦", "🇸🇳", "🇷🇸", "🇸🇨", "🇸🇱", "🇸🇬", "🇸🇽", "🇸🇰",
+    "🇸🇮", "🇸🇧", "🇸🇴", "🇿🇦", "🇬🇸", "🇰🇷", "🇸🇸", "🇪🇸", "🇱🇰", "🇸🇩", "🇸🇷", "🇸🇯", "🇸🇿", "🇸🇪", "🇨🇭", "🇸🇾", "🇹🇼", "🇹🇯", "🇹🇿", "🇹🇭",
+    "🇹🇱", "🇹🇬", "🇹🇰", "🇹🇴", "🇹🇹", "🇹🇳", "🇹🇷", "🇹🇲", "🇹🇨", "🇹🇻", "🇺🇬", "🇺🇦", "🇦🇪", "🇬🇧", "🇺🇸", "🇺🇲", "🇺🇾", "🇺🇿", "🇻🇺", "🇻🇦",
+    "🇻🇪", "🇻🇳", "🇻🇬", "🇻🇮", "🇼🇫", "🇪🇭", "🇾🇪", "🇿🇲", "🇿🇼", "🇦🇽"
+)
+# fmt: on
 
 
 class Translate(Cog):
@@ -47,15 +67,47 @@ class Translate(Cog):
             text,
             to_language,
             from_language,
-            Strategies(
-                public=StrategyNatures(pre=inter.response.defer, send=inter.followup.send),
-                private=StrategyNatures(pre=partial(inter.response.defer, ephemeral=True), send=inter.followup.send),
+            StrategiesSet(
+                public=Strategies(pre=inter.response.defer, send=inter.followup.send),
+                private=Strategies(pre=partial(inter.response.defer, ephemeral=True), send=inter.followup.send),
             ),
         )
 
     @Cog.listener()
     async def on_raw_reaction_add(self, payload: RawReactionActionEvent):
-        pass
+        emote = payload.emoji.name
+
+        if emote not in EVERY_FLAGS:
+            return
+
+        user = await self.bot.getch_user(payload.user_id)
+        if not user or user.bot:
+            return
+
+        channel = await self.bot.getch_channel(payload.channel_id)
+        if channel is None:
+            return
+        if TYPE_CHECKING:
+            channel = cast(MessageableChannel, channel)
+
+        message = await channel.fetch_message(payload.message_id)
+
+        language = Language.from_emote(emote)
+        if not language:
+            raise Exception()  # TODO: unsupported
+
+        async def pre_strategy():
+            await channel.typing()
+
+        await self.process(
+            text=message.content,
+            to=language,
+            from_=None,
+            strategies_set=StrategiesSet(
+                public=Strategies(pre=pre_strategy, send=partial(channel.send, reference=message)),
+                private=Strategies(pre=pre_strategy, send=user.send),
+            ),
+        )
 
     async def translate_to_message_ctx(self, inter: Interaction, message: Message) -> None:
         pass
@@ -70,26 +122,30 @@ class Translate(Cog):
             message.content,
             to_language,
             None,
-            Strategies(
-                public=StrategyNatures(pre=inter.response.defer, send=inter.followup.send),
-                private=StrategyNatures(pre=partial(inter.response.defer, ephemeral=True), send=inter.followup.send),
+            StrategiesSet(
+                public=Strategies(pre=inter.response.defer, send=inter.followup.send),
+                private=Strategies(pre=partial(inter.response.defer, ephemeral=True), send=inter.followup.send),
             ),
         )
 
     async def process(
-        self, text: str, to: LanguageImplementation, from_: LanguageImplementation | None, strategies: Strategies
+        self,
+        text: str,
+        to: LanguageImplementation,
+        from_: LanguageImplementation | None,
+        strategies_set: StrategiesSet,
     ):
         PUBLIC = True  # TODO: db
         if PUBLIC:
-            strategy = strategies.public
+            strategies = strategies_set.public
         else:
-            strategy = strategies.private
+            strategies = strategies_set.private
 
-        await strategy.pre()
+        await strategies.pre()
 
         translated = await translate(text, to, from_)
 
-        await strategy.send(content=translated)
+        await strategies.send(content=translated)
 
 
 async def setup(bot: MyBot):
