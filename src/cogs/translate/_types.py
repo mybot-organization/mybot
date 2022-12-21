@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, NamedTuple, Protocol, TypeVar
+from typing import Any, NamedTuple, Protocol, Sequence, TypeVar
 
-from discord import Locale
+from discord import Embed, Locale
 
 LI = TypeVar("LI", bound="LanguageImplementation")
 
@@ -10,6 +10,7 @@ LI = TypeVar("LI", bound="LanguageImplementation")
 class LanguageImplementation(Protocol):
     name: str
     code: str
+    locale: Locale | None
 
     @classmethod
     def from_emote(cls, emote: str) -> LanguageImplementation | None:
@@ -33,8 +34,13 @@ class TranslatorFunction(Protocol):
         ...
 
 
+class DetectorFunction(Protocol):
+    async def __call__(self, text: str) -> LanguageImplementation | None:
+        ...
+
+
 class SendStrategy(Protocol):
-    async def __call__(self, *, content: str) -> Any:
+    async def __call__(self, *, content: str = Any, embeds: Sequence[Embed] = Any) -> Any:
         ...
 
 

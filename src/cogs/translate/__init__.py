@@ -1,4 +1,5 @@
 from __future__ import annotations
+from datetime import timedelta
 
 import logging
 from functools import partial
@@ -9,9 +10,10 @@ from discord.app_commands import locale_str as __
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 
 from utils.i18n import _
+from utils import TemporaryCache, response_constructor, ResponseType
 
-from ._types import LanguageImplementation, StrategiesSet, Strategies, TranslatorFunction
-from .translator import Language, translate
+from ._types import LanguageImplementation, StrategiesSet, Strategies, TranslatorFunction, DetectorFunction
+from .translator import Language, translate, detect
 
 if TYPE_CHECKING:
     from discord.abc import MessageableChannel
@@ -23,6 +25,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+detect: DetectorFunction
 translate: TranslatorFunction
 Language: LanguageImplementation
 
@@ -49,6 +52,7 @@ EVERY_FLAGS = (
 class Translate(Cog):
     def __init__(self, bot: MyBot):
         self.bot: MyBot = bot
+        self.cache: TemporaryCache[str, str] = TemporaryCache(expire=timedelta(days=1), max_size=10_000)
 
         self.bot.tree.add_command(app_commands.ContextMenu(name=__("Translate"), callback=self.translate_message_ctx))
 
@@ -96,21 +100,22 @@ class Translate(Cog):
         if not language:
             raise Exception()  # TODO: unsupported
 
-        async def pre_strategy():
+        async def public_pre_strategy():
             await channel.typing()
+
+        async def private_pre_strategy():
+            await user.typing()
 
         await self.process(
             text=message.content,
             to=language,
             from_=None,
             strategies_set=StrategiesSet(
-                public=Strategies(pre=pre_strategy, send=partial(channel.send, reference=message)),
-                private=Strategies(pre=pre_strategy, send=user.send),
+                public=Strategies(pre=public_pre_strategy, send=partial(channel.send, reference=message)),
+                private=Strategies(pre=private_pre_strategy, send=user.send),
             ),
+            message_reference=message,
         )
-
-    async def translate_to_message_ctx(self, inter: Interaction, message: Message) -> None:
-        pass
 
     # @app_commands.context_menu(name="Translate")
     async def translate_message_ctx(self, inter: Interaction, message: Message) -> None:
@@ -126,6 +131,7 @@ class Translate(Cog):
                 public=Strategies(pre=inter.response.defer, send=inter.followup.send),
                 private=Strategies(pre=partial(inter.response.defer, ephemeral=True), send=inter.followup.send),
             ),
+            message_reference=message,
         )
 
     async def process(
@@ -134,8 +140,9 @@ class Translate(Cog):
         to: LanguageImplementation,
         from_: LanguageImplementation | None,
         strategies_set: StrategiesSet,
+        message_reference: Message | None = None,
     ):
-        PUBLIC = True  # TODO: db
+        PUBLIC = False  # TODO: db
         if PUBLIC:
             strategies = strategies_set.public
         else:
@@ -143,9 +150,28 @@ class Translate(Cog):
 
         await strategies.pre()
 
-        translated = await translate(text, to, from_)
+        if from_ is None:
+            from_ = await detect(text)
 
-        await strategies.send(content=translated)
+        if message_reference is not None:
+            cached = self.cache.get(f"{message_reference.id}:{to.code}")
+
+            if cached is not None:
+                translated = cached
+            else:
+                translated = await translate(text, to, from_)
+                self.cache.set(f"{message_reference.id}:{to.code}", translated)
+        else:
+            translated = await translate(text, to, from_)
+
+        head = response_constructor(
+            ResponseType.success,
+            _("Translate from {from_} to {to}", from_=from_.name if from_ else "auto", to=to.name, _locale=to.locale),
+            author_url=message_reference.jump_url if message_reference else None,
+        ).embed
+        head.description = translated
+        # body = Embed(description=translated)
+        await strategies.send(embeds=[head])
 
 
 async def setup(bot: MyBot):

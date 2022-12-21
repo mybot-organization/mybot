@@ -6,11 +6,14 @@ It need to implement:
 - discord locals to emote to api-specific translation relations
 - a translate function
 """
+# pyright: reportUnknownMemberType=false, reportMissingTypeStubs=false, reportUnknownArgumentType=false
+
 
 from __future__ import annotations
 
 from typing import NamedTuple
 
+import langdetect
 from discord import Locale
 from discord.utils import find, get
 
@@ -21,27 +24,34 @@ class Relation(NamedTuple):
     name: str
     code: str
     adapter: LibreLanguage
-    discord_locales: tuple[Locale, ...]
+    discord_locale: Locale | None
     emotes: tuple[str, ...]
 
 
 # fmt: off
 relations: tuple[Relation, ...] = (
     Relation(
-        name='english',
+        name='british english',
         code='en',
         adapter=LibreLanguage.ENGLISH,
-        discord_locales=(Locale.british_english, Locale.american_english),
+        discord_locale=Locale.british_english,
         emotes=("🇦🇮", "🇦🇬", "🇦🇺", "🇧🇸", "🇧🇧", "🇧🇿", "🇧🇲", "🇧🇼", "🇮🇴", "🇨🇦", "🇰🇾", "🇨🇽", "🇨🇨", "🇨🇰", "🇩🇲", "🇫🇰", "🇫🇯", "🇬🇲",
                 "🇬🇭", "🇬🇮", "🇬🇩", "🇬🇺", "🇬🇬", "🇬🇾", "🇭🇲", "🇮🇲", "🇯🇲", "🇯🇪", "🇰🇮", "🇱🇷", "🇲🇼", "🇲🇻", "🇲🇭", "🇲🇺", "🇫🇲", "🇲🇸",
                 "🇳🇦", "🇳🇷", "🇳🇬", "🇳🇺", "🇳🇫", "🇲🇵", "🇵🇼", "🇵🇬", "🇵🇳", "🇷🇼", "🇸🇭", "🇰🇳", "🇱🇨", "🇻🇨", "🇸🇱", "🇸🇧", "🇬🇸", "🇸🇸",
-                "🇸🇿", "🇹🇴", "🇹🇹", "🇹🇨", "🇹🇻", "🇬🇧", "🇺🇸", "🇺🇲", "🇻🇬", "🇻🇮", "🇿🇲", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"),
+                "🇸🇿", "🇹🇴", "🇹🇹", "🇹🇨", "🇹🇻", "🇬🇧", "🇻🇬", "🇻🇮", "🇿🇲", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"),
+    ),
+    Relation(
+        name='american english',
+        code='en',
+        adapter=LibreLanguage.ENGLISH,
+        discord_locale=Locale.american_english,
+        emotes=("🇺🇸", "🇺🇲"),
     ),
     Relation(
         name='arabic',
         code='ar',
         adapter=LibreLanguage.ARABIC,
-        discord_locales=(),
+        discord_locale=None,
         emotes=("🇩🇿", "🇧🇭", "🇰🇲", "🇩🇯", "🇪🇬", "🇪🇷", "🇯🇴", "🇰🇼", "🇱🇧", "🇱🇾", "🇲🇷", "🇲🇦", "🇴🇲", "🇶🇦", "🇸🇦", "🇸🇩", "🇸🇾", "🇹🇳",
                 "🇦🇪", "🇪🇭", "🇾🇪"),
     ),
@@ -49,14 +59,21 @@ relations: tuple[Relation, ...] = (
         name='chinese (simplified)',
         code='zn-cn',
         adapter=LibreLanguage.CHINESE,
-        discord_locales=(Locale.chinese, Locale.taiwan_chinese),
+        discord_locale=Locale.chinese,
         emotes=("🇨🇳", "🇭🇰", "🇲🇴", "🇹🇼")
+    ),
+    Relation(
+        name='chinese (simplified)',
+        code='zn-cn',
+        adapter=LibreLanguage.CHINESE,
+        discord_locale=Locale.taiwan_chinese,
+        emotes=()
     ),
     Relation(
         name='french',
         code='fr',
         adapter=LibreLanguage.FRENCH,
-        discord_locales=(Locale.french,),
+        discord_locale=Locale.french,
         emotes=("🇧🇯", "🇧🇫", "🇧🇮", "🇨🇲", "🇨🇫", "🇹🇩", "🇨🇩", "🇨🇬", "🇨🇮", "🇬🇶", "🇫🇷", "🇬🇫", "🇵🇫", "🇹🇫", "🇬🇦", "🇬🇵", "🇬🇳", "🇲🇱",
                 "🇲🇶", "🇾🇹", "🇲🇨", "🇳🇨", "🇳🇪", "🇷🇪", "🇧🇱", "🇲🇫", "🇵🇲", "🇸🇳", "🇸🇨", "🇹🇬", "🇻🇺", "🇼🇫")
     ),
@@ -64,77 +81,77 @@ relations: tuple[Relation, ...] = (
         name='german',
         code='de',
         adapter=LibreLanguage.GERMAN,
-        discord_locales=(Locale.german,),
+        discord_locale=Locale.german,
         emotes=("🇦🇹", "🇩🇪", "🇱🇮", "🇨🇭")
     ),
     Relation(
         name='hindi',
         code='hi',
         adapter=LibreLanguage.HINDI,
-        discord_locales=(Locale.hindi,),
+        discord_locale=Locale.hindi,
         emotes=("🇮🇳",)
     ),
     Relation(
         name='indonesian',
         code='id',
         adapter=LibreLanguage.INDONESIAN,
-        discord_locales=(),
+        discord_locale=None,
         emotes=("🇮🇩",)
     ),
     Relation(
         name='irish',
         code='ga',
         adapter=LibreLanguage.IRISH,
-        discord_locales=(),
+        discord_locale=None,
         emotes=("🇮🇪",)
     ),
     Relation(
         name="italian",
         code='it',
         adapter=LibreLanguage.ITALIAN,
-        discord_locales=(Locale.italian,),
+        discord_locale=Locale.italian,
         emotes=("🇮🇹", "🇸🇲", "🇻🇦")
     ),
     Relation(
         name="japanese",
         code="ja",
         adapter=LibreLanguage.JAPANESE,
-        discord_locales=(Locale.japanese,),
+        discord_locale=Locale.japanese,
         emotes=("🇯🇵",)
     ),
     Relation(
         name="korean",
         code="ko",
         adapter=LibreLanguage.KOREAN,
-        discord_locales=(Locale.korean,),
+        discord_locale=Locale.korean,
         emotes=("🇰🇵", "🇰🇷",)
     ),
     Relation(
         name="polish",
         code="pl",
         adapter=LibreLanguage.POLISH,
-        discord_locales=(Locale.polish,),
+        discord_locale=Locale.polish,
         emotes=("🇵🇱",)
     ),
     Relation(
         name="portuguese",
         code="pt",
         adapter=LibreLanguage.PORTUGUESE,
-        discord_locales=(Locale.brazil_portuguese,),
+        discord_locale=Locale.brazil_portuguese,
         emotes=("🇦🇴", "🇧🇷", "🇨🇻", "🇬🇼", "🇲🇿", "🇵🇹", "🇸🇹", "🇹🇱")
     ),
     Relation(
         name="russian",
         code="ru",
         adapter=LibreLanguage.RUSSIAN,
-        discord_locales=(Locale.russian,),
+        discord_locale=Locale.russian,
         emotes=("🇦🇶", "🇷🇺")
     ),
     Relation(
         name="spanish",
         code="es",
         adapter=LibreLanguage.SPANISH,
-        discord_locales=(Locale.spain_spanish,),
+        discord_locale=Locale.spain_spanish,
         emotes=("🇦🇷", "🇧🇴", "🇨🇱", "🇨🇴", "🇨🇷", "🇨🇺", "🇩🇴", "🇪🇨", "🇸🇻", "🇬🇹", "🇭🇳", "🇲🇽", "🇳🇮", "🇵🇦", "🇵🇾", "🇵🇪", "🇵🇷", "🇪🇸", 
                 "🇺🇾", "🇻🇪"),
     ),
@@ -142,14 +159,14 @@ relations: tuple[Relation, ...] = (
         name="turk",
         code="tr",
         adapter=LibreLanguage.TURK,
-        discord_locales=(Locale.turkish,),
+        discord_locale=Locale.turkish,
         emotes=("🇹🇷",)
     ),
     Relation(
         name="vietnames",
         code="vi",
         adapter=LibreLanguage.VIETNAMESE,
-        discord_locales=(Locale.vietnamese,),
+        discord_locale=Locale.vietnamese,
         emotes=("🇻🇳",)
     )
 )
@@ -159,26 +176,41 @@ relations: tuple[Relation, ...] = (
 class Language(NamedTuple):
     name: str
     code: str
+    locale: Locale | None
     adapter: LibreLanguage
 
     @classmethod
     def from_emote(cls, emote: str) -> Language | None:
         relation = find(lambda rel: emote in rel.emotes, relations)
-        return Language(name=relation.name, code=relation.code, adapter=relation.adapter) if relation else None
+        return (
+            Language(name=relation.name, code=relation.code, adapter=relation.adapter, locale=relation.discord_locale)
+            if relation
+            else None
+        )
 
     @classmethod
     def from_discord_locale(cls, locale: Locale) -> Language | None:
-        relation = find(lambda rel: locale in rel.discord_locales, relations)
-        return Language(name=relation.name, code=relation.code, adapter=relation.adapter) if relation else None
+        relation = get(relations, discord_locale=locale)
+        return (
+            Language(name=relation.name, code=relation.code, adapter=relation.adapter, locale=relation.discord_locale)
+            if relation
+            else None
+        )
 
     @classmethod
     def from_code(cls, code: str) -> Language | None:
         relation = get(relations, code=code)
-        return Language(name=relation.name, code=relation.code, adapter=relation.adapter) if relation else None
+        return (
+            Language(name=relation.name, code=relation.code, adapter=relation.adapter, locale=relation.discord_locale)
+            if relation
+            else None
+        )
 
     @staticmethod
     def available_languages() -> list[Language]:
-        return [Language(name=rel.name, code=rel.code, adapter=rel.adapter) for rel in relations]
+        return [
+            Language(name=rel.name, code=rel.code, adapter=rel.adapter, locale=rel.discord_locale) for rel in relations
+        ]
 
 
 # libre_translate = LibreTranslate("http://host.docker.internal:5001/")
@@ -187,3 +219,8 @@ libre_translate = LibreTranslate()
 
 async def translate(text: str, to: Language, from_: Language | None = None) -> str:
     return await libre_translate.translate(text, to.adapter, from_.adapter if from_ else "auto")
+
+
+async def detect(text: str) -> Language | None:
+    language = Language.from_code(langdetect.detect(text))
+    return language
