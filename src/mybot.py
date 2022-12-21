@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 class MyBot(AutoShardedBot):
     support: Guild
     tree: CustomCommandTree  # type: ignore
+    app_commands: list[AppCommand]
 
     def __init__(self, running: bool = True, startup_sync: bool = False) -> None:
         self.startup_sync: bool = startup_sync
@@ -43,8 +44,9 @@ class MyBot(AutoShardedBot):
             help_command=None,
         )
 
-        self.extensions_names: list[str] = ["clear", "help", "admin", "stats"]
+        self.extensions_names: list[str] = ["clear", "help", "admin", "stats", "translate"]
         self.config = config
+        self.app_commands = []
 
     async def setup_hook(self) -> None:
         await self.tree.set_translator(Translator())
@@ -70,7 +72,7 @@ class MyBot(AutoShardedBot):
     async def sync_tree(self) -> None:
         for guild_id in self.tree.active_guild_ids:
             await self.tree.sync(guild=discord.Object(guild_id))
-        self.app_commands: list[AppCommand] = await self.tree.sync()
+        self.app_commands = await self.tree.sync()
 
     async def sync_database(self) -> None:
         async with self.async_session.begin() as session:
