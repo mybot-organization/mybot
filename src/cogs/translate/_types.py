@@ -34,6 +34,11 @@ class TranslatorFunction(Protocol):
         ...
 
 
+class BatchTranslatorFunction(Protocol):
+    async def __call__(self, texts: Sequence[str], to: LI, from_: LI | None = None) -> Sequence[str]:
+        ...
+
+
 class DetectorFunction(Protocol):
     async def __call__(self, text: str) -> LanguageImplementation | None:
         ...

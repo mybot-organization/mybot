@@ -11,7 +11,8 @@ It need to implement:
 
 from __future__ import annotations
 
-from typing import NamedTuple
+import asyncio
+from typing import NamedTuple, Sequence
 
 import langdetect
 from discord import Locale
@@ -221,6 +222,16 @@ async def translate(text: str, to: Language, from_: Language | None = None) -> s
     return await libre_translate.translate(text, to.adapter, from_.adapter if from_ else "auto")
 
 
+async def batch_translate(texts: Sequence[str], to: Language, from_: Language | None = None) -> list[str]:
+    return await asyncio.gather(
+        *[libre_translate.translate(text, to.adapter, from_.adapter if from_ else "auto") for text in texts]
+    )
+
+
 async def detect(text: str) -> Language | None:
-    language = Language.from_code(langdetect.detect(text))
-    return language
+    try:
+        language = Language.from_code(langdetect.detect(text))
+    except langdetect.lang_detect_exception.LangDetectException:
+        return None
+    else:
+        return language
