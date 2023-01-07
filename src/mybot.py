@@ -9,9 +9,9 @@ from discord.ext.commands import AutoShardedBot, errors  # pyright: ignore[repor
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from commands_exporter import features_to_dict
-from utils import config
-from utils.custom_command_tree import CustomCommandTree
-from utils.i18n import Translator
+from core import config
+from core.custom_command_tree import CustomCommandTree
+from core.i18n import Translator
 
 if TYPE_CHECKING:
     from discord import Guild, Thread, User

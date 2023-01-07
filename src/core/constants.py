@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from utils._types import Snowflake
+    from ._types import Snowflake
 
 
 class Emoji(str):

@@ -7,9 +7,9 @@ from discord import ButtonStyle, ui
 from discord.app_commands import CommandNotFound, CommandTree
 from discord.utils import get
 
-from utils import ResponseType, response_constructor
-from utils.errors import BaseError, MaxConcurrencyReached
-from utils.i18n import _
+from . import ResponseType, response_constructor
+from .errors import BaseError, MaxConcurrencyReached
+from .i18n import _
 
 if TYPE_CHECKING:
     from discord import Interaction, Invite

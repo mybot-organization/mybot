@@ -10,8 +10,8 @@ from discord import Embed, Message, app_commands
 from discord.app_commands import locale_str as __
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 
-from utils import ResponseType, TemporaryCache, response_constructor
-from utils.i18n import _
+from core import ResponseType, TemporaryCache, response_constructor
+from core.i18n import _
 
 from ._types import BatchTranslatorFunction, DetectorFunction, LanguageProtocol, Strategies, StrategiesSet
 from .translator import Language, batch_translate, detect

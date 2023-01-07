@@ -10,9 +10,9 @@ from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import get
 
 from commands_exporter import FeatureType, SlashCommand
-from utils import ResponseType, response_constructor
-from utils.constants import Emojis
-from utils.i18n import _
+from core import ResponseType, response_constructor
+from core.constants import Emojis
+from core.i18n import _
 
 if TYPE_CHECKING:
     from discord import Embed, Interaction

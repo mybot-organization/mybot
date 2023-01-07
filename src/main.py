@@ -4,9 +4,9 @@ from typing import Any
 
 import click
 
+from core._config import define_config
+from core.logger import create_logger
 from mybot import MyBot
-from utils._config import define_config
-from utils.logger import create_logger
 
 logger = create_logger(level=getattr(logging, environ.get("LOG_LEVEL", "INFO")))
 logging.getLogger("discord").setLevel(logging.INFO)
@@ -40,7 +40,7 @@ def db(
 
     import asyncio
 
-    from utils.db import main
+    from core.db import main
 
     asyncio.run(main())
 

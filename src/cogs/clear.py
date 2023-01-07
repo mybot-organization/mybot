@@ -15,16 +15,16 @@ from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import get
 from typing_extensions import Self
 
-from utils import ResponseType, response_constructor
-from utils.checks import MaxConcurrency
-from utils.errors import BaseError, MaxConcurrencyReached
-from utils.i18n import _
+from core import ResponseType, response_constructor
+from core.checks import MaxConcurrency
+from core.errors import BaseError, MaxConcurrencyReached
+from core.i18n import _
 
 if TYPE_CHECKING:
     from discord import TextChannel, Thread, VoiceChannel
 
+    from core._types import Snowflake
     from mybot import MyBot
-    from utils._types import Snowflake
 
     PurgeableChannel = TextChannel | VoiceChannel | Thread
 

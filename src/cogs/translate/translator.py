@@ -18,7 +18,7 @@ import langdetect
 from discord import Locale
 from discord.utils import find, get
 
-from utils.libre_translate import Language as LibreLanguage, LibreTranslate
+from core.libre_translate import Language as LibreLanguage, LibreTranslate
 
 
 class Relation(NamedTuple):
