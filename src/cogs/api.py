@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import logging
 from functools import partial
+from os import getpid
 from typing import TYPE_CHECKING, Awaitable, Callable, Concatenate, ParamSpec, TypeVar
 
 from aiohttp import hdrs, web
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
+from psutil import Process
 
 if TYPE_CHECKING:
     from mybot import MyBot
@@ -52,9 +54,9 @@ class API(Cog):
         await self.app.shutdown()
         await self.runner.cleanup()
 
-    @route(hdrs.METH_GET, "/")
+    @route(hdrs.METH_GET, "/memory")
     async def test(self, request: web.Request):
-        return web.Response(text="Hello World!")
+        return web.Response(text=f"{round(Process(getpid()).memory_info().rss/1024/1024, 2)} MB")
 
 
 async def setup(bot: MyBot):
