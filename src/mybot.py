@@ -46,7 +46,7 @@ class MyBot(AutoShardedBot):
             help_command=None,
         )
 
-        self.extensions_names: list[str] = ["clear", "help", "admin", "stats", "translate"]
+        self.extensions_names: list[str] = ["clear", "help", "admin", "stats", "translate", "api"]
         self.config = config
         self.app_commands = []
 

@@ -9,3 +9,5 @@ services:
       - ./src:/app/src
     ports:
       - 5678:5678
+    expose:
+      - 8080

@@ -216,7 +216,7 @@ class Translate(Cog):
         strategies_set: StrategiesSet,
         message_reference: Message | None = None,
     ):
-        PUBLIC = True
+        PUBLIC = True  # TODO: check if public or private
         if PUBLIC:
             strategies = strategies_set.public
         else:
