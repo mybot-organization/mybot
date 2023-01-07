@@ -14,8 +14,10 @@ from utils.custom_command_tree import CustomCommandTree
 from utils.i18n import Translator
 
 if TYPE_CHECKING:
-    from discord import Guild
+    from discord import Guild, Thread, User
+    from discord.abc import PrivateChannel
     from discord.app_commands import AppCommand
+    from discord.guild import GuildChannel
     from sqlalchemy.ext.asyncio import AsyncEngine
 
 logger = logging.getLogger(__name__)
@@ -24,6 +26,7 @@ logger = logging.getLogger(__name__)
 class MyBot(AutoShardedBot):
     support: Guild
     tree: CustomCommandTree  # type: ignore
+    app_commands: list[AppCommand]
 
     def __init__(self, running: bool = True, startup_sync: bool = False) -> None:
         self.startup_sync: bool = startup_sync
@@ -43,8 +46,9 @@ class MyBot(AutoShardedBot):
             help_command=None,
         )
 
-        self.extensions_names: list[str] = ["clear", "help", "admin", "stats"]
+        self.extensions_names: list[str] = ["clear", "help", "admin", "stats", "translate", "api"]
         self.config = config
+        self.app_commands = []
 
     async def setup_hook(self) -> None:
         await self.tree.set_translator(Translator())
@@ -70,7 +74,7 @@ class MyBot(AutoShardedBot):
     async def sync_tree(self) -> None:
         for guild_id in self.tree.active_guild_ids:
             await self.tree.sync(guild=discord.Object(guild_id))
-        self.app_commands: list[AppCommand] = await self.tree.sync()
+        self.app_commands = await self.tree.sync()
 
     async def sync_database(self) -> None:
         async with self.async_session.begin() as session:
@@ -115,3 +119,35 @@ class MyBot(AutoShardedBot):
                 logger.error(f"Failed to load extension {ext}.", exc_info=e)
             else:
                 logger.info(f"Extension {ext} loaded successfully.")
+
+    async def getch_user(self, id: int, /) -> User | None:
+        """Get a user, or fetch it if not in cache.
+
+        Args:
+            id (int): the user id
+
+        Returns:
+            User | None: the user, or None if not found.
+        """
+        try:
+            usr = self.get_user(id) or await self.fetch_user(id)
+        except discord.NotFound:
+            return None
+        else:
+            return usr
+
+    async def getch_channel(self, id: int, /) -> GuildChannel | PrivateChannel | Thread | None:
+        """Get a channel, or fetch is if not in cache.
+
+        Args:
+            id (int): the channel id
+
+        Returns:
+            GuildChannel | PrivateChannel | Thread | None: the channel, or None if not found.
+        """
+        try:
+            channel = self.get_channel(id) or await self.fetch_channel(id)
+        except discord.NotFound | discord.Forbidden:
+            return None
+        else:
+            return channel

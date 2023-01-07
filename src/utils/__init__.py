@@ -7,6 +7,7 @@ import discord
 from discord import Embed
 
 from ._config import config as config
+from .temporary_cache import TemporaryCache as TemporaryCache
 
 logger = logging.getLogger(__name__)
 
@@ -59,16 +60,22 @@ _embed_author_icon_urls = {
 
 
 @overload
-def response_constructor(response_type: ResponseType, message: str, embedded: Literal[True] = ...) -> _ResponseEmbed:
+def response_constructor(
+    response_type: ResponseType, message: str, embedded: Literal[True] = ..., author_url: str | None = ...
+) -> _ResponseEmbed:
     ...
 
 
 @overload
-def response_constructor(response_type: ResponseType, message: str, embedded: Literal[False] = ...) -> _Response:
+def response_constructor(
+    response_type: ResponseType, message: str, embedded: Literal[False] = ..., author_url: str | None = ...
+) -> _Response:
     ...
 
 
-def response_constructor(response_type: ResponseType, message: str, embedded: bool = True) -> _Response:
+def response_constructor(
+    response_type: ResponseType, message: str, embedded: bool = True, author_url: str | None = None
+) -> _Response:
     embed = discord.Embed(
         color=_embed_colors[response_type],
     )
@@ -76,6 +83,6 @@ def response_constructor(response_type: ResponseType, message: str, embedded: bo
     if len(message) > 256:
         logger.warning(f'This error message is too long to be displayed in author field. "{message}"')
 
-    embed.set_author(name=message, icon_url=_embed_author_icon_urls[response_type])
+    embed.set_author(name=message, icon_url=_embed_author_icon_urls[response_type], url=author_url)
 
     return _Response(embed=embed)
