@@ -227,18 +227,15 @@ class Translate(Cog):
         if from_ is None:
             from_ = await detect(translation_task.values[0])
 
-        if message_reference is not None:
-            cached = self.cache.get(f"{message_reference.id}:{to.code}")
-
-            if cached is not None:
-                translated = cached
-            else:
-                translated = await batch_translate(translation_task.values, to, from_)
-                self.cache.set(f"{message_reference.id}:{to.code}", translated)
+        use_cache = message_reference is not None  # we cache because we can retrieve.
+        if use_cache and (cached := self.cache.get(f"{message_reference.id}:{to.code}")):
+            translation_task = cached
         else:
-            translated = await batch_translate(translation_task.values, to, from_)
+            translated_values = await batch_translate(translation_task.values, to, from_)
+            translation_task.inject_transations(translated_values)
 
-        translation_task.inject_transations(translated)
+            if use_cache:
+                self.cache[f"{message_reference.id}:{to.code}"] = translation_task
 
         head = response_constructor(
             ResponseType.success,
