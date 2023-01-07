@@ -1,31 +1,24 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass, field
 from datetime import timedelta
-
-import logging
 from functools import partial
 from typing import TYPE_CHECKING, Any, Sequence, cast
 
-from discord import Message, app_commands, Embed
+from discord import Embed, Message, app_commands
 from discord.app_commands import locale_str as __
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 
+from utils import ResponseType, TemporaryCache, response_constructor
 from utils.i18n import _
-from utils import TemporaryCache, response_constructor, ResponseType
 
-from ._types import (
-    LanguageImplementation,
-    StrategiesSet,
-    Strategies,
-    DetectorFunction,
-    BatchTranslatorFunction,
-)
+from ._types import BatchTranslatorFunction, DetectorFunction, LanguageProtocol, Strategies, StrategiesSet
 from .translator import Language, batch_translate, detect
 
 if TYPE_CHECKING:
-    from discord.abc import MessageableChannel
     from discord import Interaction, RawReactionActionEvent
+    from discord.abc import MessageableChannel
 
     from mybot import MyBot
 
@@ -35,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 detect: DetectorFunction
 batch_translate: BatchTranslatorFunction
-Language: LanguageImplementation
+Language: LanguageProtocol
 
 
 # fmt: off
@@ -218,8 +211,8 @@ class Translate(Cog):
     async def process(
         self,
         translation_task: TranslationTask,
-        to: LanguageImplementation,
-        from_: LanguageImplementation | None,
+        to: LanguageProtocol,
+        from_: LanguageProtocol | None,
         strategies_set: StrategiesSet,
         message_reference: Message | None = None,
     ):

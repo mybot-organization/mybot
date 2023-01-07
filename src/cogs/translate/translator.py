@@ -7,7 +7,7 @@ It need to implement:
 - a translate function
 """
 # pyright: reportUnknownMemberType=false, reportMissingTypeStubs=false, reportUnknownArgumentType=false
-
+# ^ because of langdetect
 
 from __future__ import annotations
 
@@ -214,7 +214,6 @@ class Language(NamedTuple):
         ]
 
 
-# libre_translate = LibreTranslate("http://host.docker.internal:5001/")
 libre_translate = LibreTranslate()
 
 
