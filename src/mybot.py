@@ -56,6 +56,8 @@ class MyBot(AutoShardedBot):
 
         if self.startup_sync:
             await self.sync_tree()
+        else:
+            self.app_commands = await self.tree.fetch_commands()
 
         self.features_infos = features_to_dict(self)
 
