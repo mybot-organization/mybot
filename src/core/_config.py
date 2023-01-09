@@ -6,10 +6,9 @@ A warning should be raised if we try to access config while it is not defined.
 """
 
 import logging
+import tomllib
 from dataclasses import dataclass
 from typing import Any, ClassVar
-
-import tomllib
 
 logger = logging.getLogger(__name__)
 
