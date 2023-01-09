@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-20 01:07+0000\n"
-"PO-Revision-Date: 2022-12-20 02:06\n"
+"POT-Creation-Date: 2023-01-09 21:28+0000\n"
+"PO-Revision-Date: 2023-01-09 21:42\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -219,16 +219,16 @@ msgstr ""
 msgid "Quelques statistiques sur MyBot"
 msgstr ""
 
-#: src/utils/custom_command_tree.py:51
+#: src/core/custom_command_tree.py:51
 msgid "Support server"
 msgstr "Serveur support"
 
-#: src/utils/custom_command_tree.py:69
+#: src/core/custom_command_tree.py:69
 #, python-brace-format
 msgid "This command is already executed the max amount of times. (Max: {error.rate})"
 msgstr "Cette commande est déjà exécutée le nombre maximal de fois. (Max : {error.rate})"
 
-#: src/utils/custom_command_tree.py:72
+#: src/core/custom_command_tree.py:72
 #, python-brace-format
 msgid "An unhandled error happened.\n"
 "{error}"
