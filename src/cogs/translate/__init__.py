@@ -10,7 +10,7 @@ from discord import Embed, Message, app_commands
 from discord.app_commands import locale_str as __
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 
-from core import ResponseType, TemporaryCache, response_constructor
+from core import ResponseType, TemporaryCache, misc_command, response_constructor
 from core.i18n import _
 
 from ._types import BatchTranslatorFunction, DetectorFunction, LanguageProtocol, Strategies, StrategiesSet
@@ -148,7 +148,7 @@ class Translate(Cog):
             ),
         )
 
-    @Cog.listener()
+    @misc_command("translate")
     async def on_raw_reaction_add(self, payload: RawReactionActionEvent):
         emote = payload.emoji.name
 

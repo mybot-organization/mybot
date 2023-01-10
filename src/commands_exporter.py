@@ -9,6 +9,9 @@ from typing import TYPE_CHECKING, TypedDict, cast
 from discord import app_commands
 from typing_extensions import NotRequired
 
+from core._config import define_config
+from core.misc_command import FuncListener, MiscCommandsType
+
 if TYPE_CHECKING:
     from mybot import MyBot
 
@@ -20,6 +23,7 @@ class FeatureType(Enum):
     chat_input = "chat_input"
     context_user = "context_user"
     context_message = "context_message"
+    misc = "misc"
 
 
 @dataclass(kw_only=True)
@@ -52,12 +56,18 @@ class ContextCommand(Feature):
     pass
 
 
+@dataclass(kw_only=True)
+class Misc(Feature):
+    type: FeatureType = FeatureType.misc
+    misc_type: MiscCommandsType
+
+
 class Extras(TypedDict):
     beta: NotRequired[bool]
-    description: NotRequired[str]
+    description: NotRequired[str]  # if ContextMenu
 
 
-def features_to_dict(mybot: MyBot) -> Features:
+def extract_features(mybot: MyBot) -> Features:
     features: Features = []
 
     for app_command in mybot.tree.get_commands():
@@ -84,12 +94,30 @@ def features_to_dict(mybot: MyBot) -> Features:
                 slash_command.parameters.append(parameter_payload)
 
             features.append(slash_command)
+    for cog in mybot.cogs.values():
+        for _, func in cog.get_listeners():
+            if not hasattr(func, "__listener_as_command__"):
+                continue
+            func = cast(FuncListener, func)
+            misc_cmd = func.__listener_as_command__
+
+            misc_feat = Misc(
+                name=misc_cmd.name,
+                description=misc_cmd.description,
+                guild_only=misc_cmd.guild_only,
+                default_permissions=misc_cmd.default_permissions,
+                beta=misc_cmd.extras.get("beta", False),
+                nsfw=misc_cmd.nsfw,
+                misc_type=misc_cmd.type,
+            )
+
+            features.append(misc_feat)
 
     return features
 
 
 async def export(mybot: MyBot, filename: str = "features.json") -> None:
-    features: Features = features_to_dict(mybot)
+    features: Features = extract_features(mybot)
 
     # TODO : fix features export to json.
 
@@ -101,10 +129,14 @@ async def main():
     mybot = MyBot(False)
     await mybot.load_extensions()
 
-    await export(mybot)
+    print(extract_features(mybot))
+
+    # await export(mybot)
 
 
 if __name__ == "__main__":
     from mybot import MyBot
+
+    define_config(EXPORT_MODE=True)
 
     asyncio.run(main())

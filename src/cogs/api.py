@@ -9,6 +9,8 @@ from aiohttp import hdrs, web
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from psutil import Process
 
+from core import config
+
 if TYPE_CHECKING:
     from mybot import MyBot
 
@@ -41,7 +43,8 @@ class API(Cog):
         self.app.add_routes(self.routes)
 
     async def cog_load(self):
-        self.bot.loop.create_task(self.start())
+        if not config.EXPORT_MODE:
+            self.bot.loop.create_task(self.start())
 
     async def start(self) -> None:
         await self.bot.wait_until_ready()

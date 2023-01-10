@@ -7,6 +7,7 @@ import discord
 from discord import Embed
 
 from ._config import config as config
+from .misc_command import misc_command as misc_command
 from .temporary_cache import TemporaryCache as TemporaryCache
 
 logger = logging.getLogger(__name__)

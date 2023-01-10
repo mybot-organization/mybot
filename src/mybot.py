@@ -8,7 +8,7 @@ import discord
 from discord.ext.commands import AutoShardedBot, errors  # pyright: ignore[reportMissingTypeStubs]
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from commands_exporter import features_to_dict
+from commands_exporter import extract_features
 from core import config
 from core.custom_command_tree import CustomCommandTree
 from core.i18n import Translator
@@ -59,7 +59,7 @@ class MyBot(AutoShardedBot):
         else:
             self.app_commands = await self.tree.fetch_commands()
 
-        self.features_infos = features_to_dict(self)
+        self.features_infos = extract_features(self)
 
         await self.connect_db()
 

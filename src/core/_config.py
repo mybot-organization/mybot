@@ -20,6 +20,7 @@ class Config:
     POSTGRES_USER: str = "postgres"
     POSTGRES_DB: str = "mybot"
     POSTGRES_PASSWORD: str | None = None
+    EXPORT_MODE: bool = False
 
     _defined: ClassVar[bool] = False
 
