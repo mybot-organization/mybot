@@ -7,6 +7,7 @@ import discord
 from discord import Embed
 
 from ._config import config as config
+from .cog_property import cog_property as cog_property
 from .misc_command import misc_command as misc_command
 from .temporary_cache import TemporaryCache as TemporaryCache
 
@@ -83,6 +84,7 @@ def response_constructor(
 
     if len(message) > 256:
         logger.warning(f'This error message is too long to be displayed in author field. "{message}"')
+        message = message[:253] + "..."
 
     embed.set_author(name=message, icon_url=_embed_author_icon_urls[response_type], url=author_url)
 

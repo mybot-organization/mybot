@@ -5,7 +5,7 @@ from typing import Any
 import click
 
 from core._config import define_config
-from core.logger import create_logger
+from core._logger import create_logger
 from mybot import MyBot
 
 logger = create_logger(level=getattr(logging, environ.get("LOG_LEVEL", "INFO")))

@@ -46,7 +46,21 @@ class MyBot(AutoShardedBot):
             help_command=None,
         )
 
-        self.extensions_names: list[str] = ["clear", "help", "admin", "stats", "translate", "api"]
+        # Keep an alphabetic order, it is more clear.
+        self.extensions_names: list[str] = [
+            "admin",
+            "api",
+            "calculator",
+            "clear",
+            "config",
+            "game",
+            "help",
+            "poll",
+            "ping",
+            "restore",
+            "stats",
+            "translate",
+        ]
         self.config = config
         self.app_commands = []
 

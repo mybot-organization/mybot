@@ -11,10 +11,12 @@ LiteralNames = Literal["raw_reaction_add"]
 
 class MiscCommandsType(Enum):
     REACTION = "reaction"
+    MESSAGE = "message"
 
 
 events_to_type: dict[str, MiscCommandsType] = {
     "on_raw_reaction_add": MiscCommandsType.REACTION,
+    "on_message": MiscCommandsType.MESSAGE,
 }
 
 

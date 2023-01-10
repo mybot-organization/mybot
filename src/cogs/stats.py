@@ -39,8 +39,13 @@ class Stats(Cog):  # TODO: add checkers
         self.temp_store.setdefault(app_command.id, 0)
         self.temp_store[app_command.id] += 1
 
-    @app_commands.command(name=__("stats"), description=__("Obtenir des stats sur le bot."))
+    @app_commands.command(
+        name=__("stats"),
+        description=__("Get somes stats about the bot."),
+        extras={"soon": True},
+    )
     async def stats(self, inter: Interaction) -> None:
+        raise NotImplementedError()
         embed = response_constructor(ResponseType.info, _("Quelques statistiques sur MyBot")).embed
         for c_id, v in self.temp_store.items():
             cmd = cast(AppCommand, get(self.bot.app_commands, id=c_id))

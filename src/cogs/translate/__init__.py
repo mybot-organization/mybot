@@ -127,7 +127,11 @@ class Translate(Cog):
 
         self.bot.tree.add_command(app_commands.ContextMenu(name=__("Translate"), callback=self.translate_message_ctx))
 
-    @app_commands.command(name=__("translate"), description=__("Translate text in a selection of languages."))
+    @app_commands.command(
+        name=__("translate"),
+        description=__("Translate text in a selection of languages."),
+        extras={"beta": True},
+    )
     async def translate_slash(self, inter: Interaction, to: str, text: str, from_: str | None = None) -> None:
         to_language = Language.from_code(to)
         if to_language is None:
@@ -190,6 +194,7 @@ class Translate(Cog):
             message_reference=message,
         )
 
+    # command definition is in __init__ because of dpy limitation!
     async def translate_message_ctx(self, inter: Interaction, message: Message) -> None:
         to_language = Language.from_discord_locale(inter.locale)
         if not to_language:
