@@ -51,6 +51,15 @@ class Config(GroupCog, group_name=__("config"), group_description=__("Set config
     async def emote(self, inter: Interaction) -> None:
         await self.guild_cog.emote(inter)
 
+    @bbot_group.command(
+        name=__("public_translations"),
+        description=__("Set if the translations are visible for everyone or not."),
+    )
+    @app_commands.guild_only()
+    @app_commands.default_permissions()
+    async def public_translations(self, inter: Interaction, value: bool) -> None:
+        await self.bot_cog.public_translation(inter, value)
+
 
 async def setup(bot: MyBot) -> None:
     from .config_bot import ConfigBot

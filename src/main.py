@@ -4,7 +4,7 @@ from typing import Any
 
 import click
 
-from core._config import define_config
+from core._config import config, define_config
 from core._logger import create_logger
 from mybot import MyBot
 
@@ -40,9 +40,25 @@ def db(
 
     import asyncio
 
-    from core.db import main
+    from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
 
-    asyncio.run(main())
+    from core import db
+
+    engine: AsyncEngine = create_async_engine(
+        f"postgresql+asyncpg://{config.POSTGRES_USER}:{config.POSTGRES_PASSWORD}@database:5432/{config.POSTGRES_DB}",
+        echo=False,
+    )
+    async_session = async_sessionmaker(engine, expire_on_commit=False)
+
+    async def manipulation():
+        async with async_session.begin() as session:
+            poll = await session.get(db.Poll, 1)
+
+            if poll:
+                result = await session.execute(db.select(db.PollChoice).where(db.PollChoice.poll_id == poll.id))
+                print(result.all())
+
+    asyncio.run(manipulation())
 
 
 @cli.command()
