@@ -24,3 +24,10 @@ class MaxConcurrencyReached(errors.AppCommandError):
         self.command: Command[Any, (...), Any] | ContextMenu | None = command
         name = command.name if command is not None else "unknown"
         super().__init__(f'Max concurrency reached for the command "{name}" (rate: {rate})')
+
+
+class UnexpectedError(Exception):
+    """Only raised on place where it shouldn't have exceptions."""
+
+    def __init__(self, *args: Any) -> None:
+        super().__init__(*args)

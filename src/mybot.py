@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from discord.abc import PrivateChannel
     from discord.app_commands import AppCommand
     from discord.guild import GuildChannel
-    from sqlalchemy.ext.asyncio import AsyncEngine
+    from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 logger = logging.getLogger(__name__)
 
@@ -154,8 +154,9 @@ class MyBot(AutoShardedBot):
         else:
             return channel
 
-    async def get_guild_db(self, guild_id: int) -> db.GuildDB:
-        """Get a GuildDB object from the database. It is created if the guild doesn't exist in the database.
+    async def get_guild_db(self, guild_id: int, session: AsyncSession | None = None) -> db.GuildDB:
+        """Get a GuildDB object from the database.
+        It is CREATEd if the guild doesn't exist in the database.
 
         Args:
             guild_id (int): the guild id
@@ -163,13 +164,19 @@ class MyBot(AutoShardedBot):
         Returns:
             db.GuildDB: the GuildDB object
         """
-        async with self.async_session.begin() as session:
-            stmt = db.select(db.GuildDB).where(db.GuildDB.guild_id == guild_id)
-            result = await session.execute(stmt)
-            guild = result.scalar_one_or_none()
+        if new_session := session is None:
+            session = self.async_session()
 
-            if guild is None:
-                guild = db.GuildDB(guild_id=guild_id, premium_type=db.PremiumType.NONE, translations_are_public=False)
-                session.add(guild)
+        stmt = db.select(db.GuildDB).where(db.GuildDB.guild_id == guild_id)
+        result = await session.execute(stmt)
+        guild = result.scalar_one_or_none()
 
-            return guild
+        if guild is None:
+            guild = db.GuildDB(guild_id=guild_id, premium_type=db.PremiumType.NONE, translations_are_public=False)
+            session.add(guild)
+            await session.commit()
+
+        if new_session:
+            await session.close()
+
+        return guild

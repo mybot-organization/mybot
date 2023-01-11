@@ -14,3 +14,4 @@ ENV DEBUG=1
 ENV LOG_LEVEL=DEBUG
 RUN pip install debugpy
 CMD ["python", "-m", "debugpy", "--wait-for-client", "--listen", "0.0.0.0:5678", "./src/main.py", "bot", "-c", "./config.toml"]
+# CMD ["python", "-m", "debugpy", "--wait-for-client", "--listen", "0.0.0.0:5678", "./src/main.py", "db"]

@@ -4,7 +4,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import timedelta
 from functools import partial
-from typing import TYPE_CHECKING, Any, Sequence, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, Sequence, cast
 
 from discord import Embed, Message, app_commands
 from discord.app_commands import locale_str as __
@@ -13,7 +13,6 @@ from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from core import ResponseType, TemporaryCache, misc_command, response_constructor
 from core.i18n import _
 
-from ._types import BatchTranslatorFunction, DetectorFunction, LanguageProtocol, Strategies, StrategiesSet
 from .translator import Language, batch_translate, detect
 
 if TYPE_CHECKING:
@@ -21,6 +20,8 @@ if TYPE_CHECKING:
     from discord.abc import MessageableChannel
 
     from mybot import MyBot
+
+    from ._types import BatchTranslatorFunction, DetectorFunction, LanguageProtocol, PreSendStrategy, SendStrategy
 
 
 logger = logging.getLogger(__name__)
@@ -50,6 +51,11 @@ EVERY_FLAGS = (
 # fmt: on
 
 
+class Strategies(NamedTuple):
+    pre: PreSendStrategy
+    send: SendStrategy
+
+
 @dataclass
 class TranslationTask:
     content: str | None = None
@@ -59,7 +65,7 @@ class TranslationTask:
     def values(self) -> list[str]:
         return ([self.content] if self.content else []) + [value for embed in self.tr_embeds for value in embed.values]
 
-    def inject_transations(self, translation: Sequence[str]):
+    def inject_translations(self, translation: Sequence[str]):
         i = 0
         if self.content is not None:
             self.content = translation[0]
@@ -127,6 +133,12 @@ class Translate(Cog):
 
         self.bot.tree.add_command(app_commands.ContextMenu(name=__("Translate"), callback=self.translate_message_ctx))
 
+    async def public_translations(self, guild_id: int | None):
+        if guild_id is None:  # we are in private channels, IG
+            return True
+        guild_db = await self.bot.get_guild_db(guild_id)
+        return guild_db.translations_are_public
+
     @app_commands.command(
         name=__("translate"),
         description=__("Translate text in a selection of languages."),
@@ -142,14 +154,16 @@ class Translate(Cog):
         else:
             from_language = None
 
+        if await self.public_translations(inter.guild_id):
+            strategies = Strategies(pre=inter.response.defer, send=inter.followup.send)
+        else:
+            strategies = Strategies(pre=partial(inter.response.defer, ephemeral=True), send=inter.followup.send)
+
         await self.process(
             TranslationTask(content=text),
             to_language,
             from_language,
-            StrategiesSet(
-                public=Strategies(pre=inter.response.defer, send=inter.followup.send),
-                private=Strategies(pre=partial(inter.response.defer, ephemeral=True), send=inter.followup.send),
-            ),
+            send_strategies=strategies,
         )
 
     @misc_command("translate")
@@ -181,16 +195,18 @@ class Translate(Cog):
         async def private_pre_strategy():
             await user.typing()
 
+        if await self.public_translations(payload.guild_id):
+            strategies = Strategies(pre=public_pre_strategy, send=partial(channel.send, reference=message))
+        else:
+            strategies = Strategies(pre=private_pre_strategy, send=user.send)
+
         await self.process(
             TranslationTask(
                 content=message.content or None, tr_embeds=[EmbedTranslation(embed) for embed in message.embeds[:4]]
             ),
             language,
             None,
-            StrategiesSet(
-                public=Strategies(pre=public_pre_strategy, send=partial(channel.send, reference=message)),
-                private=Strategies(pre=private_pre_strategy, send=user.send),
-            ),
+            send_strategies=strategies,
             message_reference=message,
         )
 
@@ -200,16 +216,18 @@ class Translate(Cog):
         if not to_language:
             return  # TODO: raise unsupported.
 
+        if await self.public_translations(inter.guild_id):
+            strategies = Strategies(pre=inter.response.defer, send=inter.followup.send)
+        else:
+            strategies = Strategies(pre=partial(inter.response.defer, ephemeral=True), send=inter.followup.send)
+
         await self.process(
             TranslationTask(
                 content=message.content, tr_embeds=[EmbedTranslation(embed) for embed in message.embeds[:4]]
             ),
             to_language,
             None,
-            StrategiesSet(
-                public=Strategies(pre=inter.response.defer, send=inter.followup.send),
-                private=Strategies(pre=partial(inter.response.defer, ephemeral=True), send=inter.followup.send),
-            ),
+            send_strategies=strategies,
             message_reference=message,
         )
 
@@ -218,16 +236,10 @@ class Translate(Cog):
         translation_task: TranslationTask,
         to: LanguageProtocol,
         from_: LanguageProtocol | None,
-        strategies_set: StrategiesSet,
+        send_strategies: Strategies,
         message_reference: Message | None = None,
     ):
-        PUBLIC = True  # TODO: check if public or private
-        if PUBLIC:
-            strategies = strategies_set.public
-        else:
-            strategies = strategies_set.private
-
-        await strategies.pre()
+        await send_strategies.pre()
 
         if from_ is None:
             from_ = await detect(translation_task.values[0])
@@ -237,7 +249,7 @@ class Translate(Cog):
             translation_task = cached
         else:
             translated_values = await batch_translate(translation_task.values, to, from_)
-            translation_task.inject_transations(translated_values)
+            translation_task.inject_translations(translated_values)
 
             if use_cache:
                 self.cache[f"{message_reference.id}:{to.code}"] = translation_task
@@ -249,7 +261,7 @@ class Translate(Cog):
         ).embed
         head.description = translation_task.content
 
-        await strategies.send(embeds=[head, *[tr_embed.embed for tr_embed in translation_task.tr_embeds]])
+        await send_strategies.send(embeds=[head, *[tr_embed.embed for tr_embed in translation_task.tr_embeds]])
 
 
 async def setup(bot: MyBot):

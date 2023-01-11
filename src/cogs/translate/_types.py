@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, NamedTuple, Protocol, Self, Sequence, TypeVar
+from typing import Any, Protocol, Self, Sequence, TypeVar
 
 from discord import Embed, Locale
 
@@ -55,13 +55,3 @@ class SendStrategy(Protocol):
 class PreSendStrategy(Protocol):
     async def __call__(self) -> Any:
         ...
-
-
-class Strategies(NamedTuple):
-    pre: PreSendStrategy
-    send: SendStrategy
-
-
-class StrategiesSet(NamedTuple):
-    private: Strategies
-    public: Strategies
