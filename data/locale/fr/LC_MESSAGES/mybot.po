@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-11 17:21+0000\n"
-"PO-Revision-Date: 2023-01-11 17:32\n"
+"POT-Creation-Date: 2023-01-11 22:35+0000\n"
+"PO-Revision-Date: 2023-01-11 23:27\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -19,11 +19,11 @@ msgstr ""
 
 #: src/cogs/calculator.py:29
 msgid "calculator"
-msgstr ""
+msgstr "calculatrice"
 
 #: src/cogs/calculator.py:30
-msgid "Show a calulator you can use."
-msgstr ""
+msgid "Show a calculator you can use."
+msgstr "Afficher une calculatrice que vous pouvez utiliser."
 
 #: src/cogs/clear.py:77
 msgid "Delete multiple messages with some filters."
@@ -181,7 +181,7 @@ msgstr "{} message(s) supprimé(s)."
 
 #: src/cogs/help.py:27
 msgid "slash command"
-msgstr ""
+msgstr "commande slash"
 
 #: src/cogs/help.py:28
 msgid "message context"
@@ -193,7 +193,7 @@ msgstr "contexte d'utilisateur"
 
 #: src/cogs/help.py:30
 msgid "miscellaneous"
-msgstr ""
+msgstr "divers"
 
 #: src/cogs/help.py:38
 msgid "help"
@@ -221,27 +221,27 @@ msgstr "Aide à propos de {} [{}]"
 
 #: src/cogs/ping.py:30
 msgid "ping"
-msgstr ""
+msgstr "ping"
 
 #: src/cogs/ping.py:31
 msgid "Get the bot latency."
-msgstr ""
+msgstr "Obtenir la latence du bot."
 
 #: src/cogs/poll.py:26
 msgid "poll"
-msgstr ""
+msgstr "sondage"
 
 #: src/cogs/poll.py:27
 msgid "Do a poll."
-msgstr ""
+msgstr "Effectuer un sondage."
 
 #: src/cogs/stats.py:43
 msgid "stats"
-msgstr ""
+msgstr "stats"
 
 #: src/cogs/stats.py:44
 msgid "Get somes stats about the bot."
-msgstr ""
+msgstr "Obtenir quelques statistiques sur le bot."
 
 #: src/cogs/stats.py:49
 msgid "Quelques statistiques sur MyBot"
