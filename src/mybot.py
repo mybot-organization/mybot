@@ -90,7 +90,10 @@ class MyBot(AutoShardedBot):
 
     async def sync_tree(self) -> None:
         for guild_id in self.tree.active_guild_ids:
-            await self.tree.sync(guild=discord.Object(guild_id))
+            try:
+                await self.tree.sync(guild=discord.Object(guild_id))
+            except discord.Forbidden as e:
+                logger.error(f"Failed to sync guild {guild_id}.", exc_info=e)
         self.app_commands = await self.tree.sync()
 
     async def on_ready(self) -> None:

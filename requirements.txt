@@ -6,3 +6,4 @@ discord.py
 click
 langdetect
 psutil
+alembic

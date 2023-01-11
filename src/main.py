@@ -4,7 +4,7 @@ from typing import Any
 
 import click
 
-from core._config import config, define_config
+from core._config import define_config
 from core._logger import create_logger
 from mybot import MyBot
 
@@ -15,47 +15,6 @@ logging.getLogger("discord").setLevel(logging.INFO)
 @click.group()
 def cli():
     pass
-
-
-@cli.command()
-@click.option("--postgres-user", default=None, type=str, envvar="POSTGRES_USER")
-@click.option("--postgres-db", default=None, type=str, envvar="POSTGRES_DB")
-@click.option("--postgres-password", required=True, type=str, envvar="POSTGRES_PASSWORD")
-def db(
-    postgres_user: str | None,
-    postgres_db: str | None,
-    postgres_password: str,
-):
-    kwargs: dict[str, Any] = {}
-    if postgres_user is not None:
-        kwargs["POSTGRES_USER"] = postgres_user
-    if postgres_db is not None:
-        kwargs["POSTGRES_DB"] = postgres_db
-    kwargs["POSTGRES_PASSWORD"] = postgres_password
-
-    define_config(None, **kwargs)
-
-    # this part will probably contains some migrations informations.
-    # I need to take a look at Alembic. There is no use currently.
-
-    import asyncio
-
-    from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
-
-    from core import db
-
-    engine: AsyncEngine = create_async_engine(
-        f"postgresql+asyncpg://{config.POSTGRES_USER}:{config.POSTGRES_PASSWORD}@database:5432/{config.POSTGRES_DB}",
-        echo=False,
-    )
-    # async_session = async_sessionmaker(engine, expire_on_commit=False)
-
-    async def manipulation():
-        async with engine.begin() as conn:
-            await conn.run_sync(db.Base.metadata.drop_all)
-            await conn.run_sync(db.Base.metadata.create_all)
-
-    asyncio.run(manipulation())
 
 
 @cli.command()

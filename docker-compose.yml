@@ -11,9 +11,11 @@ services:
     tty: true
     restart: always
     depends_on:
-      - "database"
+      database:
+        condition: service_healthy
     volumes:
       - ./data/locale:/app/locale
+      - ./alembic:/app/alembic
     ports:
       - 8080:8080
 
@@ -24,7 +26,14 @@ services:
     restart: always
     volumes:
       - ./data/database:/var/lib/postgresql/data
-    expose:
-      - 5432
     ports:
       - "54321:5432"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
