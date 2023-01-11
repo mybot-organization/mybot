@@ -6,6 +6,7 @@ from sqlalchemy import select as select
 from sqlalchemy.orm import selectinload as selectinload
 
 from .tables import (
+    Base as Base,
     GuildDB as GuildDB,
     Poll as Poll,
     PollChoice as PollChoice,

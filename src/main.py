@@ -48,15 +48,12 @@ def db(
         f"postgresql+asyncpg://{config.POSTGRES_USER}:{config.POSTGRES_PASSWORD}@database:5432/{config.POSTGRES_DB}",
         echo=False,
     )
-    async_session = async_sessionmaker(engine, expire_on_commit=False)
+    # async_session = async_sessionmaker(engine, expire_on_commit=False)
 
     async def manipulation():
-        async with async_session.begin() as session:
-            poll = await session.get(db.Poll, 1)
-
-            if poll:
-                result = await session.execute(db.select(db.PollChoice).where(db.PollChoice.poll_id == poll.id))
-                print(result.all())
+        async with engine.begin() as conn:
+            await conn.run_sync(db.Base.metadata.drop_all)
+            await conn.run_sync(db.Base.metadata.create_all)
 
     asyncio.run(manipulation())
 
