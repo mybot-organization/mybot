@@ -27,7 +27,7 @@ class Calculator(Cog):
 
     @app_commands.command(
         name=__("calculator"),
-        description=__("Show a calulator you can use."),
+        description=__("Show a calculator you can use."),
         extras={"soon": True},
     )
     async def calculator(self, inter: Interaction, initial_expression: str) -> None:
