@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-29 19:23+0000\n"
-"PO-Revision-Date: 2022-08-29 20:59\n"
+"POT-Creation-Date: 2023-01-11 22:35+0000\n"
+"PO-Revision-Date: 2023-01-11 23:27\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -17,206 +17,246 @@ msgstr ""
 "X-Crowdin-File: /dev/data/locale/mybot.pot\n"
 "X-Crowdin-File-ID: 48\n"
 
-#: src/cogs/clear.py:76
+#: src/cogs/calculator.py:29
+msgid "calculator"
+msgstr "calculatrice"
+
+#: src/cogs/calculator.py:30
+msgid "Show a calculator you can use."
+msgstr "Afficher une calculatrice que vous pouvez utiliser."
+
+#: src/cogs/clear.py:77
 msgid "Delete multiple messages with some filters."
 msgstr "Supprimer plusieurs messages avec des filtres."
 
-#: src/cogs/clear.py:81
+#: src/cogs/clear.py:84
 msgid "image"
 msgstr "image"
 
-#: src/cogs/clear.py:82
+#: src/cogs/clear.py:85
 msgid "video"
 msgstr "vidéo"
 
-#: src/cogs/clear.py:83
+#: src/cogs/clear.py:86
 msgid "audio"
 msgstr "audio"
 
-#: src/cogs/clear.py:84
+#: src/cogs/clear.py:87
 msgid "stickers"
 msgstr "autocollants"
 
-#: src/cogs/clear.py:85
+#: src/cogs/clear.py:88
 msgid "files"
 msgstr "fichiers"
 
-#: src/cogs/clear.py:86
+#: src/cogs/clear.py:89
 msgid "any attachment"
 msgstr "n'importe quel fichier"
 
-#: src/cogs/clear.py:87
+#: src/cogs/clear.py:90
 msgid "embed"
 msgstr "embed"
 
-#: src/cogs/clear.py:88
+#: src/cogs/clear.py:91
 msgid "link (any URL)"
 msgstr "lien (n'importe quelle URL)"
 
-#: src/cogs/clear.py:89
+#: src/cogs/clear.py:92
 msgid "mention"
 msgstr "mention"
 
-#: src/cogs/clear.py:90
+#: src/cogs/clear.py:93
 msgid "discord invitation"
 msgstr "invitation discord"
 
-#: src/cogs/clear.py:93
+#: src/cogs/clear.py:96
 msgid "include"
 msgstr "inclus"
 
-#: src/cogs/clear.py:94
+#: src/cogs/clear.py:97
 msgid "exclude"
 msgstr "exclus"
 
-#: src/cogs/clear.py:95
+#: src/cogs/clear.py:98
 msgid "only"
 msgstr "seulement"
 
-#: src/cogs/clear.py:99
+#: src/cogs/clear.py:102
 msgid "The amount of messages to delete."
 msgstr "Le nombre de messages à supprimer."
 
-#: src/cogs/clear.py:100
+#: src/cogs/clear.py:103
 msgid "Delete only messages from the specified user."
 msgstr "Supprimer uniquement les messages de l'utilisateur spécifié."
 
-#: src/cogs/clear.py:101
+#: src/cogs/clear.py:104
 msgid "Delete only messages whose user has the specified role."
 msgstr "Supprimer uniquement les messages dont l'utilisateur a le rôle spécifié."
 
-#: src/cogs/clear.py:103
+#: src/cogs/clear.py:106
 msgid "Delete only messages that match the specified search (can be regex)."
 msgstr "Supprimer uniquement les messages qui correspondent à la recherche spécifiée (peut être une regex)."
 
-#: src/cogs/clear.py:106
+#: src/cogs/clear.py:109
 msgid "Delete only messages that contains the selected entry. #TODO"
 msgstr "Supprimer uniquement les messages qui contiennent l'entrée sélectionnée. #TODO"
 
-#: src/cogs/clear.py:108
+#: src/cogs/clear.py:111
 msgid "Delete only messages where length match the specified entry. (e.g. '<=100', '5', '>10') #TODO"
-msgstr "Supprimer uniquement les messages dont la longueur correspond à l'entrée spécifiée. (par exemple '<=100', '5', '>10') #TODO"
+msgstr "Supprimer uniquement les messages dont la longueur correspond à l'entrée. (ex : '<=100', '5', '>10')"
 
-#: src/cogs/clear.py:109
+#: src/cogs/clear.py:112
 msgid "Delete only messages sent before the specified message or date. (yyyy-mm-dd) #TODO"
 msgstr "Supprimer uniquement les messages envoyés avant le message ou la date spécifiés. (aaaa-mm-jj) #TODO"
 
-#: src/cogs/clear.py:110
+#: src/cogs/clear.py:113
 msgid "Delete only messages sent after the specified message or date.  (yyyy-mm-dd) #TODO"
 msgstr "Supprimer uniquement les messages envoyés après le message ou la date spécifiés. (aaaa-mm-jj) #TODO"
 
-#: src/cogs/clear.py:112
+#: src/cogs/clear.py:115
 msgid "Include/exclude pinned messages in deletion, or deletes \"only\" pinned messages. (default to exclude)"
-msgstr "Inclure/exclure les messages épinglés dans la suppression ou supprimer \"seulement\" les messages épinglés. (\"exclure\" par défaut)"
+msgstr "Inclure/exclure les messages épinglés dans la suppression ou supprimer \"seulement\" ces messages."
 
-#: src/cogs/clear.py:116
+#: src/cogs/clear.py:119
 msgid "amount"
 msgstr "quantitée"
 
-#: src/cogs/clear.py:117
+#: src/cogs/clear.py:120
 msgid "user"
 msgstr "utilisateur"
 
-#: src/cogs/clear.py:118
+#: src/cogs/clear.py:121
 msgid "role"
 msgstr "rôle"
 
-#: src/cogs/clear.py:119
+#: src/cogs/clear.py:122
 msgid "search"
 msgstr "recherche"
 
-#: src/cogs/clear.py:120
+#: src/cogs/clear.py:123
 msgid "has"
 msgstr "contient"
 
-#: src/cogs/clear.py:121
+#: src/cogs/clear.py:124
 msgid "length"
 msgstr "longueur"
 
-#: src/cogs/clear.py:122
+#: src/cogs/clear.py:125
 msgid "before"
 msgstr "avant"
 
-#: src/cogs/clear.py:123
+#: src/cogs/clear.py:126
 msgid "after"
 msgstr "après"
 
-#: src/cogs/clear.py:124
+#: src/cogs/clear.py:127
 msgid "pinned"
 msgstr "épinglés"
 
-#: src/cogs/clear.py:149
+#: src/cogs/clear.py:152
 #, python-brace-format
 msgid "You must supply a number between 1 and 250. (0 < {amount} < 251)"
 msgstr "Vous devez fournir un nombre entre 1 et 250. (0 < {amount} < 251)"
 
-#: src/cogs/clear.py:183
+#: src/cogs/clear.py:186
 msgid "Cancel"
 msgstr "Annuler"
 
-#: src/cogs/clear.py:191
+#: src/cogs/clear.py:194
 #, python-brace-format
 msgid "Clearing {amount} message(s)..."
 msgstr "Suppression de {amount} message(s)..."
 
-#: src/cogs/clear.py:216
+#: src/cogs/clear.py:219
 msgid "Cannot clear more than 3 minutes. {} message(s) deleted."
 msgstr "Impossible de supprimer plus de 3 minutes. {} message(s) supprimé(s)."
 
-#: src/cogs/clear.py:217
+#: src/cogs/clear.py:220
 msgid "Clear cancelled. {} message(s) deleted."
 msgstr "Suppression annulée. {} message(s) supprimé(s)."
 
-#: src/cogs/clear.py:225
+#: src/cogs/clear.py:228
 msgid "{} message(s) deleted."
 msgstr "{} message(s) supprimé(s)."
 
-#: src/cogs/help.py:28
-msgid "chat input"
-msgstr "entrée tchat"
+#: src/cogs/help.py:27
+msgid "slash command"
+msgstr "commande slash"
 
-#: src/cogs/help.py:29
+#: src/cogs/help.py:28
 msgid "message context"
 msgstr "contexte de message"
 
-#: src/cogs/help.py:30
+#: src/cogs/help.py:29
 msgid "user context"
 msgstr "contexte d'utilisateur"
 
-#: src/cogs/help.py:46
+#: src/cogs/help.py:30
+msgid "miscellaneous"
+msgstr "divers"
+
+#: src/cogs/help.py:38
 msgid "help"
 msgstr "aide"
 
-#: src/cogs/help.py:46
+#: src/cogs/help.py:38
 msgid "Get help about the bot."
 msgstr "Obtenir de l'aide à propos du bot."
 
-#: src/cogs/help.py:47
+#: src/cogs/help.py:39
 msgid "feature"
 msgstr "fonctionnalité"
 
-#: src/cogs/help.py:81
+#: src/cogs/help.py:72
 msgid "Commands of MyBot"
 msgstr "Commandes de MyBot"
 
-#: src/cogs/help.py:91
+#: src/cogs/help.py:82
 msgid "Chat input commands"
 msgstr "Commandes d'entrée tchat"
 
-#: src/cogs/help.py:96
+#: src/cogs/help.py:87
 msgid "Help about {} [{}]"
 msgstr "Aide à propos de {} [{}]"
 
-#: src/utils/custom_command_tree.py:51
+#: src/cogs/ping.py:30
+msgid "ping"
+msgstr "ping"
+
+#: src/cogs/ping.py:31
+msgid "Get the bot latency."
+msgstr "Obtenir la latence du bot."
+
+#: src/cogs/poll.py:26
+msgid "poll"
+msgstr "sondage"
+
+#: src/cogs/poll.py:27
+msgid "Do a poll."
+msgstr "Effectuer un sondage."
+
+#: src/cogs/stats.py:43
+msgid "stats"
+msgstr "stats"
+
+#: src/cogs/stats.py:44
+msgid "Get somes stats about the bot."
+msgstr "Obtenir quelques statistiques sur le bot."
+
+#: src/cogs/stats.py:49
+msgid "Quelques statistiques sur MyBot"
+msgstr ""
+
+#: src/core/custom_command_tree.py:51
 msgid "Support server"
 msgstr "Serveur support"
 
-#: src/utils/custom_command_tree.py:69
+#: src/core/custom_command_tree.py:69
 #, python-brace-format
 msgid "This command is already executed the max amount of times. (Max: {error.rate})"
 msgstr "Cette commande est déjà exécutée le nombre maximal de fois. (Max : {error.rate})"
 
-#: src/utils/custom_command_tree.py:72
+#: src/core/custom_command_tree.py:72
 #, python-brace-format
 msgid "An unhandled error happened.\n"
 "{error}"
