@@ -9,7 +9,7 @@ from discord.ext.commands import AutoShardedBot, errors  # pyright: ignore[repor
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from commands_exporter import extract_features
-from core import config
+from core import config, db
 from core.custom_command_tree import CustomCommandTree
 from core.i18n import Translator
 
@@ -34,10 +34,11 @@ class MyBot(AutoShardedBot):
 
         intents = discord.Intents().none()
         intents.reactions = True
+        intents.guilds = True
         logger.debug(f"Intents : {', '.join(flag[0] for flag in intents if flag[1])}")
 
         super().__init__(
-            command_prefix="unimplemented",  # Maybe consider use of IntegrationBot instead of AutoShardedBot
+            command_prefix="!",  # Maybe consider use of IntegrationBot instead of AutoShardedBot
             tree_cls=CustomCommandTree,
             member_cache_flags=discord.MemberCacheFlags.none(),
             chunk_guilds_at_startup=False,
@@ -91,22 +92,6 @@ class MyBot(AutoShardedBot):
         for guild_id in self.tree.active_guild_ids:
             await self.tree.sync(guild=discord.Object(guild_id))
         self.app_commands = await self.tree.sync()
-
-    #  We don't chunk guilds at startup, so we will need to check at anytime if a guild is in the database.
-    # async def sync_database(self) -> None:
-    #     async with self.async_session.begin() as session:
-    #         stmt = db.select(db.GuildDB.guild_id)
-    #         result = await session.execute(stmt)
-    #         db_guilds_ids = result.scalars().all()
-
-    #         for guild in self.guilds:
-    #             if guild.id not in db_guilds_ids:
-    #                 guild_db = db.GuildDB(
-    #                     guild_id=guild.id, premium_type=db.PremiumType.NONE, translations_are_public=False
-    #                 )
-    #                 session.add(guild_db)
-    #                 logger.debug(f"Synced new guild {guild.id}.")
-    #     logger.info("Database synced.")
 
     async def on_ready(self) -> None:
         bot_user = cast(discord.ClientUser, self.user)  # Bot is logged in, so it's a ClientUser
@@ -168,3 +153,23 @@ class MyBot(AutoShardedBot):
             return None
         else:
             return channel
+
+    async def get_guild_db(self, guild_id: int) -> db.GuildDB:
+        """Get a GuildDB object from the database. It is created if the guild doesn't exist in the database.
+
+        Args:
+            guild_id (int): the guild id
+
+        Returns:
+            db.GuildDB: the GuildDB object
+        """
+        async with self.async_session.begin() as session:
+            stmt = db.select(db.GuildDB).where(db.GuildDB.guild_id == guild_id)
+            result = await session.execute(stmt)
+            guild = result.scalar_one_or_none()
+
+            if guild is None:
+                guild = db.GuildDB(guild_id=guild_id, premium_type=db.PremiumType.NONE, translations_are_public=False)
+                session.add(guild)
+
+            return guild
