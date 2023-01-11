@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-09 21:28+0000\n"
+"POT-Creation-Date: 2023-01-11 17:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,170 +17,178 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/cogs/clear.py:76
+#: src/cogs/calculator.py:29
+msgid "calculator"
+msgstr ""
+
+#: src/cogs/calculator.py:30
+msgid "Show a calulator you can use."
+msgstr ""
+
+#: src/cogs/clear.py:77
 msgid "Delete multiple messages with some filters."
 msgstr ""
 
-#: src/cogs/clear.py:81
+#: src/cogs/clear.py:84
 msgid "image"
 msgstr ""
 
-#: src/cogs/clear.py:82
+#: src/cogs/clear.py:85
 msgid "video"
 msgstr ""
 
-#: src/cogs/clear.py:83
+#: src/cogs/clear.py:86
 msgid "audio"
 msgstr ""
 
-#: src/cogs/clear.py:84
+#: src/cogs/clear.py:87
 msgid "stickers"
 msgstr ""
 
-#: src/cogs/clear.py:85
+#: src/cogs/clear.py:88
 msgid "files"
 msgstr ""
 
-#: src/cogs/clear.py:86
+#: src/cogs/clear.py:89
 msgid "any attachment"
 msgstr ""
 
-#: src/cogs/clear.py:87
+#: src/cogs/clear.py:90
 msgid "embed"
 msgstr ""
 
-#: src/cogs/clear.py:88
+#: src/cogs/clear.py:91
 msgid "link (any URL)"
 msgstr ""
 
-#: src/cogs/clear.py:89
+#: src/cogs/clear.py:92
 msgid "mention"
 msgstr ""
 
-#: src/cogs/clear.py:90
+#: src/cogs/clear.py:93
 msgid "discord invitation"
 msgstr ""
 
-#: src/cogs/clear.py:93
+#: src/cogs/clear.py:96
 msgid "include"
 msgstr ""
 
-#: src/cogs/clear.py:94
+#: src/cogs/clear.py:97
 msgid "exclude"
 msgstr ""
 
-#: src/cogs/clear.py:95
+#: src/cogs/clear.py:98
 msgid "only"
 msgstr ""
 
-#: src/cogs/clear.py:99
+#: src/cogs/clear.py:102
 msgid "The amount of messages to delete."
 msgstr ""
 
-#: src/cogs/clear.py:100
+#: src/cogs/clear.py:103
 msgid "Delete only messages from the specified user."
 msgstr ""
 
-#: src/cogs/clear.py:101
+#: src/cogs/clear.py:104
 msgid "Delete only messages whose user has the specified role."
 msgstr ""
 
-#: src/cogs/clear.py:103
+#: src/cogs/clear.py:106
 msgid "Delete only messages that match the specified search (can be regex)."
 msgstr ""
 
-#: src/cogs/clear.py:106
+#: src/cogs/clear.py:109
 msgid "Delete only messages that contains the selected entry. #TODO"
 msgstr ""
 
-#: src/cogs/clear.py:108
+#: src/cogs/clear.py:111
 msgid ""
 "Delete only messages where length match the specified entry. (e.g. '<=100', "
 "'5', '>10') #TODO"
 msgstr ""
 
-#: src/cogs/clear.py:109
+#: src/cogs/clear.py:112
 msgid ""
 "Delete only messages sent before the specified message or date. (yyyy-mm-dd) "
 "#TODO"
 msgstr ""
 
-#: src/cogs/clear.py:110
+#: src/cogs/clear.py:113
 msgid ""
 "Delete only messages sent after the specified message or date.  (yyyy-mm-dd) "
 "#TODO"
 msgstr ""
 
-#: src/cogs/clear.py:112
+#: src/cogs/clear.py:115
 msgid ""
 "Include/exclude pinned messages in deletion, or deletes \"only\" pinned "
 "messages. (default to exclude)"
 msgstr ""
 
-#: src/cogs/clear.py:116
+#: src/cogs/clear.py:119
 msgid "amount"
 msgstr ""
 
-#: src/cogs/clear.py:117
+#: src/cogs/clear.py:120
 msgid "user"
 msgstr ""
 
-#: src/cogs/clear.py:118
+#: src/cogs/clear.py:121
 msgid "role"
 msgstr ""
 
-#: src/cogs/clear.py:119
+#: src/cogs/clear.py:122
 msgid "search"
 msgstr ""
 
-#: src/cogs/clear.py:120
+#: src/cogs/clear.py:123
 msgid "has"
 msgstr ""
 
-#: src/cogs/clear.py:121
+#: src/cogs/clear.py:124
 msgid "length"
 msgstr ""
 
-#: src/cogs/clear.py:122
+#: src/cogs/clear.py:125
 msgid "before"
 msgstr ""
 
-#: src/cogs/clear.py:123
+#: src/cogs/clear.py:126
 msgid "after"
 msgstr ""
 
-#: src/cogs/clear.py:124
+#: src/cogs/clear.py:127
 msgid "pinned"
 msgstr ""
 
-#: src/cogs/clear.py:149
+#: src/cogs/clear.py:152
 #, python-brace-format
 msgid "You must supply a number between 1 and 250. (0 < {amount} < 251)"
 msgstr ""
 
-#: src/cogs/clear.py:183
+#: src/cogs/clear.py:186
 msgid "Cancel"
 msgstr ""
 
-#: src/cogs/clear.py:191
+#: src/cogs/clear.py:194
 #, python-brace-format
 msgid "Clearing {amount} message(s)..."
 msgstr ""
 
-#: src/cogs/clear.py:216
+#: src/cogs/clear.py:219
 msgid "Cannot clear more than 3 minutes. {} message(s) deleted."
 msgstr ""
 
-#: src/cogs/clear.py:217
+#: src/cogs/clear.py:220
 msgid "Clear cancelled. {} message(s) deleted."
 msgstr ""
 
-#: src/cogs/clear.py:225
+#: src/cogs/clear.py:228
 msgid "{} message(s) deleted."
 msgstr ""
 
 #: src/cogs/help.py:27
-msgid "chat input"
+msgid "slash command"
 msgstr ""
 
 #: src/cogs/help.py:28
@@ -191,39 +199,59 @@ msgstr ""
 msgid "user context"
 msgstr ""
 
-#: src/cogs/help.py:37
-msgid "help"
-msgstr ""
-
-#: src/cogs/help.py:37
-msgid "Get help about the bot."
+#: src/cogs/help.py:30
+msgid "miscellaneous"
 msgstr ""
 
 #: src/cogs/help.py:38
+msgid "help"
+msgstr ""
+
+#: src/cogs/help.py:38
+msgid "Get help about the bot."
+msgstr ""
+
+#: src/cogs/help.py:39
 msgid "feature"
 msgstr ""
 
-#: src/cogs/help.py:71
+#: src/cogs/help.py:72
 msgid "Commands of MyBot"
 msgstr ""
 
-#: src/cogs/help.py:81
+#: src/cogs/help.py:82
 msgid "Chat input commands"
 msgstr ""
 
-#: src/cogs/help.py:86
+#: src/cogs/help.py:87
 msgid "Help about {} [{}]"
 msgstr ""
 
-#: src/cogs/stats.py:42
+#: src/cogs/ping.py:30
+msgid "ping"
+msgstr ""
+
+#: src/cogs/ping.py:31
+msgid "Get the bot latency."
+msgstr ""
+
+#: src/cogs/poll.py:26
+msgid "poll"
+msgstr ""
+
+#: src/cogs/poll.py:27
+msgid "Do a poll."
+msgstr ""
+
+#: src/cogs/stats.py:43
 msgid "stats"
 msgstr ""
 
-#: src/cogs/stats.py:42
-msgid "Obtenir des stats sur le bot."
+#: src/cogs/stats.py:44
+msgid "Get somes stats about the bot."
 msgstr ""
 
-#: src/cogs/stats.py:44
+#: src/cogs/stats.py:49
 msgid "Quelques statistiques sur MyBot"
 msgstr ""
 
