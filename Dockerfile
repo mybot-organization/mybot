@@ -1,17 +1,15 @@
 FROM python:3.11.0 as base
 WORKDIR /app
 ENV PYTHONUNBUFFERED=0
-COPY bin/wait-for-it.sh requirements.txt config.toml* ./
-RUN chmod +x ./wait-for-it.sh && pip install -r requirements.txt
-ENTRYPOINT ["./wait-for-it.sh", "database:5432", "--"]
+COPY requirements.txt config.toml* alembic.ini ./
+RUN pip install -r requirements.txt
 
 FROM base as prod
 COPY ./src ./
-CMD ["python", "./main.py", "bot", "--sync"]
+CMD ["/bin/bash", "-c", "alembic upgrade head && python ./main.py bot --sync -c ./config.toml"]
 
 FROM base as debug
 ENV DEBUG=1
 ENV LOG_LEVEL=DEBUG
 RUN pip install debugpy
-CMD ["python", "-m", "debugpy", "--wait-for-client", "--listen", "0.0.0.0:5678", "./src/main.py", "bot", "-c", "./config.toml"]
-# CMD ["python", "-m", "debugpy", "--wait-for-client", "--listen", "0.0.0.0:5678", "./src/main.py", "db"]
+CMD ["/bin/bash", "-c", "alembic upgrade head && python -m debugpy --wait-for-client --listen 0.0.0.0:5678 ./src/main.py bot -c ./config.toml"]
