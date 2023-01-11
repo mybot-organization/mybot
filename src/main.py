@@ -4,7 +4,7 @@ from typing import Any
 
 import click
 
-from core._config import config, define_config
+from core._config import define_config
 from core._logger import create_logger
 from mybot import MyBot
 
