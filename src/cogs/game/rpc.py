@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
+from core import SpecialCog
 
 if TYPE_CHECKING:
     from discord import Interaction
@@ -14,9 +14,6 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class GameRPC(Cog, name="game_rpc"):
-    def __init__(self, bot: MyBot) -> None:
-        self.bot = bot
-
+class GameRPC(SpecialCog["MyBot"], name="game_rpc"):
     async def rpc(self, inter: Interaction) -> None:
         raise NotImplementedError()

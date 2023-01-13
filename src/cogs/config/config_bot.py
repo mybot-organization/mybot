@@ -3,9 +3,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
-
-from core import ResponseType, response_constructor
+from core import ResponseType, SpecialCog, response_constructor
 from core.errors import UnexpectedError
 from core.i18n import _
 
@@ -18,10 +16,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class ConfigBot(Cog, name="config_bot"):
-    def __init__(self, bot: MyBot):
-        self.bot = bot
-
+class ConfigBot(SpecialCog["MyBot"], name="config_bot"):
     async def public_translation(self, inter: Interaction, value: bool) -> None:
         if inter.guild_id is None:
             raise UnexpectedError()

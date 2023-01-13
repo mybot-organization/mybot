@@ -5,7 +5,6 @@ import sys
 from typing import TYPE_CHECKING, cast
 
 import discord
-from discord.ext import commands
 from discord.ext.commands import AutoShardedBot, errors  # pyright: ignore[reportMissingTypeStubs]
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 

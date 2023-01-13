@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
+from core import SpecialCog
 
 if TYPE_CHECKING:
     from discord import Interaction
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class ConfigGuild(Cog, name="config_guild"):
+class ConfigGuild(SpecialCog["MyBot"], name="config_guild"):
     def __init__(self, bot: MyBot):
         self.bot = bot
 

@@ -5,9 +5,8 @@ from typing import TYPE_CHECKING
 
 from discord import app_commands
 from discord.app_commands import locale_str as __
-from discord.ext.commands import GroupCog  # pyright: ignore[reportMissingTypeStubs]
 
-from core import cog_property
+from core import SpecialGroupCog, cog_property
 from core.i18n import _
 
 if TYPE_CHECKING:
@@ -26,12 +25,9 @@ logger = logging.getLogger(__name__)
 # So all commands are defined here, and their implementation are in other files.
 
 
-class Config(GroupCog, group_name=__("config"), group_description=__("Set configurations.")):
+class Config(SpecialGroupCog["MyBot"], group_name=__("config"), group_description=__("Set configurations.")):
     guild_group = app_commands.Group(name=__("guild"), description=__("Set configuration for the guild."))
     bbot_group = app_commands.Group(name=__("bot"), description=__("Set configuration for the bot."))
-
-    def __init__(self, bot: MyBot) -> None:
-        self.bot = bot
 
     @cog_property("config_guild")
     def guild_cog(self) -> ConfigGuild:

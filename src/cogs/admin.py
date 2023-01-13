@@ -4,9 +4,8 @@ import logging
 from typing import TYPE_CHECKING
 
 from discord import app_commands
-from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 
-from core import config
+from core import SpecialCog, config
 
 if TYPE_CHECKING:
     from discord import Interaction
@@ -16,10 +15,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class Admin(Cog):  # TODO: add checkers
-    def __init__(self, bot: MyBot):
-        self.bot: MyBot = bot
-
+class Admin(SpecialCog["MyBot"]):  # TODO: add checkers
     @app_commands.command()
     @app_commands.guilds(config.SUPPORT_GUILD_ID)
     async def reload_extension(self, inter: Interaction, extension: str):

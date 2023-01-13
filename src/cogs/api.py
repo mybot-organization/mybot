@@ -6,10 +6,9 @@ from os import getpid
 from typing import TYPE_CHECKING, Awaitable, Callable, Concatenate, ParamSpec, TypeVar
 
 from aiohttp import hdrs, web
-from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from psutil import Process
 
-from core import config
+from core import SpecialCog, config
 
 if TYPE_CHECKING:
     from mybot import MyBot
@@ -18,7 +17,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 P = ParamSpec("P")
-S = TypeVar("S", bound="Cog")
+S = TypeVar("S", bound="SpecialCog[MyBot]")
 
 
 def route(method: str, path: str):
@@ -29,7 +28,7 @@ def route(method: str, path: str):
     return wrap
 
 
-class API(Cog):
+class API(SpecialCog["MyBot"]):
     def __init__(self, bot: MyBot):
         self.bot: MyBot = bot
         self.app = web.Application()
