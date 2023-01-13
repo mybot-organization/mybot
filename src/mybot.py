@@ -5,6 +5,7 @@ import sys
 from typing import TYPE_CHECKING, cast
 
 import discord
+from discord.ext import commands
 from discord.ext.commands import AutoShardedBot, errors  # pyright: ignore[reportMissingTypeStubs]
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
@@ -12,6 +13,7 @@ from commands_exporter import extract_features
 from core import config, db
 from core.custom_command_tree import CustomCommandTree
 from core.i18n import Translator
+from core.special_cog import SpecialCog
 
 if TYPE_CHECKING:
     from discord import Guild, Thread, User
@@ -19,6 +21,8 @@ if TYPE_CHECKING:
     from discord.app_commands import AppCommand
     from discord.guild import GuildChannel
     from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
+
+    from core.misc_command import MiscCommand
 
 logger = logging.getLogger(__name__)
 
@@ -183,3 +187,16 @@ class MyBot(AutoShardedBot):
             await session.close()
 
         return guild
+
+    def misc_commands(self):
+        """Get all the misc commands.
+
+        Returns:
+            _type_: the list of misc commands
+        """
+        misc_commands: list[MiscCommand] = []
+        for cog in self.cogs.values():
+            if isinstance(cog, SpecialCog):
+                for misc_command in cog.get_misc_commands():
+                    misc_commands.append(misc_command)
+        return misc_commands

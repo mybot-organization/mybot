@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Callable, Literal, Protocol, TypeVar, runtime_checkable
+from functools import wraps
+from typing import TYPE_CHECKING, Any, Callable, Literal, Protocol, TypeVar, runtime_checkable
 
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
+
+if TYPE_CHECKING:
+    from discord.ext.commands.bot import BotBase  # pyright: ignore[reportMissingTypeStubs]
+
 
 Func = TypeVar("Func", bound="FuncListener")
 LiteralNames = Literal["raw_reaction_add"]
@@ -30,12 +35,12 @@ class FuncListener(Protocol):
 
 
 class MiscCommand:
-    __cog_listener__ = True
+    bot: BotBase  # should be binder right after the class is created with bind_misc_commands
 
     def __init__(
         self,
         name: str,
-        func: FuncListener,
+        callback: FuncListener,
         description: str,
         guild_only: bool,
         nsfw: bool,
@@ -43,7 +48,6 @@ class MiscCommand:
         type: MiscCommandsType,
         extras: dict[Any, Any],
     ) -> None:
-        func.__listener_as_command__ = self
         self.name = name
         self.type = type
         self.description = description
@@ -52,6 +56,14 @@ class MiscCommand:
         self.default_permissions = default_permissions
 
         self.extras = extras
+
+        self.checkers: list[Callable[..., Any]] = []
+        self._callback = callback
+
+    async def _do_call(self, *args: Any, **kwds: Any) -> Any:
+        for checker in self.checkers:
+            await checker(*args, **kwds)
+        return await self._callback(*args, **kwds)
 
 
 def misc_command(
@@ -75,14 +87,15 @@ def misc_command(
         extras (dict[Any, Any] | None, optional): Some extras informations. Defaults to None.
 
     Returns:
-        Callable[..., Any]: The function itself, binded with a MiscCommand.
+        Callable[..., Any]: A wrapped function, binded with a MiscCommand.
     """
 
     def inner(func: Func) -> Func:
         true_listener_name = listener_name or func.__name__
-        MiscCommand(
+
+        misc_command = MiscCommand(
             name=name,
-            func=func,
+            callback=func,
             description=description,
             guild_only=guild_only,
             nsfw=nsfw,
@@ -90,9 +103,16 @@ def misc_command(
             type=events_to_type[true_listener_name],
             extras=extras or {},
         )
-        binder = Cog.listener() if listener_name is None else Cog.listener(listener_name)
-        binder(func)
 
-        return func
+        @wraps(func)
+        async def inner(*args: Any, **kwargs: Any) -> Any:
+            return await misc_command._do_call(*args, **kwargs)  # type: ignore
+
+        setattr(inner, "__listener_as_command__", misc_command)
+
+        add_listener = Cog.listener() if listener_name is None else Cog.listener(listener_name)
+        add_listener(inner)
+
+        return inner  # type: ignore  # TODO : maybe using args etc we can do better
 
     return inner
