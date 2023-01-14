@@ -15,8 +15,5 @@ logger = logging.getLogger(__name__)
 
 
 class ConfigGuild(SpecialCog["MyBot"], name="config_guild"):
-    def __init__(self, bot: MyBot):
-        self.bot = bot
-
     async def emote(self, inter: Interaction) -> None:
         raise NotImplementedError()

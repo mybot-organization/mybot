@@ -17,14 +17,14 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class Resotre(Cog):
+class Restore(Cog):
     def __init__(self, bot: MyBot):
         self.bot: MyBot = bot
 
-    @misc_command("restore", "Send a message back in chat if a link is send.")
+    @misc_command("restore", description="Send a message back in chat if a link is send.")
     async def on_message(self, message: Message) -> None:
         raise NotImplementedError("Calculator is not implemented.")
 
 
 async def setup(bot: MyBot):
-    await bot.add_cog(Resotre(bot))
+    await bot.add_cog(Restore(bot))

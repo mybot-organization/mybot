@@ -20,7 +20,7 @@ class SpecialCog(commands.Cog, Generic[_BotType]):
     def __new__(cls, *args: Any, **kwargs: Any) -> Self:
         cls = super().__new__(cls, *args, **kwargs)
 
-        cls.__cog_misc_commands__: list[MiscCommand] = []
+        cls.__cog_misc_commands__ = []
         for _, listener in cls.__cog_listeners__:
             misc_command = getattr(getattr(cls, listener), "__listener_as_command__", None)
             if isinstance(misc_command, MiscCommand):

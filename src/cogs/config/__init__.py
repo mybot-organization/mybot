@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# Subcommands cannot be seperated in multiple files.
+# Subcommands cannot be separated in multiple files.
 # https://github.com/Rapptz/discord.py/discussions/8069
 # So all commands are defined here, and their implementation are in other files.
 
