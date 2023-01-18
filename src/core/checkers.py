@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import asyncio
 from collections import deque
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, Deque, Hashable, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, Deque, Hashable, TypeVar, Union
 
 from typing_extensions import Self
 
-from .errors import MaxConcurrencyReached
+from .errors import MaxConcurrencyReached, NoPrivateMessage
+from .misc_command import MiscCommand
 
 T = TypeVar("T")
 
@@ -14,7 +15,9 @@ T = TypeVar("T")
 if TYPE_CHECKING:
     from discord import Interaction
 
-    MaxConcurrencyFunction = Union[Callable[[Interaction], Coroutine[Any, Any, T]], Callable[[Interaction], T]]
+    from ._types import CoroT, MiscCommandCheckerContext
+
+    MaxConcurrencyFunction = Union[Callable[[Interaction], CoroT[T]], Callable[[Interaction], T]]
 
 
 class MaxConcurrency:
@@ -125,3 +128,40 @@ class _Semaphore:
     def release(self) -> None:
         self.value += 1
         self.wake_up()
+
+
+# def misc_check(predicate: Callable[[MiscCommandCheckerContext], bool | CoroT[bool]]) -> Callable[[T], T]:
+#     def decorator(func: MiscCommand | Callable[..., Any]) -> MiscCommand | Callable[..., Any]:
+#         if isinstance(func, MiscCommand):
+#             func.checks.append(predicate)
+#         else:
+#             if not hasattr(func, "__mybot_misc_command_checks__"):
+#                 setattr(func, "__mybot_misc_command_checks__", [])
+
+#             getattr(func, "__mybot_misc_command_checks__").append(predicate)
+
+#         return func
+
+#     return decorator
+
+
+def misc_guild_only() -> Callable[[T], T]:
+    def predicate(ctx: MiscCommandCheckerContext) -> bool:
+        if ctx.guild_id is None:
+            raise NoPrivateMessage()
+        return True
+
+    def decorator(func: T) -> T:
+        if isinstance(func, MiscCommand):
+            func.guild_only = True
+            func.checks.append(predicate)
+        else:
+            if not hasattr(func, "__misc_commands_checks__"):
+                setattr(func, "__misc_commands_checks__", [])
+            getattr(func, "__misc_commands_checks__").append(predicate)
+
+            setattr(func, "__misc_commands_guild_only__", True)
+
+        return func
+
+    return decorator

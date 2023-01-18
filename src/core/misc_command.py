@@ -2,19 +2,27 @@ from __future__ import annotations
 
 from enum import Enum
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, Generic, Literal
+from typing import TYPE_CHECKING, Any, Callable, Concatenate, Coroutine, Generic, Literal
 
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
+from discord.utils import maybe_coroutine
 from typing_extensions import ParamSpec, TypeVar
+
+from ._types import ContextT
+from .errors import CheckFail, MiscCommandException
 
 if TYPE_CHECKING:
     from discord.ext.commands.bot import BotBase  # pyright: ignore[reportMissingTypeStubs]
 
+    from ._types import ContextT, CoroT, MiscCommandCallback, MiscCommandCheckerContext
+    from .special_cog import SpecialCog
+
 
 T = TypeVar("T", default=Any)
 P = ParamSpec("P", default=...)
+CogT = TypeVar("CogT", bound="SpecialCog[Any]")
 Coro = Coroutine[Any, Any, T]
-MiscCommandCallback = Callable[P, Coro[T]]
+MiscCommandParams = Concatenate[CogT, ContextT, P]
 
 LiteralNames = Literal["raw_reaction_add"]
 
@@ -30,13 +38,13 @@ events_to_type: dict[str, MiscCommandsType] = {
 }
 
 
-class MiscCommand(Generic[P]):
-    bot: BotBase  # should be binder right after the class is created with bind_misc_commands
+class MiscCommand(Generic[ContextT, P, T]):
+    bot: BotBase  # should be defined...
 
     def __init__(
         self,
         name: str,
-        callback: MiscCommandCallback[P, T],
+        callback: MiscCommandCallback[Any, ContextT, P, T],
         description: str,
         nsfw: bool,
         type: MiscCommandsType,
@@ -47,18 +55,26 @@ class MiscCommand(Generic[P]):
         self.description = description
         self.nsfw = nsfw
 
-        self.guild_only = False  # TODO
+        self.guild_only = getattr(callback, "__misc_commands_guild_only__", False)
         self.default_permissions = 0  # TODO
 
         self.extras = extras
 
-        self.checkers: list[Callable[..., Any]] = []
-        self._callback = callback
+        self.checks: list[Callable[[MiscCommandCheckerContext], CoroT[bool] | bool]] = getattr(
+            callback, "__misc_commands_checks__", []
+        )
+        self._callback: MiscCommandCallback[Any, ContextT, P, T] = callback
 
-    async def do_call(self, *args: P.args, **kwargs: P.kwargs) -> Any:
-        for checker in self.checkers:
-            await checker(*args, **kwargs)
-        return await self._callback(*args, **kwargs)
+    async def do_call(self, cog: SpecialCog[Any], context: ContextT, *args: P.args, **kwargs: P.kwargs) -> T:
+        try:
+            for checker in self.checks:
+                if not await maybe_coroutine(checker, context):
+                    raise CheckFail()
+        except MiscCommandException as e:
+            self.bot.dispatch("misc_command_error", self, e, context)
+            raise e
+
+        return await self._callback(cog, context, *args, **kwargs)
 
 
 def misc_command(
@@ -68,8 +84,9 @@ def misc_command(
     nsfw: bool = False,
     listener_name: LiteralNames | None = None,
     extras: dict[Any, Any] | None = None,
-) -> Callable[..., Any]:
+) -> Callable[[MiscCommandCallback[CogT, ContextT, P, T]], MiscCommandCallback[CogT, ContextT, P, T]]:
     """Register an event listener as a "command" that can be retrieved from the feature exporter.
+    Checkers will be called within the second argument of the function (right after the Cog (self))
 
     Args:
         name (str): name of the "command"
@@ -84,7 +101,7 @@ def misc_command(
         Callable[..., Any]: A wrapped function, bound with a MiscCommand.
     """
 
-    def inner(func: MiscCommandCallback[P, T]) -> MiscCommandCallback[P, T]:
+    def inner(func: MiscCommandCallback[CogT, ContextT, P, T]) -> MiscCommandCallback[CogT, ContextT, P, T]:
         true_listener_name = listener_name or func.__name__
 
         misc_command = MiscCommand(
@@ -97,8 +114,8 @@ def misc_command(
         )
 
         @wraps(func)
-        async def inner(*args: P.args, **kwargs: P.kwargs) -> T:
-            return await misc_command.do_call(*args, **kwargs)
+        async def inner(cog: CogT, context: ContextT, *args: P.args, **kwargs: P.kwargs) -> T:
+            return await misc_command.do_call(cog, context, *args, **kwargs)
 
         setattr(inner, "__listener_as_command__", misc_command)
 
@@ -108,11 +125,3 @@ def misc_command(
         return inner
 
     return inner
-
-
-# def misc_check(predicate: "Check") -> Callable[[T], T]:
-#     def decorator(func: CheckInputParameter) -> CheckInputParameter:
-#         func.checks.append(predicate)
-#         return func
-
-#     return decorator

@@ -31,3 +31,15 @@ class UnexpectedError(Exception):
 
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
+
+
+class MiscCommandException(Exception):
+    pass
+
+
+class CheckFail(MiscCommandException):
+    pass
+
+
+class NoPrivateMessage(MiscCommandException):
+    pass

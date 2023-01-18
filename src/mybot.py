@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import discord
 from discord.ext.commands import AutoShardedBot, errors  # pyright: ignore[reportMissingTypeStubs]
@@ -21,6 +21,8 @@ if TYPE_CHECKING:
     from discord.guild import GuildChannel
     from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
+    from core._types import MiscCommandCheckerContext
+    from core.errors import MiscCommandException
     from core.misc_command import MiscCommand
 
 logger = logging.getLogger(__name__)
@@ -199,3 +201,12 @@ class MyBot(AutoShardedBot):
                 for misc_command in cog.get_misc_commands():
                     misc_commands.append(misc_command)
         return misc_commands
+
+    async def on_error(self, event_method: str, /, *args: Any, **kwargs: Any) -> None:
+        pass  # we consider that events don't raise errors, except if it is MiscCommand.
+
+    async def on_misc_command_error(
+        self, misc_command: MiscCommand, error: MiscCommandException, context: MiscCommandCheckerContext
+    ) -> None:
+        pass
+        # TODO : handle errors for misc commands.
