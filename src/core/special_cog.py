@@ -8,9 +8,9 @@ from .misc_command import MiscCommand
 
 if TYPE_CHECKING:
     from discord.abc import Snowflake
-    from discord.ext.commands.bot import BotBase  # pyright: ignore[reportMissingTypeStubs]
+    from discord.ext.commands.bot import AutoShardedBot, Bot, BotBase  # pyright: ignore[reportMissingTypeStubs]
 
-_BotType = TypeVar("_BotType", bound="BotBase")
+_BotType = TypeVar("_BotType", bound="Bot | AutoShardedBot")
 
 
 class SpecialCog(commands.Cog, Generic[_BotType]):
@@ -39,9 +39,9 @@ class SpecialCog(commands.Cog, Generic[_BotType]):
         self = await super()._inject(bot, override, guild, guilds)
 
         # bind the bot to the misc commands
-        # used because of error handling
+        # used to dispatch error for error handling
         for misc_command in self.get_misc_commands():
-            misc_command.bot = bot
+            misc_command.bot = bot  # type: ignore
 
         return self
 

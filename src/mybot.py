@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from discord.guild import GuildChannel
     from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
-    from core._types import MiscCommandCheckerContext
+    from core._types import MiscCommandUnresolvedContext
     from core.errors import MiscCommandException
     from core.misc_command import MiscCommand
 
@@ -206,7 +206,7 @@ class MyBot(AutoShardedBot):
         pass  # we consider that events don't raise errors, except if it is MiscCommand.
 
     async def on_misc_command_error(
-        self, misc_command: MiscCommand, error: MiscCommandException, context: MiscCommandCheckerContext
+        self, misc_command: MiscCommand, error: MiscCommandException, context: MiscCommandUnresolvedContext
     ) -> None:
         pass
         # TODO : handle errors for misc commands.

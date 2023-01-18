@@ -6,8 +6,7 @@ from typing import TYPE_CHECKING, Any, Callable, Deque, Hashable, TypeVar, Union
 
 from typing_extensions import Self
 
-from .errors import MaxConcurrencyReached, NoPrivateMessage
-from .misc_command import MiscCommand
+from .errors import MaxConcurrencyReached
 
 T = TypeVar("T")
 
@@ -15,7 +14,7 @@ T = TypeVar("T")
 if TYPE_CHECKING:
     from discord import Interaction
 
-    from ._types import CoroT, MiscCommandCheckerContext
+    from ._types import CoroT
 
     MaxConcurrencyFunction = Union[Callable[[Interaction], CoroT[T]], Callable[[Interaction], T]]
 
@@ -143,25 +142,3 @@ class _Semaphore:
 #         return func
 
 #     return decorator
-
-
-def misc_guild_only() -> Callable[[T], T]:
-    def predicate(ctx: MiscCommandCheckerContext) -> bool:
-        if ctx.guild_id is None:
-            raise NoPrivateMessage()
-        return True
-
-    def decorator(func: T) -> T:
-        if isinstance(func, MiscCommand):
-            func.guild_only = True
-            func.checks.append(predicate)
-        else:
-            if not hasattr(func, "__misc_commands_checks__"):
-                setattr(func, "__misc_commands_checks__", [])
-            getattr(func, "__misc_commands_checks__").append(predicate)
-
-            setattr(func, "__misc_commands_guild_only__", True)
-
-        return func
-
-    return decorator
