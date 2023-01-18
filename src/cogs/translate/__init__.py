@@ -209,7 +209,7 @@ class Translate(SpecialCog["MyBot"]):
             message_reference=message,
         )
 
-    # command definition is in __init__ because of dpy limitation!
+    # command definition is in Translate.__init__ because of dpy limitation!
     async def translate_message_ctx(self, inter: Interaction, message: Message) -> None:
         to_language = Language.from_discord_locale(inter.locale)
         if not to_language:
