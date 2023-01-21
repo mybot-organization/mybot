@@ -3,9 +3,8 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
-
-from core import misc_command
+from core import SpecialCog, misc_command
+from core.checkers import bot_required_permissions, is_activated, is_user_authorized, misc_check
 from core.i18n import _
 
 if TYPE_CHECKING:
@@ -17,14 +16,14 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class Resotre(Cog):
-    def __init__(self, bot: MyBot):
-        self.bot: MyBot = bot
-
-    @misc_command("restore", "Send a message back in chat if a link is send.")
+class Restore(SpecialCog["MyBot"]):
+    @bot_required_permissions(manage_webhooks=True)
+    @misc_command("restore", description="Send a message back in chat if a link is send.")
+    @misc_check(is_activated)
+    @misc_check(is_user_authorized)
     async def on_message(self, message: Message) -> None:
         raise NotImplementedError("Calculator is not implemented.")
 
 
 async def setup(bot: MyBot):
-    await bot.add_cog(Resotre(bot))
+    await bot.add_cog(Restore(bot))

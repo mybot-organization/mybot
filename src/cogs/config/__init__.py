@@ -3,11 +3,10 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from discord import app_commands
+from discord import Permissions, app_commands
 from discord.app_commands import locale_str as __
-from discord.ext.commands import GroupCog  # pyright: ignore[reportMissingTypeStubs]
 
-from core import cog_property
+from core import SpecialGroupCog, cog_property
 from core.i18n import _
 
 if TYPE_CHECKING:
@@ -21,17 +20,22 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# Subcommands cannot be seperated in multiple files.
+# Subcommands cannot be separated in multiple files.
 # https://github.com/Rapptz/discord.py/discussions/8069
 # So all commands are defined here, and their implementation are in other files.
 
 
-class Config(GroupCog, group_name=__("config"), group_description=__("Set configurations.")):
-    guild_group = app_commands.Group(name=__("guild"), description=__("Set configuration for the guild."))
-    bbot_group = app_commands.Group(name=__("bot"), description=__("Set configuration for the bot."))
-
-    def __init__(self, bot: MyBot) -> None:
-        self.bot = bot
+class Config(SpecialGroupCog["MyBot"], group_name=__("config"), group_description=__("Set configurations.")):
+    guild_group = app_commands.Group(
+        name=__("guild"),
+        description=__("Set configuration for the guild."),
+        default_permissions=Permissions(administrator=True),
+    )
+    bbot_group = app_commands.Group(
+        name=__("bot"),
+        description=__("Set configuration for the bot."),
+        default_permissions=Permissions(administrator=True),
+    )
 
     @cog_property("config_guild")
     def guild_cog(self) -> ConfigGuild:
@@ -47,7 +51,6 @@ class Config(GroupCog, group_name=__("config"), group_description=__("Set config
         extras={"soon": True},
     )
     @app_commands.guild_only()
-    @app_commands.default_permissions()  # TODO: set permissions
     async def emote(self, inter: Interaction) -> None:
         await self.guild_cog.emote(inter)
 
@@ -56,7 +59,6 @@ class Config(GroupCog, group_name=__("config"), group_description=__("Set config
         description=__("Set if the translations are visible for everyone or not."),
     )
     @app_commands.guild_only()
-    @app_commands.default_permissions()
     async def public_translations(self, inter: Interaction, value: bool) -> None:
         await self.bot_cog.public_translation(inter, value)
 

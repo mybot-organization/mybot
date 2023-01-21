@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, Any, NamedTuple, Sequence, cast
 
 from discord import Embed, Message, app_commands
 from discord.app_commands import locale_str as __
-from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 
-from core import ResponseType, TemporaryCache, misc_command, response_constructor
+from core import ResponseType, SpecialCog, TemporaryCache, misc_command, response_constructor
+from core.checkers import bot_required_permissions, is_activated, is_user_authorized, misc_check
 from core.i18n import _
 
 from .translator import Language, batch_translate, detect
@@ -126,9 +126,9 @@ class EmbedTranslation:
         return Embed.from_dict(self.dict_embed)
 
 
-class Translate(Cog):
+class Translate(SpecialCog["MyBot"]):
     def __init__(self, bot: MyBot):
-        self.bot: MyBot = bot
+        super().__init__(bot)
         self.cache: TemporaryCache[str, TranslationTask] = TemporaryCache(expire=timedelta(days=1), max_size=10_000)
 
         self.bot.tree.add_command(app_commands.ContextMenu(name=__("Translate"), callback=self.translate_message_ctx))
@@ -166,7 +166,10 @@ class Translate(Cog):
             send_strategies=strategies,
         )
 
+    @bot_required_permissions(send_messages=True, embed_links=True)
     @misc_command("translate")
+    @misc_check(is_activated)
+    @misc_check(is_user_authorized)
     async def on_raw_reaction_add(self, payload: RawReactionActionEvent):
         emote = payload.emoji.name
 
@@ -210,7 +213,7 @@ class Translate(Cog):
             message_reference=message,
         )
 
-    # command definition is in __init__ because of dpy limitation!
+    # command definition is in Translate.__init__ because of dpy limitation!
     async def translate_message_ctx(self, inter: Interaction, message: Message) -> None:
         to_language = Language.from_discord_locale(inter.locale)
         if not to_language:

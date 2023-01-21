@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Iterable
 
 from discord.app_commands import errors
 
@@ -31,3 +31,25 @@ class UnexpectedError(Exception):
 
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
+
+
+class MiscCommandException(Exception):
+    pass
+
+
+class CheckFail(MiscCommandException):
+    pass
+
+
+class NoPrivateMessage(MiscCommandException):
+    pass
+
+
+class MixinException(MiscCommandException, errors.AppCommandError):
+    pass
+
+
+class BotMissingPermissions(MixinException):
+    def __init__(self, perms: Iterable[str]) -> None:
+        self.missing_perms = set(perms)
+        super().__init__(f"Bot is missing the following permissions: {', '.join(perms)}")

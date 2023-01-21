@@ -10,7 +10,7 @@ from discord import app_commands
 from typing_extensions import NotRequired
 
 from core._config import define_config
-from core.misc_command import FuncListener, MiscCommandsType
+from core.misc_command import MiscCommandsType
 
 if TYPE_CHECKING:
     from mybot import MyBot
@@ -65,6 +65,7 @@ class Misc(Feature):
 class Extras(TypedDict):
     beta: NotRequired[bool]
     description: NotRequired[str]  # if ContextMenu
+    bot_required_permissions: NotRequired[list[str]]
 
 
 def extract_features(mybot: MyBot) -> Features:
@@ -94,24 +95,19 @@ def extract_features(mybot: MyBot) -> Features:
                 slash_command.parameters.append(parameter_payload)
 
             features.append(slash_command)
-    for cog in mybot.cogs.values():
-        for _, func in cog.get_listeners():
-            if not hasattr(func, "__listener_as_command__"):
-                continue
-            func = cast(FuncListener, func)
-            misc_cmd = func.__listener_as_command__
 
-            misc_feat = Misc(
-                name=misc_cmd.name,
-                description=misc_cmd.description,
-                guild_only=misc_cmd.guild_only,
-                default_permissions=misc_cmd.default_permissions,
-                beta=misc_cmd.extras.get("beta", False),
-                nsfw=misc_cmd.nsfw,
-                misc_type=misc_cmd.type,
-            )
+    for misc_cmd in mybot.misc_commands():
+        misc_feat = Misc(
+            name=misc_cmd.name,
+            description=misc_cmd.description,
+            guild_only=misc_cmd.guild_only,
+            default_permissions=misc_cmd.default_permissions,
+            beta=misc_cmd.extras.get("beta", False),
+            nsfw=misc_cmd.nsfw,
+            misc_type=misc_cmd.type,
+        )
 
-            features.append(misc_feat)
+        features.append(misc_feat)
 
     return features
 
