@@ -10,6 +10,7 @@ from discord import Embed, Message, app_commands
 from discord.app_commands import locale_str as __
 
 from core import ResponseType, SpecialCog, TemporaryCache, misc_command, response_constructor
+from core.checkers import bot_required_permissions, is_activated, is_user_authorized, misc_check
 from core.i18n import _
 
 from .translator import Language, batch_translate, detect
@@ -165,7 +166,10 @@ class Translate(SpecialCog["MyBot"]):
             send_strategies=strategies,
         )
 
+    @bot_required_permissions(send_messages=True, embed_links=True)
     @misc_command("translate")
+    @misc_check(is_activated)
+    @misc_check(is_user_authorized)
     async def on_raw_reaction_add(self, payload: RawReactionActionEvent):
         emote = payload.emoji.name
 

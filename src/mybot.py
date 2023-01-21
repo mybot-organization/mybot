@@ -208,5 +208,5 @@ class MyBot(AutoShardedBot):
     async def on_misc_command_error(
         self, misc_command: MiscCommand, error: MiscCommandException, context: MiscCommandUnresolvedContext
     ) -> None:
-        pass
+        print(misc_command, error, context)
         # TODO : handle errors for misc commands.

@@ -65,6 +65,7 @@ class Misc(Feature):
 class Extras(TypedDict):
     beta: NotRequired[bool]
     description: NotRequired[str]  # if ContextMenu
+    bot_required_permissions: NotRequired[list[str]]
 
 
 def extract_features(mybot: MyBot) -> Features:
