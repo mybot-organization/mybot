@@ -2,18 +2,19 @@ from __future__ import annotations
 
 from enum import Enum
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable, Concatenate, Coroutine, Generic, Literal
+from typing import TYPE_CHECKING, Any, Callable, Concatenate, Coroutine, Generic, Literal, Protocol, runtime_checkable
 
-from discord import Message
+import discord
+from discord import ClientUser, Member, Permissions, User
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import maybe_coroutine
 from typing_extensions import ParamSpec, TypeVar
 
-from ._types import ContextT, MiscCommandContextFilled, MiscCommandContextRaw
+from ._types import ContextT
 from .errors import CheckFail, MiscCommandException, NoPrivateMessage
 
 if TYPE_CHECKING:
-    from discord import Client, Guild, Member, User
+    from discord.abc import MessageableChannel
     from discord.ext.commands.bot import AutoShardedBot, Bot  # pyright: ignore[reportMissingTypeStubs]
 
     from ._types import ContextT, CoroT, MiscCommandCallback, MiscCommandUnresolvedContext
@@ -70,6 +71,7 @@ class MiscCommand(Generic[ContextT, P, T]):
     async def do_call(self, cog: SpecialCog[Any], context: ContextT, *args: P.args, **kwargs: P.kwargs) -> T:
         try:
             for checker in self.checks:
+                print(checker)
                 if not await maybe_coroutine(checker, await MiscCommandContext.resolve(self.bot, context)):
                     raise CheckFail()
         except MiscCommandException as e:
@@ -77,6 +79,9 @@ class MiscCommand(Generic[ContextT, P, T]):
             raise e
 
         return await self._callback(cog, context, *args, **kwargs)
+
+    def add_check(self, predicate: Callable[[MiscCommandContext], CoroT[bool] | bool]) -> None:
+        self.checks.append(predicate)
 
 
 def misc_command(
@@ -129,37 +134,58 @@ def misc_command(
     return inner
 
 
-class MiscCommandContext:
-    def __init__(self, guild: Guild | None, user: User | Member) -> None:
-        self.guild: Guild | None = guild
+@runtime_checkable
+class MiscCommandContextRaw(Protocol):
+    channel_id: int  # to work with raw events
+    user_id: int
+
+
+@runtime_checkable
+class MiscCommandContextFilled(Protocol):
+    channel: MessageableChannel
+    user: discord.User
+
+
+class MiscCommandContext:  # TODO: use Generic for bot
+    def __init__(self, bot: Bot | AutoShardedBot, channel: MessageableChannel, user: User | Member) -> None:
+        self.channel: MessageableChannel = channel
         self.user: User | Member = user
+        self.bot: Bot | AutoShardedBot = bot
 
     @classmethod
-    async def resolve(cls, client: Client, context: MiscCommandUnresolvedContext) -> MiscCommandContext:
-        guild: Guild | None
+    async def resolve(cls, bot: Bot | AutoShardedBot, context: MiscCommandUnresolvedContext) -> MiscCommandContext:
+        channel: MessageableChannel
         user: User | Member
 
         match context:
-            case Message():
-                guild = context.guild
+            case discord.Message():
+                channel = context.channel
                 user = context.author
             case MiscCommandContextFilled():
-                guild = context.guild
+                channel = context.channel
                 user = context.user
             case MiscCommandContextRaw():
-                guild = (
-                    (client.get_guild(context.guild_id) or await client.fetch_guild(context.guild_id))
-                    if context.guild_id is not None
-                    else None
-                )
-                user = client.get_user(context.user_id) or await client.fetch_user(context.user_id)
+                channel = bot.get_channel(context.channel_id) or await bot.fetch_channel(context.channel_id)  # type: ignore
+                user = bot.get_user(context.user_id) or await bot.fetch_user(context.user_id)
 
-        return cls(guild, user)
+        return cls(bot, channel, user)
+
+    @property
+    def me(self) -> Member | ClientUser:
+        # bot.user will never be None at this point.
+        return self.guild.me if self.guild is not None else self.bot.user  # type: ignore
+
+    @property
+    def bot_permissions(self) -> Permissions:
+        channel = self.channel
+        if channel.type == discord.ChannelType.private:
+            return Permissions._dm_permissions()  # type: ignore
+        return channel.permissions_for(self.me)  # type: ignore
 
 
 def misc_guild_only() -> Callable[[T], T]:
     def predicate(ctx: MiscCommandContext) -> bool:
-        if ctx.guild is None:
+        if ctx.channel.guild is None:
             raise NoPrivateMessage()
         return True
 
@@ -173,6 +199,21 @@ def misc_guild_only() -> Callable[[T], T]:
             getattr(func, "__misc_commands_checks__").append(predicate)
 
             setattr(func, "__misc_commands_guild_only__", True)
+
+        return func
+
+    return decorator
+
+
+def misc_check(predicate: Callable[[MiscCommandContext], CoroT[bool] | bool]) -> Callable[[T], T]:
+    def decorator(func: T) -> T:
+        if hasattr(func, "__listener_as_command__"):
+            misc_command: MiscCommand = getattr(func, "__listener_as_command__")
+            misc_command.add_check(predicate)
+        else:
+            if not hasattr(func, "__misc_commands_checks__"):
+                setattr(func, "__misc_commands_checks__", [])
+            getattr(func, "__misc_commands_checks__").append(predicate)
 
         return func
 

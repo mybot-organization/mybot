@@ -1,14 +1,20 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from collections import deque
 from typing import TYPE_CHECKING, Any, Callable, Deque, Hashable, TypeVar, Union
 
+import discord
+from discord.app_commands import Command, ContextMenu
 from typing_extensions import Self
 
-from .errors import MaxConcurrencyReached
+from .errors import BotMissingPermissions, MaxConcurrencyReached
+from .misc_command import MiscCommand, MiscCommandContext, misc_check as misc_check
 
 T = TypeVar("T")
+
+logger = logging.getLogger(__name__)
 
 
 if TYPE_CHECKING:
@@ -129,16 +135,46 @@ class _Semaphore:
         self.wake_up()
 
 
-# def misc_check(predicate: Callable[[MiscCommandCheckerContext], bool | CoroT[bool]]) -> Callable[[T], T]:
-#     def decorator(func: MiscCommand | Callable[..., Any]) -> MiscCommand | Callable[..., Any]:
-#         if isinstance(func, MiscCommand):
-#             func.checks.append(predicate)
-#         else:
-#             if not hasattr(func, "__mybot_misc_command_checks__"):
-#                 setattr(func, "__mybot_misc_command_checks__", [])
+def bot_required_permissions(**perms: bool) -> Any:
+    invalid = set(perms) - set(discord.Permissions.VALID_FLAGS)
+    if invalid:
+        raise TypeError(f"Invalid permission(s): {', '.join(invalid)}")
 
-#             getattr(func, "__mybot_misc_command_checks__").append(predicate)
+    def compare_permissions(permissions: discord.Permissions) -> bool:
+        missing = [perm for perm, value in perms.items() if getattr(permissions, perm) != value]
 
-#         return func
+        if not missing:
+            return True
 
-#     return decorator
+        raise BotMissingPermissions(missing)
+
+    def app_cmd_predicate(inter: Interaction) -> bool:
+        permissions = inter.app_permissions
+        return compare_permissions(permissions)
+
+    def misc_cmd_predicate(ctx: MiscCommandContext) -> bool:
+        return compare_permissions(ctx.bot_permissions)
+
+    def decorator(func: T) -> T:
+        if isinstance(func, (Command, ContextMenu)):
+            func.extras["bot_required_permissions"] = [perm for perm, value in perms.items() if value is True]
+            func.add_check(app_cmd_predicate)
+        elif hasattr(func, "__listener_as_command__"):
+            misc_command: MiscCommand = getattr(func, "__listener_as_command__")
+            misc_command.extras["bot_required_permissions"] = [perm for perm, value in perms.items() if value is True]
+            misc_command.add_check(misc_cmd_predicate)
+        else:
+            logger.critical(f"bot_required_permissions needs to be used before the command decorator ({func}).")
+        return func  # type: ignore
+
+    return decorator
+
+
+async def is_user_authorized(context: MiscCommandContext) -> bool:
+    # TODO: check using the database if the user is authorized
+    return True
+
+
+async def is_activated(context: MiscCommandContext) -> bool:
+    # TODO: check using the database if the misc command is activated
+    return True
