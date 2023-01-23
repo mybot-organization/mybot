@@ -11,7 +11,9 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from commands_exporter import extract_features
 from core import config, db
 from core.custom_command_tree import CustomCommandTree
+from core.error_handler import ErrorHandler
 from core.i18n import Translator
+from core.misc_command import MiscCommandContext
 from core.special_cog import SpecialCog
 
 if TYPE_CHECKING:
@@ -21,7 +23,6 @@ if TYPE_CHECKING:
     from discord.guild import GuildChannel
     from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
-    from core._types import MiscCommandUnresolvedContext
     from core.errors import MiscCommandException
     from core.misc_command import MiscCommand
 
@@ -32,10 +33,13 @@ class MyBot(AutoShardedBot):
     support: Guild
     tree: CustomCommandTree  # type: ignore
     app_commands: list[AppCommand]
+    error_handler: ErrorHandler
 
     def __init__(self, running: bool = True, startup_sync: bool = False) -> None:
         self.startup_sync: bool = startup_sync
         self.running = running
+
+        self.error_handler = ErrorHandler(self)
 
         intents = discord.Intents().none()
         intents.reactions = True
@@ -206,7 +210,8 @@ class MyBot(AutoShardedBot):
         pass  # we consider that events don't raise errors, except if it is MiscCommand.
 
     async def on_misc_command_error(
-        self, misc_command: MiscCommand, error: MiscCommandException, context: MiscCommandUnresolvedContext
+        self,
+        context: MiscCommandContext,
+        error: MiscCommandException,
     ) -> None:
-        print(misc_command, error, context)
-        # TODO : handle errors for misc commands.
+        await self.error_handler.handle_misc_command_error(context, error)

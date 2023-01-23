@@ -69,13 +69,14 @@ class MiscCommand(Generic[ContextT, P, T]):
         self._callback: MiscCommandCallback[Any, ContextT, P, T] = callback
 
     async def do_call(self, cog: SpecialCog[Any], context: ContextT, *args: P.args, **kwargs: P.kwargs) -> T:
+        resolved_context = await MiscCommandContext.resolve(self.bot, context, self)
         try:
             for checker in self.checks:
                 print(checker)
-                if not await maybe_coroutine(checker, await MiscCommandContext.resolve(self.bot, context)):
+                if not await maybe_coroutine(checker, resolved_context):
                     raise CheckFail()
         except MiscCommandException as e:
-            self.bot.dispatch("misc_command_error", self, e, context)
+            self.bot.dispatch("misc_command_error", resolved_context, e)
             raise e
 
         return await self._callback(cog, context, *args, **kwargs)
@@ -147,13 +148,18 @@ class MiscCommandContextFilled(Protocol):
 
 
 class MiscCommandContext:  # TODO: use Generic for bot
-    def __init__(self, bot: Bot | AutoShardedBot, channel: MessageableChannel, user: User | Member) -> None:
+    def __init__(
+        self, bot: Bot | AutoShardedBot, channel: MessageableChannel, user: User | Member, command: MiscCommand
+    ) -> None:
         self.channel: MessageableChannel = channel
         self.user: User | Member = user
         self.bot: Bot | AutoShardedBot = bot
+        self.command: MiscCommand = command
 
     @classmethod
-    async def resolve(cls, bot: Bot | AutoShardedBot, context: MiscCommandUnresolvedContext) -> MiscCommandContext:
+    async def resolve(
+        cls, bot: Bot | AutoShardedBot, context: MiscCommandUnresolvedContext, command: MiscCommand
+    ) -> MiscCommandContext:
         channel: MessageableChannel
         user: User | Member
 
@@ -168,7 +174,7 @@ class MiscCommandContext:  # TODO: use Generic for bot
                 channel = bot.get_channel(context.channel_id) or await bot.fetch_channel(context.channel_id)  # type: ignore
                 user = bot.get_user(context.user_id) or await bot.fetch_user(context.user_id)
 
-        return cls(bot, channel, user)
+        return cls(bot, channel, user, command)
 
     @property
     def me(self) -> Member | ClientUser:
