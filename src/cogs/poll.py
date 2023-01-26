@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 
 from discord import app_commands
 from discord.app_commands import locale_str as __
-from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 
+from core import SpecialCog
 from core.i18n import _
 
 if TYPE_CHECKING:
@@ -18,10 +18,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class Poll(Cog):
-    def __init__(self, bot: MyBot):
-        self.bot: MyBot = bot
-
+class Poll(SpecialCog["MyBot"]):
     @app_commands.command(
         name=__("poll"),
         description=__("Do a poll."),
