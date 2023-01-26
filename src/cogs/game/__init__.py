@@ -9,14 +9,15 @@ from discord.app_commands import locale_str as __
 from core import SpecialGroupCog, cog_property
 from core.i18n import _
 
+from .connect4 import GameConnect4
+from .minesweeper import MinesweeperCog
+from .rpc import GameRPC
+from .tictactoe import GameTictactoe
+
 if TYPE_CHECKING:
     from discord import Interaction
 
     from mybot import MyBot
-
-    from .connect4 import GameConnect4
-    from .rpc import GameRPC
-    from .tictactoe import GameTictactoe
 
 
 logger = logging.getLogger(__name__)
@@ -38,6 +39,10 @@ class Game(SpecialGroupCog["MyBot"], group_name=__("game"), group_description=__
 
     @cog_property("game_tictactoe")
     def tictactoe_cog(self) -> GameTictactoe:
+        ...
+
+    @cog_property("minesweeper")
+    def minesweeper_cog(self) -> MinesweeperCog:
         ...
 
     @app_commands.command(
@@ -64,14 +69,19 @@ class Game(SpecialGroupCog["MyBot"], group_name=__("game"), group_description=__
     async def tictactoe(self, inter: Interaction) -> None:
         await self.tictactoe_cog.tictactoe(inter)
 
+    @app_commands.command(
+        name=__("minesweeper"),
+        description=__("Play minesweeper"),
+        extras={"soon": True},
+    )
+    async def minesweeper(self, inter: Interaction) -> None:
+        await self.minesweeper_cog.minesweeper(inter)
+
 
 async def setup(bot: MyBot) -> None:
-    from .connect4 import GameConnect4
-    from .rpc import GameRPC
-    from .tictactoe import GameTictactoe
-
     await bot.add_cog(GameTictactoe(bot))
     await bot.add_cog(GameRPC(bot))
     await bot.add_cog(GameConnect4(bot))
+    await bot.add_cog(MinesweeperCog(bot))
 
     await bot.add_cog(Game(bot))
