@@ -3,12 +3,15 @@ from __future__ import annotations
 import enum
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Boolean, Date, Enum, ForeignKey, String
+from sqlalchemy import BigInteger, Boolean, Date, Enum, ForeignKey, SmallInteger, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class PollType(enum.Enum):
-    CHOICE = 1
+    CHOICE = 1  # A poll with multiple choices
+    BOOLEAN = 2  # A poll with only "yes" and "no"
+    OPINION = 3  # A poll with nuanced opinions
+    ENTRY = 4  # A poll where users can enter their own choices
 
 
 class UsageType(enum.Enum):
@@ -50,6 +53,10 @@ class Poll(Base):
     label: Mapped[str] = mapped_column(String)
     creation_date: Mapped[datetime] = mapped_column(Date)
     end_date: Mapped[datetime | None] = mapped_column(Date)
+    max_answers: Mapped[int] = mapped_column(SmallInteger)
+    users_can_change_answer: Mapped[bool] = mapped_column(Boolean)
+    closed: Mapped[bool] = mapped_column(Boolean)
+    public_results: Mapped[bool] = mapped_column(Boolean)
 
     choices: Mapped[list[PollChoice]] = relationship()
 
