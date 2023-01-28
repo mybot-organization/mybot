@@ -7,3 +7,4 @@ click
 langdetect
 psutil
 alembic
+two048  # a personal library
