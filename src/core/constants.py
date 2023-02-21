@@ -22,3 +22,6 @@ class Emoji(str):
 class Emojis:
     beta_1 = Emoji(1012449366449078384)
     beta_2 = Emoji(1012449349424390265)
+
+    toggle_off = Emoji(1077634526844567603)
+    toggle_on = Emoji(1077634491729838180)
