@@ -176,7 +176,7 @@ class MyBot(AutoShardedBot):
         Returns:
             db.GuildDB: the GuildDB object
         """
-        if new_session := session is None:
+        if new_session := (session is None):
             session = self.async_session()
 
         stmt = db.select(db.GuildDB).where(db.GuildDB.guild_id == guild_id)
