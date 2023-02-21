@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Iterator, Literal, Mapping, TypedDict, overload
+from typing import Any, Iterator, Literal, Mapping, overload
 
 import discord
 from discord import Embed
@@ -15,13 +15,8 @@ from .temporary_cache import TemporaryCache as TemporaryCache
 logger = logging.getLogger(__name__)
 
 
-class Response(TypedDict):
-    embed: Embed | None
-    content: str | None
-
-
 @dataclass()
-class _Response(Mapping[str, Embed]):
+class Response(Mapping[str, Embed]):
     embed: Embed | None = None
     content: str | None = None
 
@@ -35,7 +30,7 @@ class _Response(Mapping[str, Embed]):
         return self.__dict__.__len__()
 
 
-class _ResponseEmbed(_Response):
+class _ResponseEmbed(Response):
     embed: Embed
     content: str | None = None
 
@@ -72,13 +67,13 @@ def response_constructor(
 @overload
 def response_constructor(
     response_type: ResponseType, message: str, embedded: Literal[False] = ..., author_url: str | None = ...
-) -> _Response:
+) -> Response:
     ...
 
 
 def response_constructor(
     response_type: ResponseType, message: str, embedded: bool = True, author_url: str | None = None
-) -> _Response:
+) -> Response:
     embed = discord.Embed(
         color=_embed_colors[response_type],
     )
@@ -89,4 +84,4 @@ def response_constructor(
 
     embed.set_author(name=message, icon_url=_embed_author_icon_urls[response_type], url=author_url)
 
-    return _Response(embed=embed)
+    return Response(embed=embed)
