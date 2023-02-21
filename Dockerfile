@@ -2,7 +2,7 @@ FROM python:3.11.0 as base
 WORKDIR /app
 ENV PYTHONUNBUFFERED=0
 COPY requirements.txt config.toml* alembic.ini ./
-RUN pip install -r requirements.txt
+RUN pip install -U -r requirements.txt
 
 FROM base as prod
 COPY ./src ./
