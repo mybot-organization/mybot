@@ -44,19 +44,20 @@ class Poll(Base):
     __tablename__ = "poll"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    message_id: Mapped[int] = mapped_column(BigInteger)
-    channel_id: Mapped[int] = mapped_column(BigInteger)
-    guild_id: Mapped[GuildDB] = mapped_column(ForeignKey(GuildDB.guild_id))
-    author_id: Mapped[int] = mapped_column(BigInteger)
-    type: Mapped[PollType] = mapped_column(Enum(PollType))
-    multiple: Mapped[bool] = mapped_column(Boolean)
-    label: Mapped[str] = mapped_column(String)
-    creation_date: Mapped[datetime] = mapped_column(Date)
-    end_date: Mapped[datetime | None] = mapped_column(Date)
-    max_answers: Mapped[int] = mapped_column(SmallInteger)
-    users_can_change_answer: Mapped[bool] = mapped_column(Boolean)
-    closed: Mapped[bool] = mapped_column(Boolean)
-    public_results: Mapped[bool] = mapped_column(Boolean)
+    message_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    channel_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    guild_id: Mapped[GuildDB] = mapped_column(ForeignKey(GuildDB.guild_id), nullable=False)
+    author_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    type: Mapped[PollType] = mapped_column(Enum(PollType), nullable=False)
+    # multiple: Mapped[bool] = mapped_column(Boolean)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str | None] = mapped_column(String, nullable=True)
+    creation_date: Mapped[datetime] = mapped_column(Date, nullable=False)
+    end_date: Mapped[datetime | None] = mapped_column(Date, nullable=True, default=None)
+    max_answers: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=1)
+    users_can_change_answer: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    public_results: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    closed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     choices: Mapped[list[PollChoice]] = relationship()
 
@@ -66,7 +67,7 @@ class PollChoice(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     poll_id: Mapped[Poll] = mapped_column(ForeignKey(Poll.id))
-    label: Mapped[str] = mapped_column(String)
+    label: Mapped[str] = mapped_column(String, nullable=False)
 
 
 class PollAnswer(Base):
