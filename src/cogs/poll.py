@@ -3,15 +3,17 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Self
+from datetime import datetime
+from typing import TYPE_CHECKING, Self, Sequence
 
 import discord
 from discord import Embed, app_commands, ui
 from discord.app_commands import locale_str as __
+from discord.utils import get
 from sqlalchemy import func
 from sqlalchemy.orm import selectinload
 
-from core import Response, SpecialCog, db
+from core import Emojis, Response, SpecialCog, db
 from core.i18n import _
 
 if TYPE_CHECKING:
@@ -23,36 +25,119 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-async def build_poll_visual(poll: db.Poll, bot: MyBot) -> Response:
-    content = poll.description
-    embed = Embed(title=poll.title)
+COLORS_ORDER = ["blue", "red", "yellow", "purple", "brown", "green", "orange"]
+CHOICE_LEGEND_EMOJIS = [getattr(Emojis, f"{color}_round") for color in COLORS_ORDER]
+GRAPH_EMOJIS = [getattr(Emojis, f"{color}_mid") for color in COLORS_ORDER]
+RIGHT_CORNER_EMOJIS = [getattr(Emojis, f"{color}_right") for color in COLORS_ORDER]
+LEFT_CORNER_EMOJIS = [getattr(Emojis, f"{color}_left") for color in COLORS_ORDER]
+BOOLEAN_LEGEND_EMOJIS = [Emojis.thumb_down, Emojis.thumb_up]
 
-    async with bot.async_session.begin() as session:
-        stmt = (
-            db.select(func.count())
-            .select_from(db.PollAnswer)
-            .where(db.PollAnswer.poll_id == poll.id)
-            .group_by(db.PollAnswer.value)
-        )
-        votes = (await session.execute(stmt)).all()
-        print(votes)
 
-    def format_choice(choice: db.PollChoice) -> str:
-        return f"🟦 `00.00%` {choice.label}"
+class PollVisual:
+    votes: dict[str, int] | None
+    total_votes: int | None
 
-    embed.description = "\n".join(
-        (
-            f"{_('Ends in : ')} <t:{1000000}:R>\n",
-            "\n".join(format_choice(choice) for choice in poll.choices),
-        )
-    )
+    def __init__(self, poll: db.Poll, bot: MyBot, old_embed: Embed | None = None):
+        self.poll = poll
+        self.bot = bot
+        self.old_embed = old_embed
 
-    if poll.type == db.PollType.BOOLEAN:
-        embed.add_field(name=f"YES `00.00%` {__('yes')}", value="\u200b", inline=False)
-        embed.add_field(name=f"NO `00.00%` {__('no')}", value="\u200b", inline=False)
+    async def build(self) -> Response:
+        content = self.poll.description
+        embed = Embed(title=self.poll.title)
 
-    embed.set_footer(text=_("Poll created by <@{}>", poll.author_id))
-    return Response(content=content, embed=embed)
+        if self.poll.public_results == True:
+            async with self.bot.async_session.begin() as session:
+                stmt = (
+                    db.select(db.PollAnswer.value, func.count())
+                    .select_from(db.PollAnswer)
+                    .where(db.PollAnswer.poll_id == self.poll.id)
+                    .group_by(db.PollAnswer.value)
+                )
+                self.votes = dict((await session.execute(stmt)).all())  # type: ignore
+                self.total_votes = sum(self.votes.values())  # type: ignore
+        else:
+            self.votes = None
+            self.total_votes = None
+
+        description_split: list[str] = []
+        description_split.append(self.build_end_date())
+        description_split.append(self.build_legend())
+
+        embed.description = "\n".join(description_split)
+
+        if self.poll.public_results:
+            embed.add_field(name="\u200b", value=self.build_graph())
+
+        if self.old_embed:
+            embed.set_footer(text=self.old_embed.footer.text)
+        else:
+            author = await self.bot.getch_user(self.poll.author_id)
+            embed.set_footer(text=_("Poll created by {}", author.name if author else "unknown"))
+
+        return Response(content=content, embed=embed)
+
+    def build_end_date(self) -> str:
+        if self.poll.end_date is None:
+            return _("No end date.\n")
+        if self.poll.closed:
+            return _("Poll closed.\n")
+        if self.poll.end_date < datetime.utcnow():
+            return _("Poll ended.\n")
+        return _("Poll ends <t:{}:R>\n", int(self.poll.end_date.timestamp()))
+
+    def calculate_proportion(self, vote_value: str) -> float:
+        if self.total_votes is None or self.votes is None or self.total_votes == 0:
+            return 0
+        return self.votes.get(vote_value, 0) / self.total_votes
+
+    def build_legend(self) -> str:
+        match self.poll.type:
+            case db.PollType.CHOICE:
+
+                def format_legend_choice(index: int, choice: db.PollChoice) -> str:
+                    if self.poll.public_results == False:
+                        return f"{CHOICE_LEGEND_EMOJIS[index]} {choice.label}"
+                    percent = self.calculate_proportion(str(choice.id)) * 100
+                    return f"{CHOICE_LEGEND_EMOJIS[index]} `{percent:6.2f}%` {choice.label}"
+
+                return "\n".join(format_legend_choice(i, choice) for i, choice in enumerate(self.poll.choices))
+            case db.PollType.BOOLEAN:
+
+                def format_legend_boolean(boolean_value: bool) -> str:
+                    if self.poll.public_results == False:
+                        return f"{BOOLEAN_LEGEND_EMOJIS[boolean_value]} {_('Yes!') if boolean_value else _('No!')}"
+                    return f"{BOOLEAN_LEGEND_EMOJIS[boolean_value]} `{self.calculate_proportion('1' if boolean_value else '0') * 100:6.2f}%` {_('Yes!') if boolean_value else _('No!')}"
+
+                return "\n".join((format_legend_boolean(True), format_legend_boolean(False)))
+            case db.PollType.OPINION:
+                return ""
+            case db.PollType.ENTRY:
+                return ""
+
+    def build_graph(self) -> str:
+        if self.total_votes is None or self.votes is None:
+            return ""
+        if self.total_votes == 0:
+            return f"{Emojis.white_left}{Emojis.white_mid * 10}{Emojis.white_right}"
+
+        graph: list[str] = []
+        match self.poll.type:
+            case db.PollType.CHOICE:
+                for i, choice in enumerate(self.poll.choices):
+                    proportion = self.calculate_proportion(str(choice.id))
+                    graph.extend([GRAPH_EMOJIS[i]] * round(proportion * 12))
+            case _:
+                pass
+
+        if len(graph) < 12:
+            graph.extend(graph[-1] * (12 - len(graph)))  # TODO : this is a temporary solution.
+
+        graph = graph[:12]
+        graph[0] = LEFT_CORNER_EMOJIS[GRAPH_EMOJIS.index(graph[0])]
+        graph[-1] = RIGHT_CORNER_EMOJIS[GRAPH_EMOJIS.index(graph[-1])]
+
+        return "".join(graph)
 
 
 class PollCog(SpecialCog["MyBot"]):
@@ -167,7 +252,7 @@ class PollModal(ui.Modal):
     async def on_submit(self, interaction: discord.Interaction):
         self.poll.title = self.question.value
         await interaction.response.send_message(
-            **(await build_poll_visual(self.poll, self.bot)), view=EditPoll(self.bot, self.poll, True), ephemeral=True
+            **(await PollVisual(self.poll, self.bot).build()), view=EditPoll(self.bot, self.poll, True), ephemeral=True
         )
 
 
@@ -199,7 +284,7 @@ class ChoicesPollModal(PollModal):
         # PollChoice(poll_id=self.poll.id, label=self.choice1.value)
         # PollChoice(poll_id=self.poll.id, label=self.choice2.value)
         await interaction.response.send_message(
-            **(await build_poll_visual(self.poll, self.bot)), view=EditPoll(self.bot, self.poll, True), ephemeral=True
+            **(await PollVisual(self.poll, self.bot).build()), view=EditPoll(self.bot, self.poll, True), ephemeral=True
         )
 
 
@@ -210,8 +295,6 @@ class EditPoll(ui.View):
         self.new = new
         self.poll = poll
         self.bot = bot
-
-        print(poll.choices)
 
         self.build_view()
 
@@ -256,13 +339,13 @@ class EditPoll(ui.View):
 
     @ui.button(row=1, style=discord.ButtonStyle.gray)
     async def public_results(self, inter: discord.Interaction, button: ui.Button[Self]):
-        self.public_results_value = not self.public_results_value
+        self.poll.public_results = not self.poll.public_results
         self.build_view()
         await inter.response.edit_message(view=self)
 
     @ui.button(row=2, style=discord.ButtonStyle.gray)
     async def users_can_change_answer(self, inter: discord.Interaction, button: ui.Button[Self]):
-        self.users_can_change_answer_value = not self.users_can_change_answer_value
+        self.poll.users_can_change_answer = not self.poll.users_can_change_answer
         self.build_view()
         await inter.response.edit_message(view=self)
 
@@ -274,7 +357,7 @@ class EditPoll(ui.View):
     async def save(self, inter: discord.Interaction, button: ui.Button[Self]):
         view = PollPublicMenu(self.bot)
         view.localize()
-        await inter.response.send_message(**(await build_poll_visual(self.poll, self.bot)), view=view)
+        await inter.response.send_message(**(await PollVisual(self.poll, self.bot).build()), view=view)
         self.poll.message_id = (await inter.original_response()).id
 
         async with self.bot.async_session.begin() as session:
@@ -336,23 +419,55 @@ class PollPublicMenu(ui.View):
                 await inter.response.send_message("You already voted.")  # TODO
                 return
 
-        await inter.response.send_message("U noob.")
+        if poll.type == db.PollType.CHOICE:
+            await inter.response.send_message(
+                **(await ChoicePollVote.message(self.bot, poll, votes)),
+                view=ChoicePollVote(self.bot, poll, votes, inter),
+                ephemeral=True,
+            )
 
 
 class ChoicePollVote(ui.View):
-    def __init__(self, bot: MyBot, poll: db.Poll, user_votes: list[db.PollAnswer]):
+    def __init__(self, bot: MyBot, poll: db.Poll, user_votes: Sequence[db.PollAnswer], base_inter: Interaction):
+        super().__init__(timeout=180)
+
         self.bot = bot
         self.user_votes = user_votes
         self.poll = poll
-        super().__init__(timeout=180)
+        self.base_inter = base_inter
+
+        self.choice.max_values = poll.max_answers
+        self.choice.min_values = 0
+        for choice in poll.choices:
+            self.choice.add_option(
+                label=choice.label,
+                value=str(choice.id),
+                default=any(str(choice.id) == vote.value for vote in user_votes[: poll.max_answers]),
+            )
+
+        self.localize()
+
+    def localize(self):
+        self.cancel.label = _("Cancel")
+        self.validate.label = _("Validate")
+
+    def build_view(self):
+        for option in self.choice.options:
+            option.default = any(option.value == value for value in self.choice.values)
+
+    def disable_view(self):
+        self.cancel.disabled = True
+        self.validate.disabled = True
+        self.choice.disabled = True
 
     @classmethod
-    async def message(cls, bot: MyBot, poll: db.Poll, user_votes: list[db.PollAnswer]) -> Response:
+    async def message(cls, bot: MyBot, poll: db.Poll, user_votes: Sequence[db.PollAnswer]) -> Response:
         return Response()
 
     @ui.select()
     async def choice(self, inter: discord.Interaction, select: ui.Select[Self]):
-        pass
+        self.build_view()
+        await inter.response.edit_message(view=self)
 
     @ui.button(style=discord.ButtonStyle.red)
     async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
@@ -360,7 +475,28 @@ class ChoicePollVote(ui.View):
 
     @ui.button(style=discord.ButtonStyle.green)
     async def validate(self, inter: discord.Interaction, button: ui.Button[Self]):
-        pass
+        new_answers = {value for value in self.choice.values}
+        old_answers = {answer.value for answer in self.user_votes}
+
+        async with self.bot.async_session.begin() as session:
+            for remove_anwser in old_answers - new_answers:
+                poll_answer: db.PollAnswer = get(self.user_votes, value=remove_anwser)  # type: ignore
+                await session.delete(poll_answer)
+
+            for add_answer in new_answers - old_answers:
+                poll_answer = db.PollAnswer(poll_id=self.poll.id, user_id=inter.user.id, value=add_answer)
+                session.add(poll_answer)
+
+            # await session.commit()
+
+        self.disable_view()
+        await inter.response.edit_message(view=self)
+        try:
+            message: discord.Message = self.base_inter.message  # type: ignore
+            old_embed = message.embeds[0] if message.embeds else None
+            await message.edit(**(await PollVisual(self.poll, self.bot, old_embed).build()))
+        except discord.NotFound:
+            pass
 
 
 class BooleanPollVote(ui.View):
