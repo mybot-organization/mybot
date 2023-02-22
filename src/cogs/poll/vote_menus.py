@@ -1,5 +1,3 @@
-# TODO : important, multiple vote are possible.
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, Sequence, cast
@@ -27,6 +25,8 @@ class PollPublicMenu(ui.View):
         super().__init__(timeout=None)
 
         self.bot = bot
+
+        self.current_votes: dict[int, Interaction] = {}
 
         self.result_url = ui.Button[Self](
             style=discord.ButtonStyle.link,
@@ -68,18 +68,26 @@ class PollPublicMenu(ui.View):
                 return
 
         if poll.type == db.PollType.CHOICE:
+            if inter.user.id in self.current_votes:
+                await self.current_votes[inter.user.id].delete_original_response()
+            self.current_votes[inter.user.id] = inter
+
             await inter.response.send_message(
                 **(await ChoicePollVote.message(self.bot, poll, votes)),
-                view=ChoicePollVote(self.bot, poll, votes, inter),
+                view=ChoicePollVote(self, poll, votes, inter),
                 ephemeral=True,
             )
 
+        # TODO
+
 
 class ChoicePollVote(ui.View):
-    def __init__(self, bot: MyBot, poll: db.Poll, user_votes: Sequence[db.PollAnswer], base_inter: Interaction):
+    def __init__(
+        self, parent: PollPublicMenu, poll: db.Poll, user_votes: Sequence[db.PollAnswer], base_inter: Interaction
+    ):
         super().__init__(timeout=180)
 
-        self.bot = bot
+        self.parent = parent
         self.user_votes = user_votes
         self.poll = poll
         self.base_inter = base_inter
@@ -104,7 +112,11 @@ class ChoicePollVote(ui.View):
     def update_view(self):
         for option in self.choice.options:
             option.default = any(option.value == value for value in self.choice.values)
-        self.remove_vote.disabled = len(self.choice.values) != 0
+        print(self.choice.values)
+        self.remove_vote.disabled = len(self.choice.values) == 0
+
+    async def on_timeout(self) -> None:
+        self.clean_current_cache(self.base_inter.user.id)
 
     @classmethod
     async def message(cls, bot: MyBot, poll: db.Poll, user_votes: Sequence[db.PollAnswer]) -> Response:
@@ -117,20 +129,22 @@ class ChoicePollVote(ui.View):
 
     @ui.button(style=discord.ButtonStyle.red)
     async def remove_vote(self, inter: Interaction, button: ui.Button[Self]):
-        async with self.bot.async_session.begin() as session:
+        async with self.parent.bot.async_session.begin() as session:
             for answer in self.user_votes:
                 await session.delete(answer)
 
+        self.stop()
         await inter.response.defer()
         await self.update_poll_display()
         await inter.delete_original_response()
+        self.clean_current_cache(inter.user.id)
 
     @ui.button(style=discord.ButtonStyle.green)
     async def validate(self, inter: Interaction, button: ui.Button[Self]):
         new_answers = {value for value in self.choice.values}
         old_answers = {answer.value for answer in self.user_votes}
 
-        async with self.bot.async_session.begin() as session:
+        async with self.parent.bot.async_session.begin() as session:
             for remove_anwser in old_answers - new_answers:
                 poll_answer = cast(db.PollAnswer, get(self.user_votes, value=remove_anwser))
                 await session.delete(poll_answer)
@@ -139,18 +153,23 @@ class ChoicePollVote(ui.View):
                 poll_answer = db.PollAnswer(poll_id=self.poll.id, user_id=inter.user.id, value=add_answer)
                 session.add(poll_answer)
 
+        self.stop()
         await inter.response.defer()
         await self.update_poll_display()
         await inter.delete_original_response()
+        self.clean_current_cache(inter.user.id)
 
     async def update_poll_display(self):
         if self.poll.public_results:
             try:
                 message = cast(discord.Message, self.base_inter.message)  # type: ignore
                 old_embed = message.embeds[0] if message.embeds else None
-                await message.edit(**(await PollDisplay.build(self.poll, self.bot, old_embed)))
+                await message.edit(**(await PollDisplay.build(self.poll, self.parent.bot, old_embed)))
             except discord.NotFound:
                 pass
+
+    def clean_current_cache(self, user_id: int):
+        self.parent.current_votes.pop(user_id, None)
 
 
 class BooleanPollVote(ui.View):
