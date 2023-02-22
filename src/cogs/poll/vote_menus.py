@@ -31,7 +31,7 @@ class PollPublicMenu(ui.View):
         self.result_url = ui.Button[Self](
             style=discord.ButtonStyle.link,
             label="View results",
-            url="https://google.com",
+            url="https://google.com/soon",
         )
         self.add_item(self.result_url)
 
@@ -112,7 +112,6 @@ class ChoicePollVote(ui.View):
     def update_view(self):
         for option in self.choice.options:
             option.default = any(option.value == value for value in self.choice.values)
-        print(self.choice.values)
         self.remove_vote.disabled = len(self.choice.values) == 0
 
     async def on_timeout(self) -> None:
@@ -144,6 +143,7 @@ class ChoicePollVote(ui.View):
         new_answers = {value for value in self.choice.values}
         old_answers = {answer.value for answer in self.user_votes}
 
+        # TODO: if poll is edited while users votes, there can be some errors. Especially if a choice is removed.
         async with self.parent.bot.async_session.begin() as session:
             for remove_anwser in old_answers - new_answers:
                 poll_answer = cast(db.PollAnswer, get(self.user_votes, value=remove_anwser))

@@ -131,6 +131,7 @@ class ChoicesPollModal(PollModal):
 
     async def on_submit(self, inter: discord.Interaction):
         self.poll.title = self.question.value
+        self.poll.description = self.description.value
         self.poll.choices.append(db.PollChoice(poll_id=self.poll.id, label=self.choice1.value))
         self.poll.choices.append(db.PollChoice(poll_id=self.poll.id, label=self.choice2.value))
 
