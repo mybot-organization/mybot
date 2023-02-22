@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING, Self, cast
 import discord
 from discord import ui
 
+from cogs.poll.vote_menus import PollPublicMenu
 from core import db
 from core.i18n import _
 
 from .constants import TOGGLE_EMOTES
 from .display import PollDisplay
-from .vote_menus import PollPublicMenu
 
 if TYPE_CHECKING:
     from main import MyBot
@@ -75,30 +75,30 @@ class EditPoll(ui.View):
     async def public_results(self, inter: discord.Interaction, button: ui.Button[Self]):
         self.poll.public_results = not self.poll.public_results
         self.build_view()
-        await inter.response.edit_message(**(await PollDisplay(self.poll, self.bot).build()), view=self)
+        await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=self)
 
     @ui.button(row=2, style=discord.ButtonStyle.gray)
     async def users_can_change_answer(self, inter: discord.Interaction, button: ui.Button[Self]):
         self.poll.users_can_change_answer = not self.poll.users_can_change_answer
         self.build_view()
-        await inter.response.edit_message(**(await PollDisplay(self.poll, self.bot).build()), view=self)
+        await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=self)
 
     @ui.button(row=4, style=discord.ButtonStyle.red)
     async def toggle_poll(self, inter: discord.Interaction, button: ui.Button[Self]):
         self.poll.closed = not self.poll.closed
         self.build_view()
-        await inter.response.edit_message(**(await PollDisplay(self.poll, self.bot).build()), view=self)
+        await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=self)
 
     @ui.button(row=4, style=discord.ButtonStyle.green)
     async def save(self, inter: discord.Interaction, button: ui.Button[Self]):
         if self.poll_message is None:
-            view = PollPublicMenu(self.bot)
-            view.localize()
             await inter.response.defer()
             await inter.delete_original_response()
             # channel can be other type of channels like voice, but it's ok.
             channel = cast(discord.TextChannel, inter.channel)
-            message = await channel.send(**(await PollDisplay(self.poll, self.bot).build()), view=view)
+            message = await channel.send(
+                **(await PollDisplay.build(self.poll, self.bot)), view=PollPublicMenu.build(self.bot, self.poll)
+            )
             self.poll.message_id = message.id
 
             async with self.bot.async_session.begin() as session:
@@ -112,7 +112,9 @@ class EditPoll(ui.View):
                 session.add(self.poll)
             await inter.response.defer()
             await inter.delete_original_response()
-            await self.poll_message.edit(**(await PollDisplay(self.poll, self.bot).build()))
+            await self.poll_message.edit(
+                **(await PollDisplay.build(self.poll, self.bot)), view=PollPublicMenu.build(self.bot, self.poll)
+            )
 
 
 class EditPollTitleAndDescription(ui.Modal):
@@ -143,7 +145,7 @@ class EditPollTitleAndDescription(ui.Modal):
         self.parent.poll.description = self.description.value
         self.parent.build_view()
         await inter.response.edit_message(
-            **(await PollDisplay(self.parent.poll, self.parent.bot).build()), view=self.parent
+            **(await PollDisplay.build(self.parent.poll, self.parent.bot)), view=self.parent
         )
 
 
@@ -172,5 +174,5 @@ class EditPollChoices(ui.View):
     async def back(self, inter: discord.Interaction, button: ui.Button[Self]):
         self.parent.build_view()
         await inter.response.edit_message(
-            **(await PollDisplay(self.parent.poll, self.parent.bot).build()), view=self.parent
+            **(await PollDisplay.build(self.parent.poll, self.parent.bot)), view=self.parent
         )

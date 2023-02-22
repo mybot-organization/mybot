@@ -62,7 +62,7 @@ class PollCog(SpecialCog["MyBot"]):
         if poll_type.value == db.PollType.CHOICE.value:
             await inter.response.send_modal(ChoicesPollModal(self.bot, poll))
         else:
-            await inter.response.send_message("Other poll types are not implemented yet.")
+            await inter.response.send_message("Other poll types are not implemented yet.")  # TODO
             # await inter.response.send_modal(PollModal(self.bot, poll))
 
     # This is a context command.
@@ -78,7 +78,7 @@ class PollCog(SpecialCog["MyBot"]):
         if poll.author_id != inter.user.id:
             return await inter.response.send_message(_("You can't edit this poll."), ephemeral=True)
         await inter.response.send_message(
-            **(await PollDisplay(poll, self.bot).build()), view=EditPoll(self.bot, poll, message), ephemeral=True
+            **(await PollDisplay.build(poll, self.bot)), view=EditPoll(self.bot, poll, message), ephemeral=True
         )
 
 
@@ -105,7 +105,7 @@ class PollModal(ui.Modal):
         self.poll.title = self.question.value
         self.poll.description = self.description.value
         await inter.response.send_message(
-            **(await PollDisplay(self.poll, self.bot).build()),
+            **(await PollDisplay.build(self.poll, self.bot)),
             view=EditPoll(self.bot, self.poll, inter.message),
             ephemeral=True,
         )
@@ -135,7 +135,7 @@ class ChoicesPollModal(PollModal):
         self.poll.choices.append(db.PollChoice(poll_id=self.poll.id, label=self.choice2.value))
 
         await inter.response.send_message(
-            **(await PollDisplay(self.poll, self.bot).build()),
+            **(await PollDisplay.build(self.poll, self.bot)),
             view=EditPoll(self.bot, self.poll, inter.message),
             ephemeral=True,
         )

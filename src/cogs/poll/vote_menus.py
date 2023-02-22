@@ -21,16 +21,27 @@ if TYPE_CHECKING:
 
 
 class PollPublicMenu(ui.View):
-    """
-    Here, localize NEEDS to be called outside the view itself. Don't forget to do it!
-    """
-
     def __init__(self, bot: MyBot):
-        self.bot = bot
         super().__init__(timeout=None)
+
+        self.bot = bot
+
+        self.result_url = ui.Button[Self](
+            style=discord.ButtonStyle.link,
+            label="View results",
+            url="https://google.com",
+        )
+        self.add_item(self.result_url)
 
     def localize(self):
         self.vote.label = _("Vote")
+
+    @classmethod
+    def build(cls, bot: MyBot, poll: db.Poll) -> PollPublicMenu:
+        view = cls(bot)
+        view.result_url.disabled = not poll.public_results
+        view.localize()
+        return view
 
     @ui.button(style=discord.ButtonStyle.blurple, custom_id="poll_vote_button")
     async def vote(self, inter: discord.Interaction, button: ui.Button[Self]):
@@ -99,7 +110,7 @@ class ChoicePollVote(ui.View):
 
     @classmethod
     async def message(cls, bot: MyBot, poll: db.Poll, user_votes: Sequence[db.PollAnswer]) -> Response:
-        return Response()
+        return Response()  # TODO
 
     @ui.select()  # type: ignore (idk why there is an error here)
     async def choice(self, inter: Interaction, select: ui.Select[Self]):
@@ -108,7 +119,7 @@ class ChoicePollVote(ui.View):
 
     @ui.button(style=discord.ButtonStyle.red)
     async def cancel(self, inter: Interaction, button: ui.Button[Self]):
-        pass
+        pass  # TODO
 
     @ui.button(style=discord.ButtonStyle.green)
     async def validate(self, inter: Interaction, button: ui.Button[Self]):
@@ -124,8 +135,6 @@ class ChoicePollVote(ui.View):
                 poll_answer = db.PollAnswer(poll_id=self.poll.id, user_id=inter.user.id, value=add_answer)
                 session.add(poll_answer)
 
-            # await session.commit()
-
         self.disable_view()
         await inter.response.defer()
         await inter.delete_original_response()
@@ -134,7 +143,7 @@ class ChoicePollVote(ui.View):
             try:
                 message = cast(discord.Message, self.base_inter.message)  # type: ignore
                 old_embed = message.embeds[0] if message.embeds else None
-                await message.edit(**(await PollDisplay(self.poll, self.bot, old_embed).build()))
+                await message.edit(**(await PollDisplay.build(self.poll, self.bot, old_embed)))
             except discord.NotFound:
                 pass
 
@@ -148,15 +157,15 @@ class BooleanPollVote(ui.View):
 
     @classmethod
     async def message(cls, bot: MyBot, poll: Poll, user_votes: list[PollAnswer]) -> Response:
-        return Response()
+        return Response()  # TODO
 
     @ui.button()
     async def yes(self, inter: discord.Interaction, button: ui.Button[Self]):
-        pass
+        pass  # TODO
 
     @ui.button()
     async def no(self, inter: discord.Interaction, button: ui.Button[Self]):
-        pass
+        pass  # TODO
 
 
 class OpinionPollVote(ui.View):
@@ -168,7 +177,7 @@ class OpinionPollVote(ui.View):
 
     @classmethod
     async def message(cls, bot: MyBot, poll: db.Poll, user_votes: list[db.PollAnswer]) -> Response:
-        return Response()
+        return Response()  # TODO
 
     # TODO
 
@@ -182,6 +191,6 @@ class EntryPollVote(ui.Modal):
 
     @classmethod
     async def message(cls, bot: MyBot, poll: db.Poll, user_votes: list[db.PollAnswer]) -> Response:
-        return Response()
+        return Response()  # TODO
 
     # TODO

@@ -25,48 +25,51 @@ if TYPE_CHECKING:
 
 
 class PollDisplay:
-    votes: dict[str, int] | None
-    total_votes: int | None
-
-    def __init__(self, poll: Poll, bot: MyBot, old_embed: Embed | None = None):
+    def __init__(self, poll: Poll, votes: dict[str, int] | None):
         self.poll = poll
-        self.bot = bot
-        self.old_embed = old_embed
+        self.votes = votes
 
-    async def build(self) -> Response:
-        content = self.poll.description
-        embed = discord.Embed(title=self.poll.title)
+    @classmethod
+    async def build(cls, poll: Poll, bot: MyBot, old_embed: Embed | None = None) -> Response:
+        content = poll.description
+        embed = discord.Embed(title=poll.title)
 
-        if self.poll.public_results == True:
-            async with self.bot.async_session.begin() as session:
+        votes: dict[str, int] | None
+        if poll.public_results == True:
+            async with bot.async_session.begin() as session:
                 stmt = (
                     db.select(db.PollAnswer.value, func.count())
                     .select_from(db.PollAnswer)
-                    .where(db.PollAnswer.poll_id == self.poll.id)
+                    .where(db.PollAnswer.poll_id == poll.id)
                     .group_by(db.PollAnswer.value)
                 )
-                self.votes = dict((await session.execute(stmt)).all())  # type: ignore
-                self.total_votes = sum(self.votes.values())  # type: ignore
+                # a generator is used for typing purposes
+                votes = dict((key, value) for key, value in (await session.execute(stmt)).all())
         else:
-            self.votes = None
-            self.total_votes = None
+            votes = None
+
+        poll_display = cls(poll, votes)
 
         description_split: list[str] = []
-        description_split.append(self.build_end_date())
-        description_split.append(self.build_legend())
+        description_split.append(poll_display.build_end_date())
+        description_split.append(poll_display.build_legend())
 
         embed.description = "\n".join(description_split)
 
-        if self.poll.public_results:
-            embed.add_field(name="\u200b", value=self.build_graph())
+        if poll.public_results:
+            embed.add_field(name="\u200b", value=poll_display.build_graph())
 
-        if self.old_embed:
-            embed.set_footer(text=self.old_embed.footer.text)
+        if old_embed:
+            embed.set_footer(text=old_embed.footer.text)
         else:
-            author = await self.bot.getch_user(self.poll.author_id)
+            author = await bot.getch_user(poll.author_id)
             embed.set_footer(text=_("Poll created by {}", author.name if author else "unknown"))
 
         return Response(content=content, embed=embed)
+
+    @property
+    def total_votes(self) -> int:
+        return sum(self.votes.values()) if self.votes else 0
 
     def build_end_date(self) -> str:
         if self.poll.closed:
@@ -78,7 +81,7 @@ class PollDisplay:
         return _("Poll ends <t:{}:R>\n", int(self.poll.end_date.timestamp()))
 
     def calculate_proportion(self, vote_value: str) -> float:
-        if self.total_votes is None or self.votes is None or self.total_votes == 0:
+        if self.votes is None or self.total_votes == 0:
             return 0
         return self.votes.get(vote_value, 0) / self.total_votes
 
@@ -102,12 +105,12 @@ class PollDisplay:
 
                 return "\n".join((format_legend_boolean(True), format_legend_boolean(False)))
             case db.PollType.OPINION:
-                return ""
+                return ""  # TODO
             case db.PollType.ENTRY:
-                return ""
+                return ""  # TODO
 
     def build_graph(self) -> str:
-        if self.total_votes is None or self.votes is None:
+        if self.votes is None:
             return ""
         if self.total_votes == 0:
             return f"{Emojis.white_left}{Emojis.white_mid * 10}{Emojis.white_right}"
@@ -119,7 +122,7 @@ class PollDisplay:
                     proportion = self.calculate_proportion(str(choice.id))
                     graph.extend([GRAPH_EMOJIS[i]] * round(proportion * 12))
             case _:
-                pass
+                pass  # TODO
 
         if len(graph) < 12:
             graph.extend(graph[-1] * (12 - len(graph)))  # TODO : this is a temporary solution.
