@@ -277,10 +277,6 @@ class ChoicesPollModal(PollModal):
         self.poll.choices.append(db.PollChoice(poll_id=self.poll.id, label=self.choice1.value))
         self.poll.choices.append(db.PollChoice(poll_id=self.poll.id, label=self.choice2.value))
 
-        # TODO : TEMP
-        self.poll.choices.append(db.PollChoice(poll_id=self.poll.id, label=self.choice2.value))
-        self.poll.choices.append(db.PollChoice(poll_id=self.poll.id, label=self.choice2.value))
-
         # PollChoice(poll_id=self.poll.id, label=self.choice1.value)
         # PollChoice(poll_id=self.poll.id, label=self.choice2.value)
         await interaction.response.send_message(
@@ -368,8 +364,10 @@ class EditPoll(ui.View):
 
 class EditPollChoices(ui.View):
     def __init__(self, parent: EditPoll):
-        self.parent = parent
         super().__init__()
+
+        self.parent = parent
+
         self.localize_view()
 
     def localize_view(self):
@@ -416,7 +414,7 @@ class PollPublicMenu(ui.View):
             votes = (await session.execute(stmt)).scalars().all()
 
             if not poll.users_can_change_answer and len(votes) > 0:
-                await inter.response.send_message("You already voted.")  # TODO
+                await inter.response.send_message("You already voted, and you can't change your vote.")  # TODO
                 return
 
         if poll.type == db.PollType.CHOICE:
@@ -438,11 +436,12 @@ class ChoicePollVote(ui.View):
 
         self.choice.max_values = poll.max_answers
         self.choice.min_values = 0
-        for choice in poll.choices:
+        for i, choice in enumerate(poll.choices):
             self.choice.add_option(
                 label=choice.label,
                 value=str(choice.id),
                 default=any(str(choice.id) == vote.value for vote in user_votes[: poll.max_answers]),
+                emoji=CHOICE_LEGEND_EMOJIS[i],
             )
 
         self.localize()
