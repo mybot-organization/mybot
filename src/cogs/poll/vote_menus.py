@@ -1,3 +1,5 @@
+# TODO : important, multiple vote are possible.
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, Sequence, cast
@@ -96,17 +98,13 @@ class ChoicePollVote(ui.View):
         self.localize()
 
     def localize(self):
-        self.cancel.label = _("Cancel")
+        self.remove_vote.label = _("Remove vote")
         self.validate.label = _("Validate")
 
-    def build_view(self):
+    def update_view(self):
         for option in self.choice.options:
             option.default = any(option.value == value for value in self.choice.values)
-
-    def disable_view(self):
-        self.cancel.disabled = True
-        self.validate.disabled = True
-        self.choice.disabled = True
+        self.remove_vote.disabled = len(self.choice.values) != 0
 
     @classmethod
     async def message(cls, bot: MyBot, poll: db.Poll, user_votes: Sequence[db.PollAnswer]) -> Response:
@@ -114,12 +112,18 @@ class ChoicePollVote(ui.View):
 
     @ui.select()  # type: ignore (idk why there is an error here)
     async def choice(self, inter: Interaction, select: ui.Select[Self]):
-        self.build_view()
+        self.update_view()
         await inter.response.edit_message(view=self)
 
     @ui.button(style=discord.ButtonStyle.red)
-    async def cancel(self, inter: Interaction, button: ui.Button[Self]):
-        pass  # TODO
+    async def remove_vote(self, inter: Interaction, button: ui.Button[Self]):
+        async with self.bot.async_session.begin() as session:
+            for answer in self.user_votes:
+                await session.delete(answer)
+
+        await inter.response.defer()
+        await self.update_poll_display()
+        await inter.delete_original_response()
 
     @ui.button(style=discord.ButtonStyle.green)
     async def validate(self, inter: Interaction, button: ui.Button[Self]):
@@ -135,10 +139,11 @@ class ChoicePollVote(ui.View):
                 poll_answer = db.PollAnswer(poll_id=self.poll.id, user_id=inter.user.id, value=add_answer)
                 session.add(poll_answer)
 
-        self.disable_view()
         await inter.response.defer()
+        await self.update_poll_display()
         await inter.delete_original_response()
 
+    async def update_poll_display(self):
         if self.poll.public_results:
             try:
                 message = cast(discord.Message, self.base_inter.message)  # type: ignore
