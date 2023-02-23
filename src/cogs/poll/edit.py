@@ -6,7 +6,7 @@ import discord
 from discord import ui
 
 from cogs.poll.vote_menus import PollPublicMenu
-from core import db
+from core import ResponseType, db, response_constructor
 from core.i18n import _
 
 from .constants import TOGGLE_EMOTES
@@ -118,11 +118,19 @@ class EditPoll(ui.View):
                 **(await PollDisplay.build(self.poll, self.bot)), view=PollPublicMenu.build(self.cog, self.poll)
             )
 
-            # NOTE : add view and stop them first ?
             currents = self.cog.current_votes.pop(self.poll.id, None)
+            # stop view is not almost instant, so there is no risk of duplicate votes.
             if currents is not None:
-                for vote_inter in currents.values():
-                    await vote_inter.delete_original_response()
+                for __, vote_view in currents.values():
+                    vote_view.stop()
+
+                for vote_inter, __ in currents.values():
+                    await vote_inter.edit_original_response(
+                        **response_constructor(
+                            ResponseType.error, _("The poll has been updated while you were voting.")
+                        ),
+                        view=None,
+                    )
 
 
 class EditPollTitleAndDescription(ui.Modal):

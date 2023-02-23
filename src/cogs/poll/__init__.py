@@ -33,7 +33,7 @@ class PollCog(SpecialCog["MyBot"]):
 
         self.bot.tree.add_command(app_commands.ContextMenu(name=__("Edit poll"), callback=self.edit_poll))
 
-        self.current_votes: dict[int, dict[int, Interaction]] = {}  # poll_id: {user_id: interaction}
+        self.current_votes: dict[int, dict[int, tuple[Interaction, ui.View]]] = {}  # poll_id: {user_id: interaction}
 
     async def cog_load(self) -> None:
         self.bot.add_view(PollPublicMenu(self))

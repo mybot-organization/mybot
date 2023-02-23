@@ -37,7 +37,7 @@ class PollPublicMenu(ui.View):
         )
         self.add_item(self.result_url)
 
-    def get_current_votes(self, poll: db.Poll) -> dict[int, Interaction]:
+    def get_current_votes(self, poll: db.Poll) -> dict[int, tuple[Interaction, ui.View]]:
         return self.cog.current_votes.setdefault(poll.id, {})
 
     def localize(self):
@@ -85,8 +85,8 @@ class PollPublicMenu(ui.View):
         if poll.type == db.PollType.CHOICE:
             current_votes = self.get_current_votes(poll)
             if inter.user.id in current_votes:
-                await current_votes[inter.user.id].delete_original_response()
-            current_votes[inter.user.id] = inter
+                await current_votes[inter.user.id][0].delete_original_response()
+            current_votes[inter.user.id] = (inter, self)
 
             await inter.response.send_message(
                 **(await ChoicePollVote.message(self.bot, poll, votes)),
