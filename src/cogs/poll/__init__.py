@@ -1,4 +1,6 @@
-# TODO : allow editing of poll
+# IDEA add anonymous voting
+# IDEA add rank polls (with average note etc...)
+
 from __future__ import annotations
 
 import logging
@@ -64,7 +66,9 @@ class PollCog(SpecialCog["MyBot"]):
         if poll_type.value == db.PollType.CHOICE.value:
             await inter.response.send_modal(ChoicesPollModal(self, poll))
         else:
-            await inter.response.send_message("Other poll types are not implemented yet.")  # TODO
+            await inter.response.send_message(
+                "Other poll types are not implemented yet."
+            )  # TODO OPINION, BOOLEAN, ENTRY
             # await inter.response.send_modal(PollModal(self.bot, poll))
 
     # This is a context command.

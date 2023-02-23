@@ -118,7 +118,7 @@ class EditPoll(ui.View):
                 **(await PollDisplay.build(self.poll, self.bot)), view=PollPublicMenu.build(self.cog, self.poll)
             )
 
-            # TODO : add view and stop them first ?
+            # NOTE : add view and stop them first ?
             currents = self.cog.current_votes.pop(self.poll.id, None)
             if currents is not None:
                 for vote_inter in currents.values():

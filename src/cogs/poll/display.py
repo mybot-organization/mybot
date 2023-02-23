@@ -105,9 +105,9 @@ class PollDisplay:
 
                 return "\n".join((format_legend_boolean(True), format_legend_boolean(False)))
             case db.PollType.OPINION:
-                return ""  # TODO
+                return ""  # TODO OPINION
             case db.PollType.ENTRY:
-                return ""  # TODO
+                return ""  # TODO ENTRY
 
     def build_graph(self) -> str:
         if self.votes is None:
@@ -122,10 +122,11 @@ class PollDisplay:
                     proportion = self.calculate_proportion(str(choice.id))
                     graph.extend([GRAPH_EMOJIS[i]] * round(proportion * 12))
             case _:
-                pass  # TODO
+                pass  # TODO OPINION, ENTRY, BOOLEAN
 
         if len(graph) < 12:
-            graph.extend(graph[-1] * (12 - len(graph)))  # TODO : this is a temporary solution.
+            # This could be improved (if there is draws, it will be wrong)
+            graph.extend(graph[-1] * (12 - len(graph)))
 
         graph = graph[:12]
         graph[0] = LEFT_CORNER_EMOJIS[GRAPH_EMOJIS.index(graph[0])]

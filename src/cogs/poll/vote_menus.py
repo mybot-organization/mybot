@@ -7,7 +7,7 @@ from discord import ui
 from discord.utils import get
 from sqlalchemy.orm import selectinload
 
-from core import Response, db
+from core import Response, ResponseType, db, response_constructor
 from core.i18n import _
 
 from .constants import CHOICE_LEGEND_EMOJIS
@@ -51,14 +51,13 @@ class PollPublicMenu(ui.View):
 
     @ui.button(style=discord.ButtonStyle.blurple, custom_id="poll_vote_button")
     async def vote(self, inter: discord.Interaction, button: ui.Button[Self]):
-        print(self.cog.current_votes)
         message_id: int = inter.message.id  # type: ignore (interaction is a button, so it has a message)
         async with self.bot.async_session.begin() as session:
             stmt = db.select(db.Poll).where(db.Poll.message_id == message_id).options(selectinload(db.Poll.choices))
             poll = (await session.execute(stmt)).scalar_one()
 
             if poll.closed:
-                await inter.response.send_message("closed.")  # TODO
+                await inter.response.send_message("closed.")  # TODO set a better response for closed polls.
                 return
 
             stmt = (
@@ -69,7 +68,8 @@ class PollPublicMenu(ui.View):
             votes = (await session.execute(stmt)).scalars().all()
 
             if not poll.users_can_change_answer and len(votes) > 0:
-                await inter.response.send_message("You already voted, and you can't change your vote.")  # TODO
+                # TODO set a better response. Edit the message if not marked as endend. Or not ?
+                await inter.response.send_message("You already voted, and you can't change your vote.")
                 return
 
         if poll.type == db.PollType.CHOICE:
@@ -84,7 +84,7 @@ class PollPublicMenu(ui.View):
                 ephemeral=True,
             )
 
-        # TODO
+        # TODO OPINION, BOOLEAN, ENTRY
 
 
 class ChoicePollVote(ui.View):
@@ -125,7 +125,7 @@ class ChoicePollVote(ui.View):
 
     @classmethod
     async def message(cls, bot: MyBot, poll: db.Poll, user_votes: Sequence[db.PollAnswer]) -> Response:
-        return Response()  # TODO
+        return Response()  # NOTE : don't know if a message is needed here.
 
     @ui.select()  # type: ignore (idk why there is an error here)
     async def choice(self, inter: Interaction, select: ui.Select[Self]):
@@ -138,10 +138,10 @@ class ChoicePollVote(ui.View):
             for answer in self.user_votes:
                 await session.delete(answer)
 
-        self.stop()
-        await inter.response.defer()
         await self.update_poll_display()
-        await inter.delete_original_response()
+        await inter.response.edit_message(
+            **response_constructor(ResponseType.success, _("Your vote has been removed.")), view=None
+        )
         self.clean_current_cache(inter.user.id)
 
     @ui.button(style=discord.ButtonStyle.green)
@@ -159,10 +159,10 @@ class ChoicePollVote(ui.View):
                 poll_answer = db.PollAnswer(poll_id=self.poll.id, user_id=inter.user.id, value=add_answer)
                 session.add(poll_answer)
 
-        self.stop()
-        await inter.response.defer()
         await self.update_poll_display()
-        await inter.delete_original_response()
+        await inter.response.edit_message(
+            **response_constructor(ResponseType.success, _("Your vote has been taken into account!")), view=None
+        )
         self.clean_current_cache(inter.user.id)
 
     async def update_poll_display(self):
@@ -190,15 +190,15 @@ class BooleanPollVote(ui.View):
 
     @classmethod
     async def message(cls, bot: MyBot, poll: Poll, user_votes: list[PollAnswer]) -> Response:
-        return Response()  # TODO
+        return Response()  # TODO BOOLEAN
 
     @ui.button()
     async def yes(self, inter: discord.Interaction, button: ui.Button[Self]):
-        pass  # TODO
+        pass  # TODO BOOLEAN
 
     @ui.button()
     async def no(self, inter: discord.Interaction, button: ui.Button[Self]):
-        pass  # TODO
+        pass  # TODO BOOLEAN
 
 
 class OpinionPollVote(ui.View):
@@ -210,9 +210,9 @@ class OpinionPollVote(ui.View):
 
     @classmethod
     async def message(cls, bot: MyBot, poll: db.Poll, user_votes: list[db.PollAnswer]) -> Response:
-        return Response()  # TODO
+        return Response()  # TODO OPINION
 
-    # TODO
+    # TODO OPINION
 
 
 class EntryPollVote(ui.Modal):
@@ -224,6 +224,6 @@ class EntryPollVote(ui.Modal):
 
     @classmethod
     async def message(cls, bot: MyBot, poll: db.Poll, user_votes: list[db.PollAnswer]) -> Response:
-        return Response()  # TODO
+        return Response()  # TODO ENTRY
 
-    # TODO
+    # TODO ENTRY
