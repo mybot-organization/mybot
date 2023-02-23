@@ -19,14 +19,15 @@ if TYPE_CHECKING:
     from core.db import Poll, PollAnswer
     from mybot import MyBot
 
+    from . import PollCog
+
 
 class PollPublicMenu(ui.View):
-    def __init__(self, bot: MyBot):
+    def __init__(self, cog: PollCog):
         super().__init__(timeout=None)
 
-        self.bot = bot
-
-        self.current_votes: dict[int, Interaction] = {}
+        self.bot = cog.bot
+        self.cog = cog
 
         self.result_url = ui.Button[Self](
             style=discord.ButtonStyle.link,
@@ -35,18 +36,22 @@ class PollPublicMenu(ui.View):
         )
         self.add_item(self.result_url)
 
+    def get_current_votes(self, poll: db.Poll) -> dict[int, Interaction]:
+        return self.cog.current_votes.setdefault(poll.id, {})
+
     def localize(self):
         self.vote.label = _("Vote")
 
     @classmethod
-    def build(cls, bot: MyBot, poll: db.Poll) -> PollPublicMenu:
-        view = cls(bot)
+    def build(cls, cog: PollCog, poll: db.Poll) -> PollPublicMenu:
+        view = cls(cog)
         view.result_url.disabled = not poll.public_results
         view.localize()
         return view
 
     @ui.button(style=discord.ButtonStyle.blurple, custom_id="poll_vote_button")
     async def vote(self, inter: discord.Interaction, button: ui.Button[Self]):
+        print(self.cog.current_votes)
         message_id: int = inter.message.id  # type: ignore (interaction is a button, so it has a message)
         async with self.bot.async_session.begin() as session:
             stmt = db.select(db.Poll).where(db.Poll.message_id == message_id).options(selectinload(db.Poll.choices))
@@ -68,9 +73,10 @@ class PollPublicMenu(ui.View):
                 return
 
         if poll.type == db.PollType.CHOICE:
-            if inter.user.id in self.current_votes:
-                await self.current_votes[inter.user.id].delete_original_response()
-            self.current_votes[inter.user.id] = inter
+            current_votes = self.get_current_votes(poll)
+            if inter.user.id in current_votes:
+                await current_votes[inter.user.id].delete_original_response()
+            current_votes[inter.user.id] = inter
 
             await inter.response.send_message(
                 **(await ChoicePollVote.message(self.bot, poll, votes)),
@@ -169,7 +175,10 @@ class ChoicePollVote(ui.View):
                 pass
 
     def clean_current_cache(self, user_id: int):
-        self.parent.current_votes.pop(user_id, None)
+        current_votes = self.parent.get_current_votes(self.poll)
+        current_votes.pop(user_id, None)
+        if not current_votes:  # not current votes anymore.
+            self.parent.cog.current_votes.pop(self.poll.id, None)
 
 
 class BooleanPollVote(ui.View):

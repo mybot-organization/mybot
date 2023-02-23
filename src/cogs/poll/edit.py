@@ -13,15 +13,16 @@ from .constants import TOGGLE_EMOTES
 from .display import PollDisplay
 
 if TYPE_CHECKING:
-    from main import MyBot
+    from . import PollCog
 
 
 class EditPoll(ui.View):
-    def __init__(self, bot: MyBot, poll: db.Poll, poll_message: discord.Message | None = None):
+    def __init__(self, cog: PollCog, poll: db.Poll, poll_message: discord.Message | None = None):
         super().__init__(timeout=600)
 
         self.poll = poll
-        self.bot = bot
+        self.bot = cog.bot
+        self.cog = cog
         self.poll_message = poll_message  # poll_message is None if the poll is new
 
         self.build_view()
@@ -97,7 +98,7 @@ class EditPoll(ui.View):
             # channel can be other type of channels like voice, but it's ok.
             channel = cast(discord.TextChannel, inter.channel)
             message = await channel.send(
-                **(await PollDisplay.build(self.poll, self.bot)), view=PollPublicMenu.build(self.bot, self.poll)
+                **(await PollDisplay.build(self.poll, self.bot)), view=PollPublicMenu.build(self.cog, self.poll)
             )
             self.poll.message_id = message.id
 
@@ -112,21 +113,30 @@ class EditPoll(ui.View):
                 session.add(self.poll)
             await inter.response.defer()
             await inter.delete_original_response()
+
             await self.poll_message.edit(
-                **(await PollDisplay.build(self.poll, self.bot)), view=PollPublicMenu.build(self.bot, self.poll)
+                **(await PollDisplay.build(self.poll, self.bot)), view=PollPublicMenu.build(self.cog, self.poll)
             )
+
+            # TODO : add view and stop them first ?
+            currents = self.cog.current_votes.pop(self.poll.id, None)
+            if currents is not None:
+                for vote_inter in currents.values():
+                    await vote_inter.delete_original_response()
 
 
 class EditPollTitleAndDescription(ui.Modal):
     def __init__(self, parent: EditPoll):
         super().__init__(title=_("Create a new poll"), timeout=None)
         self.parent = parent
+        self.bot = parent.bot
+        self.poll = parent.poll
 
         self.question = ui.TextInput[Self](
             label=_("Poll question"),
             placeholder=_("Do you agree this bot is awesome?"),
             max_length=256,
-            default=parent.poll.title,
+            default=self.poll.title,
         )
         self.add_item(self.question)
 
@@ -136,17 +146,15 @@ class EditPollTitleAndDescription(ui.Modal):
             placeholder=_("Tell more about your poll here."),
             required=False,
             max_length=2000,
-            default=parent.poll.description,
+            default=self.poll.description,
         )
         self.add_item(self.description)
 
     async def on_submit(self, inter: discord.Interaction) -> None:
-        self.parent.poll.title = self.question.value
-        self.parent.poll.description = self.description.value
+        self.poll.title = self.question.value
+        self.poll.description = self.description.value
         self.parent.build_view()
-        await inter.response.edit_message(
-            **(await PollDisplay.build(self.parent.poll, self.parent.bot)), view=self.parent
-        )
+        await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=self.parent)
 
 
 class EditPollChoices(ui.View):
@@ -154,6 +162,8 @@ class EditPollChoices(ui.View):
         super().__init__()
 
         self.parent = parent
+        self.bot = parent.bot
+        self.poll = parent.poll
 
         self.localize_view()
 
@@ -173,6 +183,4 @@ class EditPollChoices(ui.View):
     @ui.button(row=1, style=discord.ButtonStyle.green)
     async def back(self, inter: discord.Interaction, button: ui.Button[Self]):
         self.parent.build_view()
-        await inter.response.edit_message(
-            **(await PollDisplay.build(self.parent.poll, self.parent.bot)), view=self.parent
-        )
+        await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=self.parent)

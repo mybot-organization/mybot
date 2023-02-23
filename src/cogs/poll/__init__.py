@@ -31,8 +31,10 @@ class PollCog(SpecialCog["MyBot"]):
 
         self.bot.tree.add_command(app_commands.ContextMenu(name=__("Edit poll"), callback=self.edit_poll))
 
+        self.current_votes: dict[int, dict[int, Interaction]] = {}  # poll_id: {user_id: interaction}
+
     async def cog_load(self) -> None:
-        self.bot.add_view(PollPublicMenu(self.bot))
+        self.bot.add_view(PollPublicMenu(self))
 
     @app_commands.command(
         name=__("poll"),
@@ -60,7 +62,7 @@ class PollCog(SpecialCog["MyBot"]):
             public_results=True,
         )
         if poll_type.value == db.PollType.CHOICE.value:
-            await inter.response.send_modal(ChoicesPollModal(self.bot, poll))
+            await inter.response.send_modal(ChoicesPollModal(self, poll))
         else:
             await inter.response.send_message("Other poll types are not implemented yet.")  # TODO
             # await inter.response.send_modal(PollModal(self.bot, poll))
@@ -78,15 +80,16 @@ class PollCog(SpecialCog["MyBot"]):
         if poll.author_id != inter.user.id:
             return await inter.response.send_message(_("You can't edit this poll."), ephemeral=True)
         await inter.response.send_message(
-            **(await PollDisplay.build(poll, self.bot)), view=EditPoll(self.bot, poll, message), ephemeral=True
+            **(await PollDisplay.build(poll, self.bot)), view=EditPoll(self, poll, message), ephemeral=True
         )
 
 
 class PollModal(ui.Modal):
-    def __init__(self, bot: MyBot, poll: db.Poll):
+    def __init__(self, cog: PollCog, poll: db.Poll):
         super().__init__(title=_("Create a new poll"), timeout=None)
 
-        self.bot = bot
+        self.cog = cog
+        self.bot = cog.bot
         self.poll = poll
 
         self.question = ui.TextInput[PollModal](
@@ -106,14 +109,14 @@ class PollModal(ui.Modal):
         self.poll.description = self.description.value
         await inter.response.send_message(
             **(await PollDisplay.build(self.poll, self.bot)),
-            view=EditPoll(self.bot, self.poll, inter.message),
+            view=EditPoll(self.cog, self.poll, inter.message),
             ephemeral=True,
         )
 
 
 class ChoicesPollModal(PollModal):
-    def __init__(self, bot: MyBot, poll: db.Poll):
-        super().__init__(bot, poll)
+    def __init__(self, cog: PollCog, poll: db.Poll):
+        super().__init__(cog, poll)
 
         self.choice1 = ui.TextInput[Self](
             label=_("Choice 1"),
@@ -137,7 +140,7 @@ class ChoicesPollModal(PollModal):
 
         await inter.response.send_message(
             **(await PollDisplay.build(self.poll, self.bot)),
-            view=EditPoll(self.bot, self.poll, inter.message),
+            view=EditPoll(self.cog, self.poll, inter.message),
             ephemeral=True,
         )
 
