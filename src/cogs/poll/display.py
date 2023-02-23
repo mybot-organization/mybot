@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING
 
 import discord
@@ -76,8 +75,6 @@ class PollDisplay:
             return _("Poll closed.\n")
         if self.poll.end_date is None:
             return _("No end date.\n")
-        if self.poll.end_date < datetime.utcnow():
-            return _("Poll ended.\n")
         return _("Poll ends <t:{}:R>\n", int(self.poll.end_date.timestamp()))
 
     def calculate_proportion(self, vote_value: str) -> float:

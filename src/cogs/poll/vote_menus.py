@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING, Self, Sequence, cast
 
 import discord
@@ -57,7 +58,15 @@ class PollPublicMenu(ui.View):
             poll = (await session.execute(stmt)).scalar_one()
 
             if poll.closed:
-                await inter.response.send_message("closed.")  # TODO set a better response for closed polls.
+                await inter.response.send_message(
+                    **response_constructor(ResponseType.error, _("Sorry, this poll is closed, you can't vote anymore!"))
+                )
+                return
+
+            if poll.end_date is not None and poll.end_date < datetime.utcnow():
+                await inter.response.send_message(
+                    **response_constructor(ResponseType.error, _("Sorry, this poll is over, you can't vote anymore!"))
+                )
                 return
 
             stmt = (
@@ -68,8 +77,9 @@ class PollPublicMenu(ui.View):
             votes = (await session.execute(stmt)).scalars().all()
 
             if not poll.users_can_change_answer and len(votes) > 0:
-                # TODO set a better response. Edit the message if not marked as endend. Or not ?
-                await inter.response.send_message("You already voted, and you can't change your vote.")
+                await inter.response.send_message(
+                    **response_constructor(ResponseType.error, "You already voted, and you can't change your vote.")
+                )
                 return
 
         if poll.type == db.PollType.CHOICE:
