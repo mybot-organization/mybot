@@ -3,7 +3,7 @@ from __future__ import annotations
 import enum
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Boolean, Date, Enum, ForeignKey, SmallInteger, String
+from sqlalchemy import BigInteger, Boolean, DateTime, Enum, ForeignKey, SmallInteger, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -52,8 +52,8 @@ class Poll(Base):
     # multiple: Mapped[bool] = mapped_column(Boolean)
     title: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str | None] = mapped_column(String, nullable=True)
-    creation_date: Mapped[datetime] = mapped_column(Date, nullable=False)
-    end_date: Mapped[datetime | None] = mapped_column(Date, nullable=True, default=None)
+    creation_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    end_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
     max_answers: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=1)
     users_can_change_answer: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     public_results: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Self, Sequence, cast
 
 import discord
@@ -63,7 +63,7 @@ class PollPublicMenu(ui.View):
                 )
                 return
 
-            if poll.end_date is not None and poll.end_date < datetime.utcnow():
+            if poll.end_date is not None and poll.end_date < datetime.now(timezone.utc):
                 await inter.response.send_message(
                     **response_constructor(ResponseType.error, _("Sorry, this poll is over, you can't vote anymore!"))
                 )
@@ -159,7 +159,6 @@ class ChoicePollVote(ui.View):
         new_answers = {value for value in self.choice.values}
         old_answers = {answer.value for answer in self.user_votes}
 
-        # TODO: if poll is edited while users votes, there can be some errors. Especially if a choice is removed.
         async with self.parent.bot.async_session.begin() as session:
             for remove_anwser in old_answers - new_answers:
                 poll_answer = cast(db.PollAnswer, get(self.user_votes, value=remove_anwser))
