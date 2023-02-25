@@ -71,6 +71,13 @@ class PollChoice(Base):
 
 
 class PollAnswer(Base):
+    """
+    value is:
+        - the choice id if the poll is a choice poll
+        - "0" or "1" if the poll is a boolean poll
+        - ...
+    """
+
     __tablename__ = "poll_answer"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

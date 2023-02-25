@@ -63,13 +63,16 @@ class PollCog(SpecialCog["MyBot"]):
             closed=False,
             public_results=True,
         )
-        if poll_type.value == db.PollType.CHOICE.value:
-            await inter.response.send_modal(ChoicesPollModal(self, poll))
-        else:
-            await inter.response.send_message(
-                "Other poll types are not implemented yet."
-            )  # TODO OPINION, BOOLEAN, ENTRY
-            # await inter.response.send_modal(PollModal(self.bot, poll))
+
+        poll_menu_from_type = {
+            db.PollType.CHOICE: ChoicesPollModal,
+            db.PollType.BOOLEAN: PollModal,
+            db.PollType.OPINION: PollModal,
+            db.PollType.ENTRY: PollModal,
+        }
+
+        poll_menu = poll_menu_from_type[db.PollType(poll_type.value)](self, poll)
+        await inter.response.send_modal(poll_menu)
 
     # This is a context command.
     async def edit_poll(self, inter: Interaction, message: discord.Message) -> None:
@@ -105,6 +108,7 @@ class PollModal(ui.Modal):
             placeholder=_("Tell more about your poll here."),
             required=False,
             max_length=2000,
+            style=discord.TextStyle.long,
         )
         self.add_item(self.description)
 

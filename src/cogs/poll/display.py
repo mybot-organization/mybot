@@ -107,26 +107,44 @@ class PollDisplay:
                 return ""  # TODO ENTRY
 
     def build_graph(self) -> str:
-        if self.votes is None:
+        if self.votes is None:  # self.votes is None if the poll is not public
             return ""
-        if self.total_votes == 0:
-            return f"{Emojis.white_left}{Emojis.white_mid * 10}{Emojis.white_right}"
 
         graph: list[str] = []
         match self.poll.type:
             case db.PollType.CHOICE:
+                if self.total_votes == 0:
+                    return f"{Emojis.white_left}{Emojis.white_mid * 10}{Emojis.white_right}"
+
                 for i, choice in enumerate(self.poll.choices):
                     proportion = self.calculate_proportion(str(choice.id))
                     graph.extend([GRAPH_EMOJIS[i]] * round(proportion * 12))
+
+                if len(graph) < 12:
+                    # This could be improved (if there is draws, it will be wrong)
+                    graph.extend(graph[-1] * (12 - len(graph)))
+
+                graph = graph[:12]
+                graph[0] = LEFT_CORNER_EMOJIS[GRAPH_EMOJIS.index(graph[0])]
+                graph[-1] = RIGHT_CORNER_EMOJIS[GRAPH_EMOJIS.index(graph[-1])]
+            case db.PollType.BOOLEAN:
+                if self.total_votes == 0:
+                    return f"{Emojis.thumb_down}{Emojis.white_left}{Emojis.white_mid * 8}{Emojis.white_right}{Emojis.thumb_up}"
+
+                for i, choice in enumerate(("1", "0")):
+                    proportion = self.calculate_proportion(choice)
+                    graph.extend([GRAPH_EMOJIS[i]] * round(proportion * 10))
+
+                if len(graph) < 10:
+                    graph.extend(graph[-1] * (10 - len(graph)))
+
+                graph = graph[:10]
+                graph[0] = LEFT_CORNER_EMOJIS[GRAPH_EMOJIS.index(graph[0])]
+                graph[-1] = RIGHT_CORNER_EMOJIS[GRAPH_EMOJIS.index(graph[-1])]
+
+                graph.insert(0, f"{Emojis.thumb_up} ")
+                graph.append(f" {Emojis.thumb_down}")
             case _:
-                pass  # TODO OPINION, ENTRY, BOOLEAN
-
-        if len(graph) < 12:
-            # This could be improved (if there is draws, it will be wrong)
-            graph.extend(graph[-1] * (12 - len(graph)))
-
-        graph = graph[:12]
-        graph[0] = LEFT_CORNER_EMOJIS[GRAPH_EMOJIS.index(graph[0])]
-        graph[-1] = RIGHT_CORNER_EMOJIS[GRAPH_EMOJIS.index(graph[-1])]
+                pass  # TODO ENTRY, OPINION
 
         return "".join(graph)

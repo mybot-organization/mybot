@@ -9,6 +9,7 @@ from discord.utils import get
 from sqlalchemy.orm import selectinload
 
 from core import Response, ResponseType, db, response_constructor
+from core.constants import Emojis
 from core.i18n import _
 
 from .constants import CHOICE_LEGEND_EMOJIS
@@ -16,9 +17,6 @@ from .display import PollDisplay
 
 if TYPE_CHECKING:
     from discord import Interaction
-
-    from core.db import Poll, PollAnswer
-    from mybot import MyBot
 
     from . import PollCog
 
@@ -82,60 +80,103 @@ class PollPublicMenu(ui.View):
                 )
                 return
 
-        if poll.type == db.PollType.CHOICE:
-            current_votes = self.get_current_votes(poll)
-            if inter.user.id in current_votes:
-                await current_votes[inter.user.id][0].delete_original_response()
-            current_votes[inter.user.id] = (inter, self)
+        current_votes = self.get_current_votes(poll)
+        if inter.user.id in current_votes:
+            await current_votes[inter.user.id][0].delete_original_response()
+        current_votes[inter.user.id] = (inter, self)
 
-            await inter.response.send_message(
-                **(await ChoicePollVote.message(self.bot, poll, votes)),
-                view=ChoicePollVote(self, poll, votes, inter),
-                ephemeral=True,
-            )
+        vote_menu_types = {
+            db.PollType.CHOICE: ChoicePollVote,
+            db.PollType.BOOLEAN: BooleanPollVote,
+            db.PollType.OPINION: OpinionPollVote,
+            db.PollType.ENTRY: EntryPollVote,
+        }
 
-        # TODO OPINION, BOOLEAN, ENTRY
+        vote_menu = vote_menu_types[poll.type](self, poll, votes, inter)
+        await inter.response.send_message(
+            **(await vote_menu.message()),
+            view=vote_menu,
+            ephemeral=True,
+        )
 
 
-class ChoicePollVote(ui.View):
+class VoteMenu(ui.View):
     def __init__(
         self, parent: PollPublicMenu, poll: db.Poll, user_votes: Sequence[db.PollAnswer], base_inter: Interaction
     ):
         super().__init__(timeout=180)
 
         self.parent = parent
+        self.bot = parent.bot
         self.user_votes = user_votes
         self.poll = poll
         self.base_inter = base_inter
 
-        self.choice.max_values = poll.max_answers
-        self.choice.min_values = 0
-        for i, choice in enumerate(poll.choices):
-            label = choice.label if len(choice.label) <= 100 else choice.label[:99] + "…"
-            self.choice.add_option(
-                label=label,
-                value=str(choice.id),
-                default=any(str(choice.id) == vote.value for vote in user_votes[: poll.max_answers]),
-                emoji=CHOICE_LEGEND_EMOJIS[i],
-            )
+        self.build_view()
 
-        self.localize()
-
-    def localize(self):
-        self.remove_vote.label = _("Remove vote")
-        self.validate.label = _("Validate")
+    def build_view(self):
+        """Called one time, to fill selects, and add labels (due to translations)."""
+        self.update_view()
 
     def update_view(self):
-        for option in self.choice.options:
-            option.default = any(option.value == value for value in self.choice.values)
-        self.remove_vote.disabled = len(self.choice.values) == 0
+        """Called every time the view is updated."""
+        for item in self.children:
+            if isinstance(item, ui.Select):
+                for option in item.options:
+                    option.default = option.value in item.values
 
     async def on_timeout(self) -> None:
         self.clean_current_cache(self.base_inter.user.id)
 
-    @classmethod
-    async def message(cls, bot: MyBot, poll: db.Poll, user_votes: Sequence[db.PollAnswer]) -> Response:
-        return Response()  # NOTE : don't know if a message is needed here.
+    async def update_poll_display(self):
+        """Update the poll display."""
+        if self.poll.public_results:
+            try:
+                message = cast(discord.Message, self.base_inter.message)  # type: ignore
+                old_embed = message.embeds[0] if message.embeds else None
+                await message.edit(**(await PollDisplay.build(self.poll, self.parent.bot, old_embed)))
+            except discord.NotFound:
+                pass
+
+    def clean_current_cache(self, user_id: int):
+        """Remove the user from the current voters list."""
+        current_votes = self.parent.get_current_votes(self.poll)
+        current_votes.pop(user_id, None)
+        if not current_votes:  # not current votes anymore.
+            self.parent.cog.current_votes.pop(self.poll.id, None)
+
+    async def message(self) -> Response:
+        """This is called in order to set a message within the view, if needed."""
+        return Response()
+
+
+class ChoicePollVote(VoteMenu):
+    def build_view(self):
+        self.remove_vote.label = _("Remove vote")
+        self.validate.label = _("Validate")
+
+        self.choice.max_values = self.poll.max_answers
+        self.choice.min_values = 0
+
+        for i, choice in enumerate(self.poll.choices):
+            label = choice.label if len(choice.label) <= 100 else choice.label[:99] + "…"
+            default = str(choice.id) in (vote.value for vote in self.user_votes[: self.poll.max_answers])
+
+            self.choice.add_option(
+                label=label,
+                value=str(choice.id),
+                default=default,
+                emoji=CHOICE_LEGEND_EMOJIS[i],
+            )
+
+            if default:
+                self.choice._values.append(str(choice.id))  # pyright: ignore [reportPrivateUsage]
+
+        self.update_view()
+
+    def update_view(self):
+        super().update_view()
+        self.remove_vote.disabled = len(self.choice.values) == 0
 
     @ui.select()  # type: ignore (idk why there is an error here)
     async def choice(self, inter: Interaction, select: ui.Select[Self]):
@@ -174,65 +215,52 @@ class ChoicePollVote(ui.View):
         )
         self.clean_current_cache(inter.user.id)
 
-    async def update_poll_display(self):
-        if self.poll.public_results:
-            try:
-                message = cast(discord.Message, self.base_inter.message)  # type: ignore
-                old_embed = message.embeds[0] if message.embeds else None
-                await message.edit(**(await PollDisplay.build(self.poll, self.parent.bot, old_embed)))
-            except discord.NotFound:
-                pass
 
-    def clean_current_cache(self, user_id: int):
-        current_votes = self.parent.get_current_votes(self.poll)
-        current_votes.pop(user_id, None)
-        if not current_votes:  # not current votes anymore.
-            self.parent.cog.current_votes.pop(self.poll.id, None)
+class BooleanPollVote(VoteMenu):
+    def build_view(self):
+        self.yes.label = _("Yes")
+        self.no.label = _("No")
+        self.update_view()
 
+    def update_view(self):
+        self.yes.style = self.no.style = discord.ButtonStyle.grey
+        if self.user_votes:
+            if self.user_votes[0].value == "1":
+                self.yes.style = discord.ButtonStyle.green
+            else:
+                self.no.style = discord.ButtonStyle.green
 
-class BooleanPollVote(ui.View):
-    def __init__(self, bot: MyBot, poll: Poll, user_votes: list[PollAnswer]):
-        self.bot = bot
-        self.user_votes = user_votes
-        self.poll = poll
-        super().__init__(timeout=180)
-
-    @classmethod
-    async def message(cls, bot: MyBot, poll: Poll, user_votes: list[PollAnswer]) -> Response:
-        return Response()  # TODO BOOLEAN
-
-    @ui.button()
+    @ui.button(emoji=Emojis.thumb_up)
     async def yes(self, inter: discord.Interaction, button: ui.Button[Self]):
-        pass  # TODO BOOLEAN
+        await self.callback(inter, "1")
 
-    @ui.button()
+    @ui.button(emoji=Emojis.thumb_down)
     async def no(self, inter: discord.Interaction, button: ui.Button[Self]):
-        pass  # TODO BOOLEAN
+        await self.callback(inter, "0")
+
+    async def callback(self, inter: Interaction, value: str):
+        text_response = _("Your vote has been taken into account!")
+        async with self.parent.bot.async_session.begin() as session:
+            if self.user_votes:
+                if self.user_votes[0].value != value:
+                    self.user_votes[0].value = value
+                    session.add(self.user_votes[0])
+                else:
+                    await session.delete(self.user_votes[0])
+                    text_response = _("Your vote has been removed.")
+            else:
+                session.add(db.PollAnswer(poll_id=self.poll.id, user_id=inter.user.id, value=value))
+
+        await self.update_poll_display()
+        await inter.response.edit_message(**response_constructor(ResponseType.success, text_response), view=None)
+        self.clean_current_cache(inter.user.id)
 
 
-class OpinionPollVote(ui.View):
-    def __init__(self, bot: MyBot, poll: Poll, user_votes: list[PollAnswer]):
-        self.bot = bot
-        self.user_votes = user_votes
-        self.poll = poll
-        super().__init__(timeout=180)
-
-    @classmethod
-    async def message(cls, bot: MyBot, poll: db.Poll, user_votes: list[db.PollAnswer]) -> Response:
-        return Response()  # TODO OPINION
-
+class OpinionPollVote(VoteMenu):
+    pass
     # TODO OPINION
 
 
-class EntryPollVote(ui.Modal):
-    def __init__(self, bot: MyBot, poll: db.Poll, user_votes: list[db.PollAnswer]):
-        self.bot = bot
-        self.user_votes = user_votes
-        self.poll = poll
-        super().__init__(timeout=180)
-
-    @classmethod
-    async def message(cls, bot: MyBot, poll: db.Poll, user_votes: list[db.PollAnswer]) -> Response:
-        return Response()  # TODO ENTRY
-
+class EntryPollVote(VoteMenu):
+    pass
     # TODO ENTRY
