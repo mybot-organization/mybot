@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 if TYPE_CHECKING:
     from ._types import Snowflake
 
 
 class Emoji(str):
-    def __new__(cls, id: Snowflake) -> Emoji:
+    def __new__(cls, id: Snowflake) -> Self:
         return super().__new__(cls, f"<:e:{id}>")
 
     def __init__(self, id: Snowflake) -> None:
