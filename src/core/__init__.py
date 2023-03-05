@@ -9,4 +9,4 @@ from .response import (
 )
 from .special_cog import SpecialCog as SpecialCog, SpecialGroupCog as SpecialGroupCog
 from .temporary_cache import TemporaryCache as TemporaryCache
-
+from .view_menus import Menu as Menu
