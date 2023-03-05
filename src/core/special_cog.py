@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar, Generic, Self, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, Generic, Self, Sequence, TypeVar
 
 from discord.ext import commands
 
@@ -35,7 +35,7 @@ class SpecialCog(commands.Cog, Generic[_BotType]):
         """Return all the misc commands in this cog."""
         return [m for m in self.__cog_misc_commands__]
 
-    async def _inject(self, bot: BotBase, override: bool, guild: Snowflake | None, guilds: list[Snowflake]) -> Self:
+    async def _inject(self, bot: BotBase, override: bool, guild: Snowflake | None, guilds: Sequence[Snowflake]) -> Self:
         self = await super()._inject(bot, override, guild, guilds)
 
         # bind the bot to the misc commands
