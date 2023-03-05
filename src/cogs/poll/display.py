@@ -5,8 +5,9 @@ from typing import TYPE_CHECKING
 import discord
 from sqlalchemy import func
 
-from core import Emojis, Response, db
+from core import Emojis, db
 from core.i18n import _
+from core.response import MessageDisplay
 
 from .constants import (
     BOOLEAN_LEGEND_EMOJIS,
@@ -25,11 +26,11 @@ if TYPE_CHECKING:
 
 class PollDisplay:
     def __init__(self, poll: Poll, votes: dict[str, int] | None):
-        self.poll = poll
+        self.poll: Poll = poll
         self.votes = votes
 
     @classmethod
-    async def build(cls, poll: Poll, bot: MyBot, old_embed: Embed | None = None) -> Response:
+    async def build(cls, poll: Poll, bot: MyBot, old_embed: Embed | None = None) -> MessageDisplay:
         content = poll.description
         embed = discord.Embed(title=poll.title)
 
@@ -43,7 +44,11 @@ class PollDisplay:
                     .group_by(db.PollAnswer.value)
                 )
                 # a generator is used for typing purposes
-                votes = dict((key, value) for key, value in (await session.execute(stmt)).all())
+                votes = dict(
+                    (key, value)
+                    for key, value in (await session.execute(stmt)).all()
+                    if key in (str(choice.id) for choice in poll.choices)
+                )
         else:
             votes = None
 
@@ -64,7 +69,7 @@ class PollDisplay:
             author = await bot.getch_user(poll.author_id)
             embed.set_footer(text=_("Poll created by {}", author.name if author else "unknown"))
 
-        return Response(content=content, embed=embed)
+        return MessageDisplay(content=content, embed=embed)
 
     @property
     def total_votes(self) -> int:

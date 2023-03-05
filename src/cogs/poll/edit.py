@@ -4,36 +4,31 @@ from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Self, cast
 
 import discord
-from discord import ui
+from discord import Interaction, ui
 
 from cogs.poll.vote_menus import PollPublicMenu
-from core import ResponseType, db, response_constructor
+from core import Menu, db, response_constructor
 from core.i18n import _
+from core.response import ResponseType
 
-from .constants import TOGGLE_EMOTES
+from .constants import CHOICE_LEGEND_EMOJIS, TOGGLE_EMOTES
 from .display import PollDisplay
 
 if TYPE_CHECKING:
+    from mybot import MyBot
+
     from . import PollCog
 
 
-class EditPoll(ui.View):
+class EditPoll(Menu["MyBot"]):
     def __init__(self, cog: PollCog, poll: db.Poll, poll_message: discord.Message | None = None):
-        super().__init__(timeout=600)
+        super().__init__(bot=cog.bot, timeout=600)
 
         self.poll = poll
-        self.bot = cog.bot
         self.cog = cog
         self.poll_message = poll_message  # poll_message is None if the poll is new
 
-        self.build_view()
-
-    def disable_view(self):
-        for item in self.children:
-            if isinstance(item, (ui.Button, ui.Select)):
-                item.disabled = True
-
-    def build_view(self):
+    async def build(self) -> Self:
         self.edit_title_and_description.label = _("Edit title & description")
         self.set_ending_time.label = _("Set ending time")
         self.edit_choices.label = _("Edit choices")
@@ -61,36 +56,39 @@ class EditPoll(ui.View):
 
         self.save.label = _("Save")
 
+        return self
+
     @ui.button(row=0, style=discord.ButtonStyle.blurple)
     async def edit_title_and_description(self, inter: discord.Interaction, button: ui.Button[Self]):
-        await inter.response.send_modal(EditPollTitleAndDescription(self))
+        await inter.response.send_modal(await EditPollTitleAndDescription(self).build())
 
     @ui.button(row=0, style=discord.ButtonStyle.blurple)
     async def set_ending_time(self, inter: discord.Interaction, button: ui.Button[Self]):
         # EditPollEndingTime can edit the poll itself at definition, and the display will be updated
-        view = EditPollEndingTime(self)
+        view = await EditPollEndingTime(self).build()
         await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=view)
 
     @ui.button(row=0, style=discord.ButtonStyle.blurple)
     async def edit_choices(self, inter: discord.Interaction, button: ui.Button[Self]):
-        pass  # TODO implement edit choices
+        view = await EditPollChoices(self).build()
+        await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=view)
 
     @ui.button(row=1, style=discord.ButtonStyle.gray)
     async def public_results(self, inter: discord.Interaction, button: ui.Button[Self]):
         self.poll.public_results = not self.poll.public_results
-        self.build_view()
+        await self.build()
         await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=self)
 
     @ui.button(row=2, style=discord.ButtonStyle.gray)
     async def users_can_change_answer(self, inter: discord.Interaction, button: ui.Button[Self]):
         self.poll.users_can_change_answer = not self.poll.users_can_change_answer
-        self.build_view()
+        await self.build()
         await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=self)
 
     @ui.button(row=4, style=discord.ButtonStyle.red)
     async def toggle_poll(self, inter: discord.Interaction, button: ui.Button[Self]):
         self.poll.closed = not self.poll.closed
-        self.build_view()
+        await self.build()
         await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=self)
 
     @ui.button(row=4, style=discord.ButtonStyle.green)
@@ -101,7 +99,7 @@ class EditPoll(ui.View):
             # channel can be other type of channels like voice, but it's ok.
             channel = cast(discord.TextChannel, inter.channel)
             message = await channel.send(
-                **(await PollDisplay.build(self.poll, self.bot)), view=PollPublicMenu.build(self.cog, self.poll)
+                **(await PollDisplay.build(self.poll, self.bot)), view=await PollPublicMenu(self.cog, self.poll).build()
             )
             self.poll.message_id = message.id
 
@@ -118,7 +116,7 @@ class EditPoll(ui.View):
             await inter.delete_original_response()
 
             await self.poll_message.edit(
-                **(await PollDisplay.build(self.poll, self.bot)), view=PollPublicMenu.build(self.cog, self.poll)
+                **(await PollDisplay.build(self.poll, self.bot)), view=await PollPublicMenu(self.cog, self.poll).build()
             )
 
             currents = self.cog.current_votes.pop(self.poll.id, None)
@@ -136,38 +134,19 @@ class EditPoll(ui.View):
                     )
 
 
-class EditSubmenu(ui.View):
+class EditSubmenu(Menu["MyBot"]):
+    parent: EditPoll
+
     def __init__(self, parent: EditPoll):
-        super().__init__(timeout=600)
-        self.parent = parent
-        self.bot = parent.bot
+        super().__init__(parent.bot, parent)
         self.poll = parent.poll
 
-        self.localize_view()
-        self.set_select_options()
-
-    def localize_view(self) -> None:
-        pass
-
-    def set_select_options(self) -> None:
-        pass
-
-    def build_view(self) -> None:
-        raise NotImplementedError()
-
-    async def set_parent_view(self, inter: discord.Interaction):
-        self.parent.build_view()
+    async def set_back(self, inter: discord.Interaction):
+        await self.parent.build()
         await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=self.parent)
 
-    async def update_overview(self, inter: discord.Interaction):
-        try:
-            self.build_view()
-        except NotImplementedError:
-            for item in self.children:
-                if isinstance(item, ui.Select):
-                    for option in item.options:
-                        option.default = option.value in item.values
-        await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=self)
+    async def update_poll_display(self, inter: discord.Interaction, view: ui.View | None = None):
+        await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=view or self)
 
 
 class EditPollTitleAndDescription(EditSubmenu, ui.Modal):
@@ -175,6 +154,7 @@ class EditPollTitleAndDescription(EditSubmenu, ui.Modal):
         ui.Modal.__init__(self, title=_("Create a new poll"))
         EditSubmenu.__init__(self, parent)
 
+    async def build(self) -> Self:
         self.question = ui.TextInput[Self](
             label=_("Poll question"),
             placeholder=_("Do you agree this bot is awesome?"),
@@ -193,16 +173,31 @@ class EditPollTitleAndDescription(EditSubmenu, ui.Modal):
         )
         self.add_item(self.description)
 
+        return self
+
     async def on_submit(self, inter: discord.Interaction) -> None:
         self.poll.title = self.question.value
         self.poll.description = self.description.value
-        await self.set_parent_view(inter)
+        await self.set_back(inter)
 
 
 class EditPollEndingTime(EditSubmenu):
     def __init__(self, parent: EditPoll):
         super().__init__(parent)
         self.old_value = self.poll.end_date
+
+    async def build(self) -> Self:
+        self.select_days.placeholder = _("Select the number of days.")
+        self.select_hours.placeholder = _("Select the number of hours.")
+        self.select_minutes.placeholder = _("Select the number of minutes.")
+        self.cancel.label = _("Cancel")
+        self.back.label = _("Back")
+
+        self.select_days.options = [discord.SelectOption(label=_("{} day(s)", i), value=str(i)) for i in range(1, 26)]
+        self.select_hours.options = [discord.SelectOption(label=_("{} hour(s)", i), value=str(i)) for i in range(1, 24)]
+        self.select_minutes.options = [
+            discord.SelectOption(label=_("{} minute(s)", i), value=str(i)) for i in range(1, 61, 3)
+        ]
 
         if self.poll.end_date is not None:
             delta = self.poll.end_date - datetime.now(timezone.utc)
@@ -232,13 +227,7 @@ class EditPollEndingTime(EditSubmenu):
 
                     option = next(opt for opt in self.select_minutes.options if opt.value == default_minutes)
                     option.default = True
-
-    def localize_view(self):
-        self.select_days.placeholder = _("Select the number of days.")
-        self.select_hours.placeholder = _("Select the number of hours.")
-        self.select_minutes.placeholder = _("Select the number of minutes.")
-        self.cancel.label = _("Cancel")
-        self.back.label = _("Back")
+        return self
 
     def set_time(self):
         ending_time = timedelta()
@@ -255,52 +244,125 @@ class EditPollEndingTime(EditSubmenu):
         else:
             self.poll.end_date = datetime.now(timezone.utc) + ending_time
 
-    def set_select_options(self):
-        self.select_days.options = [discord.SelectOption(label=_("{} day(s)", i), value=str(i)) for i in range(1, 26)]
-        self.select_hours.options = [discord.SelectOption(label=_("{} hour(s)", i), value=str(i)) for i in range(1, 24)]
-        self.select_minutes.options = [
-            discord.SelectOption(label=_("{} minute(s)", i), value=str(i)) for i in range(1, 61, 3)
-        ]
+    async def callback(self, inter: Interaction):
+        self.set_time()
+        await self.update()
+        await self.update_poll_display(inter)
 
     @ui.select(min_values=0, max_values=1)  # pyright: ignore reportUnknownMemberType
     async def select_days(self, inter: discord.Interaction, select: ui.Select[Self]):
-        self.set_time()
-        await self.update_overview(inter)
+        await self.callback(inter)
 
     @ui.select(min_values=0, max_values=1)  # pyright: ignore reportUnknownMemberType
     async def select_hours(self, inter: discord.Interaction, select: ui.Select[Self]):
-        self.set_time()
-        await self.update_overview(inter)
+        await self.callback(inter)
 
     @ui.select(min_values=0, max_values=1)  # pyright: ignore reportUnknownMemberType
     async def select_minutes(self, inter: discord.Interaction, select: ui.Select[Self]):
-        self.set_time()
-        await self.update_overview(inter)
+        await self.callback(inter)
 
     @ui.button(style=discord.ButtonStyle.red)
     async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
         self.poll.end_date = self.old_value
-        await self.set_parent_view(inter)
+        await self.set_back(inter)
 
     @ui.button(style=discord.ButtonStyle.green)
     async def back(self, inter: discord.Interaction, button: ui.Button[Self]):
-        await self.set_parent_view(inter)
+        await self.set_back(inter)
 
 
 class EditPollChoices(EditSubmenu):
-    def localize_view(self):
+    def __init__(self, parent: EditPoll):
+        super().__init__(parent)
+        self.old_value = self.poll.choices.copy()
+
+    async def build(self) -> Self:
         self.add_choice.label = _("Add a choice")
         self.remove_choice.label = _("Remove a choice")
         self.back.label = _("Back")
+        self.cancel.label = _("Cancel")
+
+        return await super().build()
+
+    async def update(self):
+        self.remove_choice.disabled = len(self.poll.choices) <= 2
 
     @ui.button(row=0, style=discord.ButtonStyle.blurple)
     async def add_choice(self, inter: discord.Interaction, button: ui.Button[Self]):
-        pass  # TODO implement add choice
+        await inter.response.send_modal(await AddPollChoice(self).build())
 
     @ui.button(row=0, style=discord.ButtonStyle.blurple)
     async def remove_choice(self, inter: discord.Interaction, button: ui.Button[Self]):
-        pass  # TODO implement remove choice
+        await inter.response.edit_message(view=await RemovePollChoices(self).build())
+
+    @ui.button(row=1, style=discord.ButtonStyle.red)
+    async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
+        self.poll.choices = self.old_value
+        await self.set_back(inter)
 
     @ui.button(row=1, style=discord.ButtonStyle.green)
     async def back(self, inter: discord.Interaction, button: ui.Button[Self]):
-        await self.set_parent_view(inter)
+        await self.set_back(inter)
+
+
+class AddPollChoice(Menu["MyBot"], ui.Modal):
+    parent: EditPollChoices
+
+    def __init__(self, parent: EditPollChoices) -> None:
+        ui.Modal.__init__(self, title=_("Add a new choice"))
+        Menu.__init__(self, parent=parent)  # pyright: ignore [reportUnknownMemberType]
+
+    async def build(self) -> Self:
+        self.choice = ui.TextInput[Self](
+            label=_("Choice"),
+            placeholder=_("Enter a new choice here."),
+            required=True,
+            max_length=512,
+        )
+        self.add_item(self.choice)
+        return self
+
+    async def on_submit(self, inter: discord.Interaction) -> None:
+        self.parent.poll.choices.append(db.PollChoice(label=self.choice.value))
+        await self.parent.update()
+        await self.parent.update_poll_display(inter)
+
+
+class RemovePollChoices(Menu["MyBot"]):
+    parent: EditPollChoices
+
+    def __init__(self, parent: EditPollChoices) -> None:
+        super().__init__(bot=parent.bot, parent=parent)
+        self.old_value = self.parent.poll.choices.copy()
+
+    async def build(self) -> Self:
+        self.back.label = _("Back")
+        self.cancel.label = _("Cancel")
+        self.choices_to_remove.placeholder = _("Select the choices you want to remove.")
+        for i, choice in enumerate(self.old_value):
+            self.choices_to_remove.add_option(label=choice.label, value=str(choice.id), emoji=CHOICE_LEGEND_EMOJIS[i])
+        self.choices_to_remove.max_values = len(self.old_value) - 2
+        self.choices_to_remove.min_values = 0
+        return self
+
+    async def update(self):
+        for option in self.choices_to_remove.options:
+            option.default = option.value in self.choices_to_remove.values
+
+    @ui.select()  # pyright: ignore [reportUnknownMemberType]
+    async def choices_to_remove(self, inter: Interaction, select: ui.Select[Self]):
+        self.parent.poll.choices = [choice for choice in self.old_value if str(choice.id) not in select.values]
+        await self.update()
+        await self.parent.update_poll_display(inter, view=self)
+
+    @ui.button(style=discord.ButtonStyle.red)
+    async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
+        self.parent.poll.choices = self.old_value
+        await self.parent.set_back(inter)
+
+    @ui.button(style=discord.ButtonStyle.green)
+    async def back(self, inter: discord.Interaction, button: ui.Button[Self]):
+        await self.parent.set_back(inter)
+
+
+# TODO : add submenu that can be subsub menu

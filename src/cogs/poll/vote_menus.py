@@ -8,7 +8,7 @@ from discord import ui
 from discord.utils import get
 from sqlalchemy.orm import selectinload
 
-from core import Response, ResponseType, db, response_constructor
+from core import Menu, ResponseType, db, response_constructor
 from core.constants import Emojis
 from core.i18n import _
 
@@ -18,15 +18,17 @@ from .display import PollDisplay
 if TYPE_CHECKING:
     from discord import Interaction
 
+    from mybot import MyBot
+
     from . import PollCog
 
 
-class PollPublicMenu(ui.View):
-    def __init__(self, cog: PollCog):
-        super().__init__(timeout=None)
+class PollPublicMenu(Menu["MyBot"]):
+    def __init__(self, cog: PollCog, poll: db.Poll | None = None):
+        super().__init__(bot=cog.bot, timeout=None)
 
-        self.bot = cog.bot
         self.cog = cog
+        self.poll = poll
 
         self.result_url = ui.Button[Self](
             style=discord.ButtonStyle.link,
@@ -38,15 +40,11 @@ class PollPublicMenu(ui.View):
     def get_current_votes(self, poll: db.Poll) -> dict[int, tuple[Interaction, ui.View]]:
         return self.cog.current_votes.setdefault(poll.id, {})
 
-    def localize(self):
+    async def build(self) -> Self:
+        if self.poll:
+            self.result_url.disabled = not self.poll.public_results
         self.vote.label = _("Vote")
-
-    @classmethod
-    def build(cls, cog: PollCog, poll: db.Poll) -> PollPublicMenu:
-        view = cls(cog)
-        view.result_url.disabled = not poll.public_results
-        view.localize()
-        return view
+        return self
 
     @ui.button(style=discord.ButtonStyle.blurple, custom_id="poll_vote_button")
     async def vote(self, inter: discord.Interaction, button: ui.Button[Self]):
@@ -94,39 +92,27 @@ class PollPublicMenu(ui.View):
 
         vote_menu = vote_menu_types[poll.type](self, poll, votes, inter)
         await inter.response.send_message(
-            **(await vote_menu.message()),
+            **(await vote_menu.message_display()),
             view=vote_menu,
             ephemeral=True,
         )
 
 
-class VoteMenu(ui.View):
+class VoteMenu(Menu["MyBot"]):
+    parent: PollPublicMenu
+
     def __init__(
         self, parent: PollPublicMenu, poll: db.Poll, user_votes: Sequence[db.PollAnswer], base_inter: Interaction
     ):
-        super().__init__(timeout=180)
+        super().__init__(parent=parent, timeout=180)
 
-        self.parent = parent
-        self.bot = parent.bot
         self.user_votes = user_votes
         self.poll = poll
         self.base_inter = base_inter
 
-        self.build_view()
-
-    def build_view(self):
-        """Called one time, to fill selects, and add labels (due to translations)."""
-        self.update_view()
-
-    def update_view(self):
-        """Called every time the view is updated."""
-        for item in self.children:
-            if isinstance(item, ui.Select):
-                for option in item.options:
-                    option.default = option.value in item.values
-
     async def on_timeout(self) -> None:
         self.clean_current_cache(self.base_inter.user.id)
+        await super().on_timeout()
 
     async def update_poll_display(self):
         """Update the poll display."""
@@ -145,13 +131,9 @@ class VoteMenu(ui.View):
         if not current_votes:  # not current votes anymore.
             self.parent.cog.current_votes.pop(self.poll.id, None)
 
-    async def message(self) -> Response:
-        """This is called in order to set a message within the view, if needed."""
-        return Response()
-
 
 class ChoicePollVote(VoteMenu):
-    def build_view(self):
+    async def build(self) -> Self:
         self.remove_vote.label = _("Remove vote")
         self.validate.label = _("Validate")
 
@@ -172,16 +154,15 @@ class ChoicePollVote(VoteMenu):
             if default:
                 self.choice._values.append(str(choice.id))  # pyright: ignore [reportPrivateUsage]
 
-        self.update_view()
+        return await super().build()
 
-    def update_view(self):
-        super().update_view()
+    async def update(self):
+        await super().update()
         self.remove_vote.disabled = len(self.choice.values) == 0
 
     @ui.select()  # type: ignore (idk why there is an error here)
     async def choice(self, inter: Interaction, select: ui.Select[Self]):
-        self.update_view()
-        await inter.response.edit_message(view=self)
+        await self.message_refresh(inter, False)
 
     @ui.button(style=discord.ButtonStyle.red)
     async def remove_vote(self, inter: Interaction, button: ui.Button[Self]):
@@ -217,12 +198,12 @@ class ChoicePollVote(VoteMenu):
 
 
 class BooleanPollVote(VoteMenu):
-    def build_view(self):
+    async def build(self) -> Self:
         self.yes.label = _("Yes")
         self.no.label = _("No")
-        self.update_view()
+        return await super().build()
 
-    def update_view(self):
+    async def update(self):
         self.yes.style = self.no.style = discord.ButtonStyle.grey
         if self.user_votes:
             if self.user_votes[0].value == "1":

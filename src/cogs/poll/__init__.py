@@ -87,7 +87,9 @@ class PollCog(SpecialCog["MyBot"]):
         if poll.author_id != inter.user.id:
             return await inter.response.send_message(_("You can't edit this poll."), ephemeral=True)
         await inter.response.send_message(
-            **(await PollDisplay.build(poll, self.bot)), view=EditPoll(self, poll, message), ephemeral=True
+            **(await PollDisplay.build(poll, self.bot)),
+            view=await EditPoll(self, poll, message).build(),
+            ephemeral=True,
         )
 
 
@@ -117,7 +119,7 @@ class PollModal(ui.Modal):
         self.poll.description = self.description.value
         await inter.response.send_message(
             **(await PollDisplay.build(self.poll, self.bot)),
-            view=EditPoll(self.cog, self.poll, inter.message),
+            view=await EditPoll(self.cog, self.poll, inter.message).build(),
             ephemeral=True,
         )
 
@@ -148,7 +150,7 @@ class ChoicesPollModal(PollModal):
 
         await inter.response.send_message(
             **(await PollDisplay.build(self.poll, self.bot)),
-            view=EditPoll(self.cog, self.poll, inter.message),
+            view=await EditPoll(self.cog, self.poll, inter.message).build(),
             ephemeral=True,
         )
 
