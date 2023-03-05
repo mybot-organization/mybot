@@ -1,4 +1,4 @@
-FROM python:3.11.0 as base
+FROM python:3.11.2 as base
 WORKDIR /app
 ENV PYTHONUNBUFFERED=0
 COPY requirements.txt config.toml* alembic.ini ./
