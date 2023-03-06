@@ -7,9 +7,10 @@ from typing import TYPE_CHECKING, Self, cast
 
 import discord
 from discord import Interaction, ui
+from sqlalchemy import delete
 
 from cogs.poll.vote_menus import PollPublicMenu
-from core import Menu, db, response_constructor
+from core import Menu, MessageDisplay, ResponseType, db, response_constructor
 from core.i18n import _
 from core.response import ResponseType
 
@@ -34,6 +35,8 @@ class EditPoll(Menu["MyBot"]):
         self.edit_title_and_description.label = _("Edit title & description")
         self.set_ending_time.label = _("Set ending time")
         self.edit_choices.label = _("Edit choices")
+        self.reset_votes.label = _("Reset")
+        self.save.label = _("Save")
 
         if self.poll.type == db.PollType.CHOICE:
             self.edit_choices.disabled = False
@@ -48,6 +51,7 @@ class EditPoll(Menu["MyBot"]):
         self.users_can_change_answer.emoji = TOGGLE_EMOTES[self.poll.users_can_change_answer]
 
         self.toggle_poll.disabled = self.poll_message is None
+        self.reset_votes.disabled = self.poll_message is None
 
         if self.poll.closed:
             self.toggle_poll.label = _("Reopen poll")
@@ -56,9 +60,10 @@ class EditPoll(Menu["MyBot"]):
             self.toggle_poll.label = _("Close poll")
             self.toggle_poll.style = discord.ButtonStyle.red
 
-        self.save.label = _("Save")
-
         return self
+
+    async def message_display(self) -> MessageDisplay:
+        return await PollDisplay.build(self.poll, self.bot)
 
     @ui.button(row=0, style=discord.ButtonStyle.blurple)
     async def edit_title_and_description(self, inter: discord.Interaction, button: ui.Button[Self]):
@@ -86,6 +91,10 @@ class EditPoll(Menu["MyBot"]):
         self.poll.users_can_change_answer = not self.poll.users_can_change_answer
         await self.build()
         await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=self)
+
+    @ui.button(row=4, style=discord.ButtonStyle.red)
+    async def reset_votes(self, inter: discord.Interaction, button: ui.Button[Self]):
+        await self.set_menu(inter, await ResetPoll(parent=self).build())
 
     @ui.button(row=4, style=discord.ButtonStyle.red)
     async def toggle_poll(self, inter: discord.Interaction, button: ui.Button[Self]):
@@ -368,3 +377,28 @@ class RemovePollChoices(Menu["MyBot"]):
     @ui.button(style=discord.ButtonStyle.green)
     async def back(self, inter: discord.Interaction, button: ui.Button[Self]):
         await self.parent.set_back(inter)
+
+
+class ResetPoll(Menu["MyBot"]):
+    parent: EditPoll
+
+    async def build(self) -> Self:
+        self.reset.label = _("Reset")
+        self.cancel.label = _("Cancel")
+        return self
+
+    async def message_display(self) -> MessageDisplay:
+        return response_constructor(
+            ResponseType.warning,
+            _('This operation cannot be undone. By clicking on the "RESET" button, all the votes will be deleted.'),
+        )
+
+    @ui.button(style=discord.ButtonStyle.red)
+    async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
+        await self.parent.set_back(inter)
+
+    @ui.button(style=discord.ButtonStyle.green)
+    async def reset(self, inter: discord.Interaction, button: ui.Button[Self]):
+        async with self.bot.async_session.begin() as session:
+            await session.execute(delete(db.PollAnswer).where(db.PollAnswer.poll_id == self.parent.poll.id))
+        await self.set_back(inter)

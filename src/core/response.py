@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass()
-class MessageDisplay(Mapping[str, Embed]):
+class MessageDisplay(Mapping[str, Embed | str | None]):
     """
     Used to represent the "display" of a message. It contains the content, the embeds, etc...
     """
@@ -26,6 +26,21 @@ class MessageDisplay(Mapping[str, Embed]):
 
     def __len__(self) -> int:
         return self.__dict__.__len__()
+
+
+class UneditedMessageDisplay(Mapping[str, Any]):
+    """
+    Used as an empty dict. By doing Message.edit(**UneditedMessageDisplay()), the message will remain unchanged.
+    """
+
+    def __getitem__(self, key: str) -> Any:
+        raise KeyError(key)
+
+    def __iter__(self) -> Iterator[str]:
+        return iter([])
+
+    def __len__(self) -> int:
+        return 0
 
 
 class _ResponseEmbed(MessageDisplay):

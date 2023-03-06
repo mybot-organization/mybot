@@ -6,7 +6,7 @@ import discord
 from discord import ui
 from typing_extensions import TypeVar
 
-from .response import MessageDisplay
+from .response import MessageDisplay, UneditedMessageDisplay
 
 if TYPE_CHECKING:
     from discord import Interaction
@@ -40,7 +40,10 @@ class Menu(ui.View, Generic[BotT]):
     async def set_back(self, inter: Interaction) -> None:
         if not self.parent:
             raise Exception(f"This menu has no parent. Menu : {self}")
-        await inter.response.edit_message(view=self.parent)
+        await inter.response.edit_message(**(await self.parent.message_display()), view=self.parent)
+
+    async def set_menu(self, inter: Interaction, menu: Menu[BotT]) -> None:
+        await inter.response.edit_message(**(await menu.message_display()), view=menu)
 
     async def build(self) -> Self:
         """
@@ -71,13 +74,13 @@ class Menu(ui.View, Generic[BotT]):
             except (discord.NotFound, discord.HTTPException):
                 pass
 
-    async def message_display(self) -> MessageDisplay:
+    async def message_display(self) -> MessageDisplay | UneditedMessageDisplay:
         """This function can be defined and used in order to add a message content (embeds, etc...) within the menu."""
-        return MessageDisplay()
+        return UneditedMessageDisplay()
 
     async def message_refresh(self, inter: Interaction, refresh_display: bool = True):
         await self.update()
-        if refresh_display:
-            await inter.response.edit_message(view=self, **(await self.message_display()))
+        if refresh_display and (display := await self.message_display()):
+            await inter.response.edit_message(view=self, **display)
         else:
             await inter.response.edit_message(view=self)
