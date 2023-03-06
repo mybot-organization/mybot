@@ -80,7 +80,7 @@ class Menu(ui.View, Generic[BotT]):
 
     async def message_refresh(self, inter: Interaction, refresh_display: bool = True):
         await self.update()
-        if refresh_display and (display := await self.message_display()):
-            await inter.response.edit_message(view=self, **display)
+        if refresh_display:
+            await inter.response.edit_message(view=self, **await self.message_display())
         else:
             await inter.response.edit_message(view=self)

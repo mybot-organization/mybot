@@ -35,13 +35,16 @@ class EditPoll(Menu["MyBot"]):
         self.edit_title_and_description.label = _("Edit title & description")
         self.set_ending_time.label = _("Set ending time")
         self.edit_choices.label = _("Edit choices")
+        self.set_max_choices.label = _("Set max choices")
         self.reset_votes.label = _("Reset")
         self.save.label = _("Save")
 
         if self.poll.type == db.PollType.CHOICE:
             self.edit_choices.disabled = False
+            self.set_max_choices.disabled = False
         else:
             self.edit_choices.disabled = True
+            self.set_max_choices.disabled = True
 
         self.public_results.label = _("The results are {}.", _("public") if self.poll.public_results else _("private"))
         self.public_results.emoji = TOGGLE_EMOTES[self.poll.public_results]
@@ -71,7 +74,6 @@ class EditPoll(Menu["MyBot"]):
 
     @ui.button(row=0, style=discord.ButtonStyle.blurple)
     async def set_ending_time(self, inter: discord.Interaction, button: ui.Button[Self]):
-        # EditPollEndingTime can edit the poll itself at definition, and the display will be updated
         view = await EditPollEndingTime(self).build()
         await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=view)
 
@@ -79,6 +81,10 @@ class EditPoll(Menu["MyBot"]):
     async def edit_choices(self, inter: discord.Interaction, button: ui.Button[Self]):
         view = await EditPollChoices(self).build()
         await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=view)
+
+    @ui.button(row=0, style=discord.ButtonStyle.blurple)
+    async def set_max_choices(self, inter: discord.Interaction, button: ui.Button[Self]):
+        await self.set_menu(inter, await EditPollMaxChoices(self).build())
 
     @ui.button(row=1, style=discord.ButtonStyle.gray)
     async def public_results(self, inter: discord.Interaction, button: ui.Button[Self]):
@@ -401,4 +407,40 @@ class ResetPoll(Menu["MyBot"]):
     async def reset(self, inter: discord.Interaction, button: ui.Button[Self]):
         async with self.bot.async_session.begin() as session:
             await session.execute(delete(db.PollAnswer).where(db.PollAnswer.poll_id == self.parent.poll.id))
+        await self.set_back(inter)
+
+
+class EditPollMaxChoices(Menu["MyBot"]):
+    parent: EditPoll
+
+    def __init__(self, parent: EditPoll) -> None:
+        super().__init__(bot=parent.bot, parent=parent)
+        self.old_value = self.parent.poll.max_answers
+
+    async def build(self) -> Self:
+        self.cancel.label = _("Cancel")
+        self.back.label = _("Back")
+
+        self.max_choices.placeholder = _("Select the maximum number of choices.")
+        self.max_choices.min_values = 1
+        self.max_choices.max_values = 1
+
+        self.max_choices._values = [str(self.parent.poll.max_answers)]  # pyright: ignore [reportPrivateUsage]
+        for i in range(1, len(self.parent.poll.choices) + 1):
+            self.max_choices.add_option(label=str(i), value=str(i), default=i == self.parent.poll.max_answers)
+
+        return self
+
+    @ui.select()
+    async def max_choices(self, inter: Interaction, select: ui.Select[Self]):
+        self.parent.poll.max_answers = int(select.values[0])
+        await self.message_refresh(inter)
+
+    @ui.button(style=discord.ButtonStyle.red)
+    async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
+        self.parent.poll.max_answers = self.old_value
+        await self.set_back(inter)
+
+    @ui.button(style=discord.ButtonStyle.green)
+    async def back(self, inter: discord.Interaction, button: ui.Button[Self]):
         await self.set_back(inter)
