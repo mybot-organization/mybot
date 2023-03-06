@@ -1,3 +1,5 @@
+# TODO : choices needs to be different from each other
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
@@ -334,13 +336,14 @@ class RemovePollChoices(Menu["MyBot"]):
     def __init__(self, parent: EditPollChoices) -> None:
         super().__init__(bot=parent.bot, parent=parent)
         self.old_value = self.parent.poll.choices.copy()
+        self.linked_choice = {choice: i for i, choice in enumerate(self.old_value)}
 
     async def build(self) -> Self:
         self.back.label = _("Back")
         self.cancel.label = _("Cancel")
         self.choices_to_remove.placeholder = _("Select the choices you want to remove.")
-        for i, choice in enumerate(self.old_value):
-            self.choices_to_remove.add_option(label=choice.label, value=str(choice.id), emoji=CHOICE_LEGEND_EMOJIS[i])
+        for choice, i in self.linked_choice.items():
+            self.choices_to_remove.add_option(label=choice.label, value=str(i), emoji=CHOICE_LEGEND_EMOJIS[i])
         self.choices_to_remove.max_values = len(self.old_value) - 2
         self.choices_to_remove.min_values = 0
         return self
@@ -351,7 +354,9 @@ class RemovePollChoices(Menu["MyBot"]):
 
     @ui.select()  # pyright: ignore [reportUnknownMemberType]
     async def choices_to_remove(self, inter: Interaction, select: ui.Select[Self]):
-        self.parent.poll.choices = [choice for choice in self.old_value if str(choice.id) not in select.values]
+        self.parent.poll.choices = [
+            choice for choice in self.old_value if str(self.linked_choice[choice]) not in select.values
+        ]
         await self.update()
         await self.parent.update_poll_display(inter, view=self)
 
@@ -363,6 +368,3 @@ class RemovePollChoices(Menu["MyBot"]):
     @ui.button(style=discord.ButtonStyle.green)
     async def back(self, inter: discord.Interaction, button: ui.Button[Self]):
         await self.parent.set_back(inter)
-
-
-# TODO : add submenu that can be subsub menu

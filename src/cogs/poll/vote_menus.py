@@ -93,7 +93,7 @@ class PollPublicMenu(Menu["MyBot"]):
         vote_menu = vote_menu_types[poll.type](self, poll, votes, inter)
         await inter.response.send_message(
             **(await vote_menu.message_display()),
-            view=vote_menu,
+            view=await vote_menu.build(),
             ephemeral=True,
         )
 

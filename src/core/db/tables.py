@@ -59,7 +59,7 @@ class Poll(Base):
     public_results: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     closed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
-    choices: Mapped[list[PollChoice]] = relationship()
+    choices: Mapped[list[PollChoice]] = relationship(cascade="all, delete-orphan")
 
 
 class PollChoice(Base):
