@@ -2,9 +2,40 @@ from __future__ import annotations
 
 import enum
 from datetime import datetime
+from typing import Iterable, Sequence, TypeVar
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Enum, ForeignKey, SmallInteger, String
+from sqlalchemy import ARRAY, BigInteger, Boolean, DateTime, Enum, ForeignKey, SmallInteger, String
+from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+T = TypeVar("T")
+
+
+class MutableList(Mutable, list[T]):
+    def append(self, value: T):
+        list[T].append(self, value)
+        self.changed()
+
+    def remove(self, value: T):
+        list[T].remove(self, value)
+        self.changed()
+
+    def clear(self):
+        list.clear(self)
+        self.changed()
+
+    def extend(self, value: Iterable[T]):
+        list[T].extend(self, value)
+        self.changed()
+
+    @classmethod
+    def coerce(cls, key: str, value: Sequence[T]) -> MutableList[T] | Mutable | None:
+        if not isinstance(value, MutableList):
+            if isinstance(value, list):
+                return MutableList(value)
+            return Mutable.coerce(key, value)
+        else:
+            return value
 
 
 class PollType(enum.Enum):
@@ -58,6 +89,10 @@ class Poll(Base):
     users_can_change_answer: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     public_results: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     closed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    anonymous_allowed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    allowed_roles: Mapped[list[int]] = mapped_column(
+        MutableList.as_mutable(ARRAY(BigInteger)), nullable=False, default=[]
+    )
 
     choices: Mapped[list[PollChoice]] = relationship(cascade="all, delete-orphan")
 
@@ -84,6 +119,7 @@ class PollAnswer(Base):
     poll_id: Mapped[int] = mapped_column(ForeignKey(Poll.id))
     value: Mapped[str] = mapped_column(String)
     user_id: Mapped[int] = mapped_column(BigInteger)
+    anonymous: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
 
 class Usage(Base):
