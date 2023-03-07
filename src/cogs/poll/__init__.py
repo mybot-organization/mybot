@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, cast
 
 import discord
 from discord import app_commands, ui
@@ -52,16 +52,15 @@ class PollCog(SpecialCog["MyBot"]):
         ]
     )
     async def poll(self, inter: Interaction, poll_type: app_commands.Choice[int]) -> None:
+        channel_id = cast(int, inter.channel_id)  # not usable in private messages
+        guild_id = cast(int, inter.guild_id)  # not usable in private messages
+
         poll = db.Poll(
-            channel_id=inter.channel_id,
-            guild_id=inter.guild_id,
+            channel_id=channel_id,
+            guild_id=guild_id,
             author_id=inter.user.id,
             type=db.PollType(poll_type.value),
             creation_date=inter.created_at,
-            max_answers=1,
-            users_can_change_answer=True,
-            closed=False,
-            public_results=True,
         )
 
         poll_menu_from_type = {

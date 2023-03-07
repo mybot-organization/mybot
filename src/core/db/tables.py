@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import enum
 from datetime import datetime
-from typing import Iterable, Sequence, TypeVar
+from typing import Iterable, Sequence, TypedDict, TypeVar, Unpack
 
 from sqlalchemy import ARRAY, BigInteger, Boolean, DateTime, Enum, ForeignKey, SmallInteger, String
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.sql.schema import ColumnDefault
 
 T = TypeVar("T")
 
@@ -71,16 +72,41 @@ class UserDB(Base):
     user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
 
+class PollKwargs(TypedDict, total=False):
+    message_id: int
+    channel_id: int
+    channel_id: int
+    guild_id: int
+    author_id: int
+    type: PollType
+    title: str
+    creation_date: datetime
+    description: str | None
+    end_date: datetime | None
+    max_answers: int
+    users_can_change_answers: bool
+    public_results: bool
+    closed: bool
+    anonymous_allowed: bool
+    allowed_roles: list[int]
+
+
 class Poll(Base):
     __tablename__ = "poll"
+
+    def __init__(self, **kwargs: Unpack[PollKwargs]):
+        for m in self.__mapper__.columns:
+            if m.name not in kwargs and m.default is not None and isinstance(m.default, ColumnDefault):
+                kwargs[m.name] = m.default.arg
+
+        super().__init__(**kwargs)
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     message_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     channel_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    guild_id: Mapped[GuildDB] = mapped_column(ForeignKey(GuildDB.guild_id), nullable=False)
+    guild_id: Mapped[int] = mapped_column(ForeignKey(GuildDB.guild_id), nullable=False)
     author_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     type: Mapped[PollType] = mapped_column(Enum(PollType), nullable=False)
-    # multiple: Mapped[bool] = mapped_column(Boolean)
     title: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str | None] = mapped_column(String, nullable=True)
     creation_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

@@ -64,6 +64,14 @@ class PollPublicMenu(Menu["MyBot"]):
                     **response_constructor(ResponseType.error, _("Sorry, this poll is over, you can't vote anymore!"))
                 )
                 return
+            user = cast(discord.Member, inter.user)
+            if not set(role.id for role in user.roles) & set(poll.allowed_roles):
+                message_display = response_constructor(
+                    ResponseType.error, _("Sorry, you need one of the following roles to vote :")
+                )
+                message_display.embed.description = ", ".join(f"<@&{role_id}>" for role_id in poll.allowed_roles)
+                await inter.response.send_message(**message_display)
+                return
 
             stmt = (
                 db.select(db.PollAnswer)
