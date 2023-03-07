@@ -55,13 +55,17 @@ class PollPublicMenu(Menu["MyBot"]):
 
             if poll.closed:
                 await inter.response.send_message(
-                    **response_constructor(ResponseType.error, _("Sorry, this poll is closed, you can't vote anymore!"))
+                    **response_constructor(
+                        ResponseType.error, _("Sorry, this poll is closed, you can't vote anymore!")
+                    ),
+                    ephemeral=True,
                 )
                 return
 
             if poll.end_date is not None and poll.end_date < datetime.now(timezone.utc):
                 await inter.response.send_message(
-                    **response_constructor(ResponseType.error, _("Sorry, this poll is over, you can't vote anymore!"))
+                    **response_constructor(ResponseType.error, _("Sorry, this poll is over, you can't vote anymore!")),
+                    ephemeral=True,
                 )
                 return
             user = cast(discord.Member, inter.user)
@@ -70,7 +74,7 @@ class PollPublicMenu(Menu["MyBot"]):
                     ResponseType.error, _("Sorry, you need one of the following roles to vote :")
                 )
                 message_display.embed.description = ", ".join(f"<@&{role_id}>" for role_id in poll.allowed_roles)
-                await inter.response.send_message(**message_display)
+                await inter.response.send_message(**message_display, ephemeral=True)
                 return
 
             stmt = (
@@ -82,7 +86,8 @@ class PollPublicMenu(Menu["MyBot"]):
 
             if not poll.users_can_change_answer and len(votes) > 0:
                 await inter.response.send_message(
-                    **response_constructor(ResponseType.error, "You already voted, and you can't change your vote.")
+                    **response_constructor(ResponseType.error, "You already voted, and you can't change your vote."),
+                    ephemeral=True,
                 )
                 return
 
