@@ -172,8 +172,8 @@ class PollDisplay:
 
         match self.poll.type:
             case db.PollType.CHOICE:
-                winner_index = bool(int(ordered_votes[0][0]))
-                return discord.Color(COLOR_TO_HEX[COLORS_ORDER[winner_index]])  # we use bool as index
+                choices_ids = [c.id for c in self.poll.choices]
+                return discord.Color(COLOR_TO_HEX[COLORS_ORDER[choices_ids.index(int(ordered_votes[0][0]))]])
             case db.PollType.BOOLEAN:
                 winner_index = BOOLEAN_INDEXES[DB_VALUE_TO_BOOLEAN[ordered_votes[0][0]]]
                 return discord.Color(COLOR_TO_HEX[COLORS_ORDER[winner_index]])
