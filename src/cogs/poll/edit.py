@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Self, cast
+from typing import TYPE_CHECKING, Self, Type, cast
 
 import discord
 from discord import Interaction, ui
@@ -21,6 +21,32 @@ if TYPE_CHECKING:
     from . import PollCog
 
 
+class EditPollMenus(ui.Select["EditPoll"]):
+    def __init__(self, poll: db.Poll):
+        super().__init__(placeholder=_("Select what you want to edit."))
+        self.menus: list[Type[EditSubmenu]] = [
+            EditTitleAndDescription,
+            EditEndingTime,
+            EditAllowedRoles,
+        ]
+        if poll.type == db.PollType.CHOICE:
+            self.menus.append(EditChoices)
+        if poll.type in (db.PollType.CHOICE, db.PollType.OPINION):
+            self.menus.append(EditMaxChoices)
+
+        for i, menu in enumerate(self.menus):
+            self.add_option(
+                label=_(menu.select_name),
+                value=str(i),
+                description=_(menu.select_description),
+            )
+
+    # TODO : inspect the type issue present here.
+    async def callback(self, inter: Interaction[MyBot]) -> None:  # pyright: ignore [reportIncompatibleMethodOverride]
+        view = cast(EditPoll, self.view)
+        await view.set_menu(inter, await self.menus[int(self.values[0])](view).build())
+
+
 class EditPoll(Menu["MyBot"]):
     def __init__(self, cog: PollCog, poll: db.Poll, poll_message: discord.Message | None = None):
         super().__init__(bot=cog.bot, timeout=600)
@@ -30,20 +56,16 @@ class EditPoll(Menu["MyBot"]):
         self.poll_message = poll_message  # poll_message is None if the poll is new
 
     async def build(self) -> Self:
-        self.edit_title_and_description.label = _("Edit title & description")
-        self.set_ending_time.label = _("Set ending time")
-        self.edit_choices.label = _("Edit choices")
-        self.set_max_choices.label = _("Set max choices")
+        self.add_item(EditPollMenus(self.poll))
         self.reset_votes.label = _("Reset")
         self.save.label = _("Save")
-        self.set_allowed_roles.label = _("Set allowed roles")
 
-        if self.poll.type == db.PollType.CHOICE:
-            self.edit_choices.disabled = False
-            self.set_max_choices.disabled = False
-        else:
-            self.edit_choices.disabled = True
-            self.set_max_choices.disabled = True
+        # if self.poll.type == db.PollType.CHOICE:
+        #     self.edit_choices.disabled = False
+        #     self.set_max_choices.disabled = False
+        # else:
+        #     self.edit_choices.disabled = True
+        #     self.set_max_choices.disabled = True
 
         await self.update()
 
@@ -75,28 +97,6 @@ class EditPoll(Menu["MyBot"]):
 
     async def message_display(self) -> MessageDisplay:
         return await PollDisplay.build(self.poll, self.bot)
-
-    @ui.button(row=0, style=discord.ButtonStyle.blurple)
-    async def edit_title_and_description(self, inter: discord.Interaction, button: ui.Button[Self]):
-        await inter.response.send_modal(await EditTitleAndDescription(self).build())
-
-    @ui.button(row=0, style=discord.ButtonStyle.blurple)
-    async def set_ending_time(self, inter: discord.Interaction, button: ui.Button[Self]):
-        view = await EditEndingTime(self).build()
-        await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=view)
-
-    @ui.button(row=0, style=discord.ButtonStyle.blurple)
-    async def edit_choices(self, inter: discord.Interaction, button: ui.Button[Self]):
-        view = await EditChoices(self).build()
-        await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=view)
-
-    @ui.button(row=0, style=discord.ButtonStyle.blurple)
-    async def set_max_choices(self, inter: discord.Interaction, button: ui.Button[Self]):
-        await self.set_menu(inter, await EditMaxChoices(self).build())
-
-    @ui.button(row=0, style=discord.ButtonStyle.blurple)
-    async def set_allowed_roles(self, inter: discord.Interaction, button: ui.Button[Self]):
-        await self.set_menu(inter, await EditAllowedRoles(self).build())
 
     @ui.button(row=1, style=discord.ButtonStyle.gray)
     async def public_results(self, inter: discord.Interaction, button: ui.Button[Self]):
@@ -171,6 +171,8 @@ class EditPoll(Menu["MyBot"]):
 
 class EditSubmenu(Menu["MyBot"]):
     parent: EditPoll
+    select_name: str
+    select_description: str
 
     def __init__(self, parent: EditPoll):
         super().__init__(parent.bot, parent)
@@ -185,8 +187,12 @@ class EditSubmenu(Menu["MyBot"]):
 
 
 class EditTitleAndDescription(EditSubmenu, ui.Modal):
+    select_name = _("Edit title and description", _locale=None)
+    select_description = _("", _locale=None)
+
     def __init__(self, parent: EditPoll):
-        ui.Modal.__init__(self, title=_("Create a new poll"))
+        self.title = _("Create a new poll")
+        self.custom_id = self.generate_custom_id()
         EditSubmenu.__init__(self, parent)
 
     async def build(self) -> Self:
@@ -217,6 +223,9 @@ class EditTitleAndDescription(EditSubmenu, ui.Modal):
 
 
 class EditEndingTime(EditSubmenu):
+    select_name = _("Edit ending time", _locale=None)
+    select_description = _("Set a poll duration, it will be closed automatically.", _locale=None)
+
     def __init__(self, parent: EditPoll):
         super().__init__(parent)
         self.old_value = self.poll.end_date
@@ -307,6 +316,9 @@ class EditEndingTime(EditSubmenu):
 
 
 class EditChoices(EditSubmenu):
+    select_name = _("Edit choices", _locale=None)
+    select_description = _("Add and removes choices for multiple choices polls.", _locale=None)
+
     def __init__(self, parent: EditPoll):
         super().__init__(parent)
         self.old_value = self.poll.choices.copy()
@@ -403,32 +415,10 @@ class RemoveChoices(Menu["MyBot"]):
         await self.parent.set_back(inter)
 
 
-class Reset(EditSubmenu):
-    parent: EditPoll
-
-    async def build(self) -> Self:
-        self.reset.label = _("Reset")
-        self.cancel.label = _("Cancel")
-        return self
-
-    async def message_display(self) -> MessageDisplay:
-        return response_constructor(
-            ResponseType.warning,
-            _('This operation cannot be undone. By clicking on the "RESET" button, all the votes will be deleted.'),
-        )
-
-    @ui.button(style=discord.ButtonStyle.red)
-    async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
-        await self.set_back(inter)
-
-    @ui.button(style=discord.ButtonStyle.green)
-    async def reset(self, inter: discord.Interaction, button: ui.Button[Self]):
-        async with self.bot.async_session.begin() as session:
-            await session.execute(delete(db.PollAnswer).where(db.PollAnswer.poll_id == self.parent.poll.id))
-        await self.set_back(inter)
-
-
 class EditMaxChoices(EditSubmenu):
+    select_name = _("Edit max choices", _locale=None)
+    select_description = _("Set the maximum of simultaneous values users can choose.", _locale=None)
+
     def __init__(self, parent: EditPoll) -> None:
         super().__init__(parent=parent)
         self.old_value = self.parent.poll.max_answers
@@ -463,6 +453,9 @@ class EditMaxChoices(EditSubmenu):
 
 
 class EditAllowedRoles(EditSubmenu):
+    select_name = _("Edit allowed roles", _locale=None)
+    select_description = _("Only users with one of these role can vote.", _locale=None)
+
     def __init__(self, parent: EditPoll) -> None:
         super().__init__(parent=parent)
         self.old_value = self.parent.poll.allowed_roles.copy()
@@ -497,4 +490,29 @@ class EditAllowedRoles(EditSubmenu):
 
     @ui.button(style=discord.ButtonStyle.green)
     async def back(self, inter: discord.Interaction, button: ui.Button[Self]):
+        await self.set_back(inter)
+
+
+class Reset(EditSubmenu):
+    parent: EditPoll
+
+    async def build(self) -> Self:
+        self.reset.label = _("Reset")
+        self.cancel.label = _("Cancel")
+        return self
+
+    async def message_display(self) -> MessageDisplay:
+        return response_constructor(
+            ResponseType.warning,
+            _('This operation cannot be undone. By clicking on the "RESET" button, all the votes will be deleted.'),
+        )
+
+    @ui.button(style=discord.ButtonStyle.red)
+    async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
+        await self.set_back(inter)
+
+    @ui.button(style=discord.ButtonStyle.green)
+    async def reset(self, inter: discord.Interaction, button: ui.Button[Self]):
+        async with self.bot.async_session.begin() as session:
+            await session.execute(delete(db.PollAnswer).where(db.PollAnswer.poll_id == self.parent.poll.id))
         await self.set_back(inter)

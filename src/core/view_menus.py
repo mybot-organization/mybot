@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING, Any, Generic, Self
 
 import discord
@@ -43,7 +44,10 @@ class Menu(ui.View, Generic[BotT]):
         await inter.response.edit_message(**(await self.parent.message_display()), view=self.parent)
 
     async def set_menu(self, inter: Interaction, menu: Menu[BotT]) -> None:
-        await inter.response.edit_message(**(await menu.message_display()), view=menu)
+        if isinstance(menu, ui.Modal):
+            await inter.response.send_modal(menu)
+        else:
+            await inter.response.edit_message(**(await menu.message_display()), view=menu)
 
     async def build(self) -> Self:
         """
@@ -84,3 +88,27 @@ class Menu(ui.View, Generic[BotT]):
             await inter.response.edit_message(view=self, **await self.message_display())
         else:
             await inter.response.edit_message(view=self)
+
+    @staticmethod
+    def generate_custom_id() -> str:
+        return os.urandom(16).hex()
+
+
+# TODO : unused ?
+class ModalMenu(Menu[BotT], ui.Modal):
+    def __init__(
+        self,
+        bot: BotT | None = None,
+        parent: Menu[BotT] | None = None,
+        timeout: float | None = 600,
+        **kwargs: Any,
+    ):
+        self.custom_id: str = self.generate_custom_id()
+        # TODO : investigate why there is a type issue here
+        Menu.__init__(  # pyright: ignore[reportUnknownMemberType]
+            self,
+            bot=bot,
+            parent=parent,
+            timeout=timeout,
+            **kwargs,
+        )
