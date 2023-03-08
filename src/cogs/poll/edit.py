@@ -101,20 +101,17 @@ class EditPoll(Menu["MyBot"]):
     @ui.button(row=1, style=discord.ButtonStyle.gray)
     async def public_results(self, inter: discord.Interaction, button: ui.Button[Self]):
         self.poll.public_results = not self.poll.public_results
-        await self.build()
-        await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=self)
+        await self.message_refresh(inter)
 
     @ui.button(row=2, style=discord.ButtonStyle.gray)
     async def users_can_change_answer(self, inter: discord.Interaction, button: ui.Button[Self]):
         self.poll.users_can_change_answer = not self.poll.users_can_change_answer
-        await self.build()
-        await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=self)
+        await self.message_refresh(inter, False)
 
     @ui.button(row=3, style=discord.ButtonStyle.gray)
     async def users_can_be_anonymous(self, inter: discord.Interaction, button: ui.Button[Self]):
         self.poll.anonymous_allowed = not self.poll.anonymous_allowed
-        await self.build()
-        await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=self)
+        await self.message_refresh(inter, False)
 
     @ui.button(row=4, style=discord.ButtonStyle.red)
     async def reset_votes(self, inter: discord.Interaction, button: ui.Button[Self]):
@@ -123,8 +120,7 @@ class EditPoll(Menu["MyBot"]):
     @ui.button(row=4, style=discord.ButtonStyle.red)
     async def toggle_poll(self, inter: discord.Interaction, button: ui.Button[Self]):
         self.poll.closed = not self.poll.closed
-        await self.build()
-        await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=self)
+        await self.message_refresh(inter)
 
     @ui.button(row=4, style=discord.ButtonStyle.green)
     async def save(self, inter: discord.Interaction, button: ui.Button[Self]):
