@@ -80,10 +80,10 @@ class EditPoll(Menu["MyBot"]):
         )
         self.users_can_change_answer.emoji = TOGGLE_EMOTES[self.poll.users_can_change_answer]
 
-        self.users_can_be_anonymous.label = _(
-            "Users {} vote anonymously.", _("can") if self.poll.anonymous_allowed else _("can't")
-        )
-        self.users_can_be_anonymous.emoji = TOGGLE_EMOTES[self.poll.anonymous_allowed]
+        # self.users_can_be_anonymous.label = _(
+        #     "Users {} vote anonymously.", _("can") if self.poll.anonymous_allowed else _("can't")
+        # )
+        # self.users_can_be_anonymous.emoji = TOGGLE_EMOTES[self.poll.anonymous_allowed]
 
         self.toggle_poll.disabled = self.poll_message is None
         self.reset_votes.disabled = self.poll_message is None
@@ -108,10 +108,10 @@ class EditPoll(Menu["MyBot"]):
         self.poll.users_can_change_answer = not self.poll.users_can_change_answer
         await self.message_refresh(inter, False)
 
-    @ui.button(row=3, style=discord.ButtonStyle.gray)
-    async def users_can_be_anonymous(self, inter: discord.Interaction, button: ui.Button[Self]):
-        self.poll.anonymous_allowed = not self.poll.anonymous_allowed
-        await self.message_refresh(inter, False)
+    # @ui.button(row=3, style=discord.ButtonStyle.gray)
+    # async def users_can_be_anonymous(self, inter: discord.Interaction, button: ui.Button[Self]):
+    #     self.poll.anonymous_allowed = not self.poll.anonymous_allowed
+    #     await self.message_refresh(inter, False)
 
     @ui.button(row=4, style=discord.ButtonStyle.red)
     async def reset_votes(self, inter: discord.Interaction, button: ui.Button[Self]):

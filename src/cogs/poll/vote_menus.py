@@ -1,3 +1,5 @@
+# TODO : implement anonymous votes
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -30,19 +32,19 @@ class PollPublicMenu(Menu["MyBot"]):
         self.cog = cog
         self.poll = poll
 
-        self.result_url = ui.Button[Self](
-            style=discord.ButtonStyle.link,
-            label="View results",
-            url="https://google.com/soon",
-        )
-        self.add_item(self.result_url)
+        # self.result_url = ui.Button[Self](
+        #     style=discord.ButtonStyle.link,
+        #     url="https://google.com/soon",
+        # )
+        # self.add_item(self.result_url)
 
     def get_current_votes(self, poll: db.Poll) -> dict[int, tuple[Interaction, ui.View]]:
         return self.cog.current_votes.setdefault(poll.id, {})
 
     async def build(self) -> Self:
-        if self.poll:
-            self.result_url.disabled = not self.poll.public_results
+        # if self.poll:
+        #     self.result_url.disabled = not self.poll.public_results
+        # self.result_url.label = _("Results")
         self.vote.label = _("Vote")
         return self
 

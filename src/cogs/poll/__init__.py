@@ -1,4 +1,3 @@
-# IDEA add anonymous voting
 # IDEA add rank polls (with average note etc...)
 
 from __future__ import annotations
