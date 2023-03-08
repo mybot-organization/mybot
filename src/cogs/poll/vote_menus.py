@@ -69,7 +69,7 @@ class PollPublicMenu(Menu["MyBot"]):
                 )
                 return
             user = cast(discord.Member, inter.user)
-            if not set(role.id for role in user.roles) & set(poll.allowed_roles):
+            if poll.allowed_roles and not set(role.id for role in user.roles) & set(poll.allowed_roles):
                 message_display = response_constructor(
                     ResponseType.error, _("Sorry, you need one of the following roles to vote :")
                 )
@@ -173,7 +173,7 @@ class ChoicePollVote(VoteMenu):
         await super().update()
         self.remove_vote.disabled = len(self.choice.values) == 0
 
-    @ui.select()  # type: ignore (idk why there is an error here)
+    @ui.select()
     async def choice(self, inter: Interaction, select: ui.Select[Self]):
         await self.message_refresh(inter, False)
 
