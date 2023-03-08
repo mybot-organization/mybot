@@ -9,6 +9,7 @@ from .tables import (
     Base as Base,
     GuildDB as GuildDB,
     Poll as Poll,
+    PollAnswer as PollAnswer,
     PollChoice as PollChoice,
     PollType as PollType,
     PremiumType as PremiumType,
