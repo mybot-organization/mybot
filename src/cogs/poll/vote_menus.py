@@ -12,7 +12,7 @@ from core import Menu, ResponseType, db, response_constructor
 from core.constants import Emojis
 from core.i18n import _
 
-from .constants import CHOICE_LEGEND_EMOJIS
+from .constants import LEGEND_EMOJIS
 from .display import PollDisplay
 
 if TYPE_CHECKING:
@@ -161,7 +161,7 @@ class ChoicePollVote(VoteMenu):
                 label=label,
                 value=str(choice.id),
                 default=default,
-                emoji=CHOICE_LEGEND_EMOJIS[i],
+                emoji=LEGEND_EMOJIS[i],
             )
 
             if default:

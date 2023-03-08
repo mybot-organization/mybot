@@ -12,7 +12,7 @@ from core import Menu, MessageDisplay, ResponseType, db, response_constructor
 from core.i18n import _
 from core.response import ResponseType
 
-from .constants import CHOICE_LEGEND_EMOJIS, TOGGLE_EMOTES
+from .constants import LEGEND_EMOJIS, TOGGLE_EMOTES
 from .display import PollDisplay
 
 if TYPE_CHECKING:
@@ -388,7 +388,7 @@ class RemoveChoices(Menu["MyBot"]):
         self.cancel.label = _("Cancel")
         self.choices_to_remove.placeholder = _("Select the choices you want to remove.")
         for choice, i in self.linked_choice.items():
-            self.choices_to_remove.add_option(label=choice.label, value=str(i), emoji=CHOICE_LEGEND_EMOJIS[i])
+            self.choices_to_remove.add_option(label=choice.label, value=str(i), emoji=LEGEND_EMOJIS[i])
         self.choices_to_remove.max_values = len(self.old_value) - 2
         self.choices_to_remove.min_values = 0
         return self

@@ -10,10 +10,13 @@ from core.i18n import _
 from core.response import MessageDisplay
 
 from .constants import (
-    BOOLEAN_LEGEND_EMOJIS,
-    CHOICE_LEGEND_EMOJIS,
+    BOOLEAN_INDEXES,
+    COLOR_TO_HEX,
+    COLORS_ORDER,
+    DB_VALUE_TO_BOOLEAN,
     GRAPH_EMOJIS,
     LEFT_CORNER_EMOJIS,
+    LEGEND_EMOJIS,
     RIGHT_CORNER_EMOJIS,
 )
 
@@ -45,10 +48,14 @@ class PollDisplay:
                 )
                 # a generator is used for typing purposes
                 votes = dict(
-                    (key, value)
-                    for key, value in (await session.execute(stmt)).all()
-                    if key in (str(choice.id) for choice in poll.choices)
+                    (key, value) for key, value in (await session.execute(stmt)).all()  # choice_id: vote_count
                 )
+                if poll.type == db.PollType.CHOICE:
+                    # when we delete a choice from a poll, the votes are still in the db before commit
+                    # so we need to filter them
+                    votes = {
+                        key: value for key, value in votes.items() if key in (str(choice.id) for choice in poll.choices)
+                    }
         else:
             votes = None
 
@@ -62,6 +69,7 @@ class PollDisplay:
 
         if poll.public_results:
             embed.add_field(name="\u200b", value=poll_display.build_graph())
+            embed.color = poll_display.build_color()
 
         if old_embed:
             embed.set_footer(text=old_embed.footer.text)
@@ -93,17 +101,17 @@ class PollDisplay:
 
                 def format_legend_choice(index: int, choice: db.PollChoice) -> str:
                     if self.poll.public_results == False:
-                        return f"{CHOICE_LEGEND_EMOJIS[index]} {choice.label}"
+                        return f"{LEGEND_EMOJIS[index]} {choice.label}"
                     percent = self.calculate_proportion(str(choice.id)) * 100
-                    return f"{CHOICE_LEGEND_EMOJIS[index]} `{percent:6.2f}%` {choice.label}"
+                    return f"{LEGEND_EMOJIS[index]} `{percent:6.2f}%` {choice.label}"
 
                 return "\n".join(format_legend_choice(i, choice) for i, choice in enumerate(self.poll.choices))
             case db.PollType.BOOLEAN:
 
                 def format_legend_boolean(boolean_value: bool) -> str:
                     if self.poll.public_results == False:
-                        return f"{BOOLEAN_LEGEND_EMOJIS[boolean_value]} {_('Yes!') if boolean_value else _('No!')}"
-                    return f"{BOOLEAN_LEGEND_EMOJIS[boolean_value]} `{self.calculate_proportion('1' if boolean_value else '0') * 100:6.2f}%` {_('Yes!') if boolean_value else _('No!')}"
+                        return f"{LEGEND_EMOJIS[BOOLEAN_INDEXES[boolean_value]]} {_('Yes!') if boolean_value else _('No!')}"
+                    return f"{LEGEND_EMOJIS[BOOLEAN_INDEXES[boolean_value]]} `{self.calculate_proportion('1' if boolean_value else '0') * 100:6.2f}%` {_('Yes!') if boolean_value else _('No!')}"
 
                 return "\n".join((format_legend_boolean(True), format_legend_boolean(False)))
             case db.PollType.OPINION:
@@ -153,3 +161,21 @@ class PollDisplay:
                 pass  # TODO ENTRY, OPINION
 
         return "".join(graph)
+
+    def build_color(self) -> None | discord.Color:
+        if not self.votes:
+            return None
+
+        ordered_votes = sorted(self.votes.items(), key=lambda item: item[1], reverse=True)
+        if not (len(ordered_votes) == 1 or ordered_votes[0][1] != ordered_votes[1][1]):
+            return None  # it's a draw !
+
+        match self.poll.type:
+            case db.PollType.CHOICE:
+                winner_index = bool(int(ordered_votes[0][0]))
+                return discord.Color(COLOR_TO_HEX[COLORS_ORDER[winner_index]])  # we use bool as index
+            case db.PollType.BOOLEAN:
+                winner_index = BOOLEAN_INDEXES[DB_VALUE_TO_BOOLEAN[ordered_votes[0][0]]]
+                return discord.Color(COLOR_TO_HEX[COLORS_ORDER[winner_index]])
+            case _:
+                return None
