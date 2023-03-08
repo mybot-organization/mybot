@@ -11,7 +11,7 @@ from discord import app_commands, ui
 from discord.app_commands import locale_str as __
 from sqlalchemy.orm import selectinload
 
-from core import SpecialCog, db
+from core import SpecialGroupCog, db
 from core.i18n import _
 
 from .display import PollDisplay
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class PollCog(SpecialCog["MyBot"]):
+class PollCog(SpecialGroupCog["MyBot"], group_name=__("poll"), group_description=__("Create a new poll")):
     def __init__(self, bot: MyBot):
         super().__init__(bot)
 
@@ -38,20 +38,7 @@ class PollCog(SpecialCog["MyBot"]):
     async def cog_load(self) -> None:
         self.bot.add_view(PollPublicMenu(self))
 
-    @app_commands.command(
-        name=__("poll"),
-        description=__("Do a poll."),
-        extras={"soon": True},
-    )
-    @app_commands.choices(
-        poll_type=[
-            app_commands.Choice(name=__("custom choices"), value=db.PollType.CHOICE.value),
-            app_commands.Choice(name=__("yes or no"), value=db.PollType.BOOLEAN.value),
-            app_commands.Choice(name=__("opinion"), value=db.PollType.OPINION.value),
-            app_commands.Choice(name=__("text"), value=db.PollType.ENTRY.value),
-        ]
-    )
-    async def poll(self, inter: Interaction, poll_type: app_commands.Choice[int]) -> None:
+    async def callback(self, inter: Interaction, poll_type: db.PollType) -> None:
         channel_id = cast(int, inter.channel_id)  # not usable in private messages
         guild_id = cast(int, inter.guild_id)  # not usable in private messages
 
@@ -72,6 +59,22 @@ class PollCog(SpecialCog["MyBot"]):
 
         poll_menu = poll_menu_from_type[db.PollType(poll_type.value)](self, poll)
         await inter.response.send_modal(poll_menu)
+
+    @app_commands.command(
+        name=__("custom_choice"),
+        description=__("A poll with customizable options."),
+        extras={"beta": True},
+    )
+    async def custom_choice(self, inter: Interaction) -> None:
+        await self.callback(inter, db.PollType.CHOICE)
+
+    @app_commands.command(
+        name=__("yesno"),
+        description=__('A simple poll with "Yes" and "No" as options.'),
+        extras={"beta": True},
+    )
+    async def boolean(self, inter: Interaction) -> None:
+        await self.callback(inter, db.PollType.BOOLEAN)
 
     # This is a context command.
     async def edit_poll(self, inter: Interaction, message: discord.Message) -> None:
