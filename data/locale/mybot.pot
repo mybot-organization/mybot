@@ -3,12 +3,13 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#: src/cogs/poll/edit.py:187
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-08 14:30+0000\n"
+"POT-Creation-Date: 2023-03-08 16:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -166,7 +167,9 @@ msgstr ""
 msgid "You must supply a number between 1 and 250. (0 < {amount} < 251)"
 msgstr ""
 
-#: src/cogs/clear.py:186
+#: src/cogs/clear.py:186 src/cogs/poll/edit.py:233 src/cogs/poll/edit.py:326
+#: src/cogs/poll/edit.py:384 src/cogs/poll/edit.py:423
+#: src/cogs/poll/edit.py:460 src/cogs/poll/edit.py:497
 msgid "Cancel"
 msgstr ""
 
@@ -185,6 +188,86 @@ msgstr ""
 
 #: src/cogs/clear.py:228
 msgid "{} message(s) deleted."
+msgstr ""
+
+#: src/cogs/config/__init__.py:28
+msgid "config"
+msgstr ""
+
+#: src/cogs/config/__init__.py:28
+msgid "Set configurations."
+msgstr ""
+
+#: src/cogs/config/__init__.py:30
+msgid "guild"
+msgstr ""
+
+#: src/cogs/config/__init__.py:31
+msgid "Set configuration for the guild."
+msgstr ""
+
+#: src/cogs/config/__init__.py:35
+msgid "bot"
+msgstr ""
+
+#: src/cogs/config/__init__.py:36
+msgid "Set configuration for the bot."
+msgstr ""
+
+#: src/cogs/config/__init__.py:49
+msgid "emote"
+msgstr ""
+
+#: src/cogs/config/__init__.py:50
+msgid "Add restriction to an emote for a role."
+msgstr ""
+
+#: src/cogs/config/__init__.py:58
+msgid "public_translations"
+msgstr ""
+
+#: src/cogs/config/__init__.py:59
+msgid "Set if the translations are visible for everyone or not."
+msgstr ""
+
+#: src/cogs/config/config_bot.py:29
+msgid "Translations will now be public."
+msgstr ""
+
+#: src/cogs/config/config_bot.py:30
+msgid "Translations will now be private."
+msgstr ""
+
+#: src/cogs/game/__init__.py:30
+msgid "game"
+msgstr ""
+
+#: src/cogs/game/__init__.py:30
+msgid "Play some games."
+msgstr ""
+
+#: src/cogs/game/__init__.py:44
+msgid "connect4"
+msgstr ""
+
+#: src/cogs/game/__init__.py:45
+msgid "Play connect 4"
+msgstr ""
+
+#: src/cogs/game/__init__.py:52
+msgid "rpc"
+msgstr ""
+
+#: src/cogs/game/__init__.py:53
+msgid "Play rock paper cisors"
+msgstr ""
+
+#: src/cogs/game/__init__.py:60
+msgid "tictactoe"
+msgstr ""
+
+#: src/cogs/game/__init__.py:61
+msgid "Play tictactoe"
 msgstr ""
 
 #: src/cogs/help.py:27
@@ -235,6 +318,283 @@ msgstr ""
 msgid "Get the bot latency."
 msgstr ""
 
+#: src/cogs/poll/__init__.py:29
+msgid "poll"
+msgstr ""
+
+#: src/cogs/poll/__init__.py:29 src/cogs/poll/__init__.py:99
+#: src/cogs/poll/edit.py:190
+msgid "Create a new poll"
+msgstr ""
+
+#: src/cogs/poll/__init__.py:33
+msgid "Edit poll"
+msgstr ""
+
+#: src/cogs/poll/__init__.py:63
+msgid "custom_choice"
+msgstr ""
+
+#: src/cogs/poll/__init__.py:64
+msgid "A poll with customizable options."
+msgstr ""
+
+#: src/cogs/poll/__init__.py:71
+msgid "yesno"
+msgstr ""
+
+#: src/cogs/poll/__init__.py:72
+msgid "A simple poll with \"Yes\" and \"No\" as options."
+msgstr ""
+
+#: src/cogs/poll/__init__.py:87
+msgid "This message is not a poll."
+msgstr ""
+
+#: src/cogs/poll/__init__.py:89
+msgid "You can't edit this poll."
+msgstr ""
+
+#: src/cogs/poll/__init__.py:106 src/cogs/poll/edit.py:196
+msgid "Poll question"
+msgstr ""
+
+#: src/cogs/poll/__init__.py:106 src/cogs/poll/edit.py:197
+msgid "Do you agree this bot is awesome?"
+msgstr ""
+
+#: src/cogs/poll/__init__.py:110 src/cogs/poll/edit.py:204
+msgid "Poll description"
+msgstr ""
+
+#: src/cogs/poll/__init__.py:111 src/cogs/poll/edit.py:206
+msgid "Tell more about your poll here."
+msgstr ""
+
+#: src/cogs/poll/__init__.py:133
+msgid "Choice 1"
+msgstr ""
+
+#: src/cogs/poll/__init__.py:134
+msgid "Yes, totally!"
+msgstr ""
+
+#: src/cogs/poll/__init__.py:138
+msgid "Choice 2"
+msgstr ""
+
+#: src/cogs/poll/__init__.py:139
+msgid "Absolutely!"
+msgstr ""
+
+#: src/cogs/poll/display.py:78
+msgid "Poll created by {}"
+msgstr ""
+
+#: src/cogs/poll/display.py:88
+msgid "Poll closed.\n"
+msgstr ""
+
+#: src/cogs/poll/display.py:90
+msgid "No end date.\n"
+msgstr ""
+
+#: src/cogs/poll/display.py:91
+msgid "Poll ends <t:{}:R>\n"
+msgstr ""
+
+#: src/cogs/poll/edit.py:26
+msgid "Select what you want to edit."
+msgstr ""
+
+#: src/cogs/poll/edit.py:60 src/cogs/poll/edit.py:496
+msgid "Reset"
+msgstr ""
+
+#: src/cogs/poll/edit.py:61
+msgid "Save"
+msgstr ""
+
+#: src/cogs/poll/edit.py:75
+msgid "public"
+msgstr ""
+
+#: src/cogs/poll/edit.py:75
+msgid "private"
+msgstr ""
+
+#: src/cogs/poll/edit.py:75
+msgid "The results are {}."
+msgstr ""
+
+#: src/cogs/poll/edit.py:79
+msgid "can"
+msgstr ""
+
+#: src/cogs/poll/edit.py:79
+msgid "can't"
+msgstr ""
+
+#: src/cogs/poll/edit.py:79
+msgid "Users {} change their answer once voted."
+msgstr ""
+
+#: src/cogs/poll/edit.py:92
+msgid "Reopen poll"
+msgstr ""
+
+#: src/cogs/poll/edit.py:95
+msgid "Close poll"
+msgstr ""
+
+#: src/cogs/poll/edit.py:162
+msgid "The poll has been updated while you were voting."
+msgstr ""
+
+#: src/cogs/poll/edit.py:186
+msgid "Edit title and description"
+msgstr ""
+
+#: src/cogs/poll/edit.py:222
+msgid "Edit ending time"
+msgstr ""
+
+#: src/cogs/poll/edit.py:223
+msgid "Set a poll duration, it will be closed automatically."
+msgstr ""
+
+#: src/cogs/poll/edit.py:230
+msgid "Select the number of days."
+msgstr ""
+
+#: src/cogs/poll/edit.py:231
+msgid "Select the number of hours."
+msgstr ""
+
+#: src/cogs/poll/edit.py:232
+msgid "Select the number of minutes."
+msgstr ""
+
+#: src/cogs/poll/edit.py:234 src/cogs/poll/edit.py:325
+#: src/cogs/poll/edit.py:383 src/cogs/poll/edit.py:424
+#: src/cogs/poll/edit.py:461
+msgid "Back"
+msgstr ""
+
+#: src/cogs/poll/edit.py:236
+msgid "{} day(s)"
+msgstr ""
+
+#: src/cogs/poll/edit.py:237
+msgid "{} hour(s)"
+msgstr ""
+
+#: src/cogs/poll/edit.py:239
+msgid "{} minute(s)"
+msgstr ""
+
+#: src/cogs/poll/edit.py:315
+msgid "Edit choices"
+msgstr ""
+
+#: src/cogs/poll/edit.py:316
+msgid "Add and removes choices for multiple choices polls."
+msgstr ""
+
+#: src/cogs/poll/edit.py:323
+msgid "Add a choice"
+msgstr ""
+
+#: src/cogs/poll/edit.py:324
+msgid "Remove a choice"
+msgstr ""
+
+#: src/cogs/poll/edit.py:355
+msgid "Add a new choice"
+msgstr ""
+
+#: src/cogs/poll/edit.py:360
+msgid "Choice"
+msgstr ""
+
+#: src/cogs/poll/edit.py:361
+msgid "Enter a new choice here."
+msgstr ""
+
+#: src/cogs/poll/edit.py:385
+msgid "Select the choices you want to remove."
+msgstr ""
+
+#: src/cogs/poll/edit.py:415
+msgid "Edit max choices"
+msgstr ""
+
+#: src/cogs/poll/edit.py:416
+msgid "Set the maximum of simultaneous values users can choose."
+msgstr ""
+
+#: src/cogs/poll/edit.py:426
+msgid "Select the maximum number of choices."
+msgstr ""
+
+#: src/cogs/poll/edit.py:452
+msgid "Edit allowed roles"
+msgstr ""
+
+#: src/cogs/poll/edit.py:453
+msgid "Only users with one of these role can vote."
+msgstr ""
+
+#: src/cogs/poll/edit.py:462
+msgid "Select the roles that can vote."
+msgstr ""
+
+#: src/cogs/poll/edit.py:503
+msgid ""
+"This operation cannot be undone. By clicking on the \"RESET\" button, all "
+"the votes will be deleted."
+msgstr ""
+
+#: src/cogs/poll/vote_menus.py:48
+msgid "Vote"
+msgstr ""
+
+#: src/cogs/poll/vote_menus.py:61
+msgid "Sorry, this poll is closed, you can't vote anymore!"
+msgstr ""
+
+#: src/cogs/poll/vote_menus.py:69
+msgid "Sorry, this poll is over, you can't vote anymore!"
+msgstr ""
+
+#: src/cogs/poll/vote_menus.py:76
+msgid "Sorry, you need one of the following roles to vote :"
+msgstr ""
+
+#: src/cogs/poll/vote_menus.py:152
+msgid "Remove vote"
+msgstr ""
+
+#: src/cogs/poll/vote_menus.py:153
+msgid "Validate"
+msgstr ""
+
+#: src/cogs/poll/vote_menus.py:190 src/cogs/poll/vote_menus.py:246
+msgid "Your vote has been removed."
+msgstr ""
+
+#: src/cogs/poll/vote_menus.py:210 src/cogs/poll/vote_menus.py:238
+msgid "Your vote has been taken into account!"
+msgstr ""
+
+#: src/cogs/poll/vote_menus.py:217
+msgid "Yes"
+msgstr ""
+
+#: src/cogs/poll/vote_menus.py:218
+msgid "No"
+msgstr ""
+
 #: src/cogs/stats.py:43
 msgid "stats"
 msgstr ""
@@ -245,6 +605,23 @@ msgstr ""
 
 #: src/cogs/stats.py:49
 msgid "Quelques statistiques sur MyBot"
+msgstr ""
+
+#: src/cogs/translate/__init__.py:134
+msgid "Translate"
+msgstr ""
+
+#: src/cogs/translate/__init__.py:143
+msgid "translate"
+msgstr ""
+
+#: src/cogs/translate/__init__.py:144
+msgid "Translate text in a selection of languages."
+msgstr ""
+
+#: src/cogs/translate/__init__.py:262
+#, python-brace-format
+msgid "Translate from {from_} to {to}"
 msgstr ""
 
 #: src/core/error_handler.py:53
