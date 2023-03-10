@@ -5,6 +5,8 @@ import sys
 from typing import TYPE_CHECKING, Any, cast
 
 import discord
+import topgg
+from discord.ext import tasks
 from discord.ext.commands import AutoShardedBot, errors  # pyright: ignore[reportMissingTypeStubs]
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
@@ -34,12 +36,17 @@ class MyBot(AutoShardedBot):
     tree: CustomCommandTree  # type: ignore
     app_commands: list[AppCommand]
     error_handler: ErrorHandler
+    topgg: topgg.DBLClient | None
 
     def __init__(self, running: bool = True, startup_sync: bool = False) -> None:
         self.startup_sync: bool = startup_sync
         self.running = running
 
         self.error_handler = ErrorHandler(self)
+        if config.TOPGG_TOKEN is not None:
+            self.topgg = topgg.DBLClient(config.TOPGG_TOKEN)
+        else:
+            self.topgg = None
 
         intents = discord.Intents().none()
         intents.reactions = True
@@ -78,6 +85,9 @@ class MyBot(AutoShardedBot):
         await self.tree.set_translator(Translator())
         await self.load_extensions()
 
+        if self.topgg is not None:
+            self.update_guild_count_on_bot_lists.start()
+
         if self.startup_sync:
             await self.sync_tree()
         else:
@@ -86,6 +96,16 @@ class MyBot(AutoShardedBot):
         self.features_infos = extract_features(self)
 
         await self.connect_db()
+
+    @tasks.loop(minutes=30)
+    async def update_guild_count_on_bot_lists(self):
+        await self.wait_until_ready()
+
+        if self.topgg is not None:
+            try:
+                await self.topgg.post_guild_count(guild_count=len(self.guilds), shard_count=self.shard_count)
+            except Exception as e:
+                logger.error("Failed to post guild count to top.gg.", exc_info=e)
 
     async def connect_db(self):
         if config.POSTGRES_PASSWORD is None:
