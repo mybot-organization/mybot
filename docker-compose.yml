@@ -17,7 +17,9 @@ services:
       - ./data/locale:/app/locale
       - ./alembic:/app/alembic
     ports:
-      - 8080:8080
+      - 666:8081
+    expose:
+      - 8080
 
   database:
     image: postgres:14.4-alpine
