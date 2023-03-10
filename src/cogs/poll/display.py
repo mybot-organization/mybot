@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from discord import Embed
 
     from core.db import Poll
-    from main import MyBot
+    from mybot import MyBot
 
 
 class PollDisplay:
