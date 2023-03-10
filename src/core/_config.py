@@ -22,6 +22,7 @@ class Config:
     POSTGRES_PASSWORD: str | None = None
     EXPORT_MODE: bool = False
     TOPGG_TOKEN: str | None = None
+    TOPGG_AUTH: str | None = None
 
     _defined: ClassVar[bool] = False
 

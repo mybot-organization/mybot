@@ -5,7 +5,7 @@ import sys
 from typing import TYPE_CHECKING, Any, cast
 
 import discord
-import topgg
+import topgg as topggpy
 from discord.ext import tasks
 from discord.ext.commands import AutoShardedBot, errors  # pyright: ignore[reportMissingTypeStubs]
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
@@ -36,7 +36,8 @@ class MyBot(AutoShardedBot):
     tree: CustomCommandTree  # type: ignore
     app_commands: list[AppCommand]
     error_handler: ErrorHandler
-    topgg: topgg.DBLClient | None
+    topgg: topggpy.DBLClient | None
+    topgg_webhook_manager: topggpy.WebhookManager | None
 
     def __init__(self, running: bool = True, startup_sync: bool = False) -> None:
         self.startup_sync: bool = startup_sync
@@ -44,7 +45,17 @@ class MyBot(AutoShardedBot):
 
         self.error_handler = ErrorHandler(self)
         if config.TOPGG_TOKEN is not None:
-            self.topgg = topgg.DBLClient(config.TOPGG_TOKEN)
+            self.topgg = topggpy.DBLClient(config.TOPGG_TOKEN)
+            self.topgg_webhook_manager = topggpy.WebhookManager()
+            (
+                self.topgg_webhook_manager.endpoint()
+                .route("/topgg_vote")
+                .type(topggpy.WebhookType.BOT)
+                .auth(config.TOPGG_AUTH or "")
+                .callback(self.topgg_endpoint)
+                .add_to_manager()
+            )
+
         else:
             self.topgg = None
 
@@ -85,8 +96,9 @@ class MyBot(AutoShardedBot):
         await self.tree.set_translator(Translator())
         await self.load_extensions()
 
-        if self.topgg is not None:
+        if self.topgg is not None and self.topgg_webhook_manager is not None:
             self.update_guild_count_on_bot_lists.start()
+            self.loop.create_task(self.topgg_webhook_manager.start(port=8081))
 
         if self.startup_sync:
             await self.sync_tree()
@@ -106,6 +118,10 @@ class MyBot(AutoShardedBot):
                 await self.topgg.post_guild_count(guild_count=len(self.guilds), shard_count=self.shard_count)
             except Exception as e:
                 logger.error("Failed to post guild count to top.gg.", exc_info=e)
+
+    async def topgg_endpoint(self, vote_data: topggpy.types.BotVoteData) -> None:
+        logger.debug("Received vote from top.gg", extra=vote_data)
+        self.dispatch("topgg_vote", vote_data)
 
     async def connect_db(self):
         if config.POSTGRES_PASSWORD is None:
