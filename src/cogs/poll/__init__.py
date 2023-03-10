@@ -26,6 +26,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+@app_commands.default_permissions(administrator=True)
+@app_commands.guild_only()
 class PollCog(SpecialGroupCog["MyBot"], group_name=__("poll"), group_description=__("Create a new poll")):
     def __init__(self, bot: MyBot):
         super().__init__(bot)
