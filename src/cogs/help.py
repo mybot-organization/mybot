@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from collections import OrderedDict
-from typing import TYPE_CHECKING, Self, cast
+from typing import TYPE_CHECKING, Iterable, Self, Sequence, cast
 
 import discord
 from discord import app_commands, ui
@@ -10,10 +10,11 @@ from discord.app_commands import Choice, locale_str as __
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import get
 
-from commands_exporter import FeatureType, SlashCommand
+from commands_exporter import ContextCommand, FeatureType, Misc, MiscCommandsType, SlashCommand
 from core import ResponseType, response_constructor
 from core.constants import Emojis
 from core.i18n import _
+from core.utils import splitter
 
 if TYPE_CHECKING:
     from discord import Embed, Interaction
@@ -73,8 +74,7 @@ class Help(Cog):
         feature_types_ui = OrderedDict(
             (
                 (FeatureType.chat_input, _("Slash commands")),
-                (FeatureType.context_message, _("Message context commands")),
-                (FeatureType.context_user, _("User context commands")),
+                (FeatureType.context_message, _("Context commands")),
                 (FeatureType.misc, _("Miscellaneous features")),
             )
         )
@@ -93,35 +93,56 @@ class Help(Cog):
 
             return " ".join(tags)
 
-        for feature in self.bot.features_infos:  # TODO: check for feature type
-            match feature.type:
-                case FeatureType.chat_input:
+        for feature in self.bot.features_infos:
+            match feature:
+                case SlashCommand():
                     app_command = get(self.bot.app_commands, name=feature.name, type=discord.AppCommandType.chat_input)
                     if app_command is None:
                         logger.warning(f"Feature {feature.name} didn't get its app_command for some reason.")
                         continue
-                    description[feature.type].append(
-                        f"> </{feature.name}:{app_command.id}> {set_tags(feature)}\n> {_(feature.description)}\n\u200b"
-                    )
-                case FeatureType.context_message | FeatureType.context_user:
+                    if not feature.sub_commands:
+                        description[feature.type].insert(
+                            0,
+                            f"{Emojis.slash_command} </{feature.name}:{app_command.id}> {set_tags(feature)}\n{_(feature.description)}",
+                        )
+                    else:
+                        description[feature.type].append(
+                            f"{Emojis.slash_command} `{feature.name}` {set_tags(feature)}\n{_(feature.description)}"
+                        )
+                case ContextCommand():
                     adapters = {
                         FeatureType.context_message: discord.AppCommandType.message,
                         FeatureType.context_user: discord.AppCommandType.user,
                     }
+                    prefix = {
+                        FeatureType.context_message: Emojis.message_context,
+                    }
                     app_command = get(self.bot.app_commands, name=feature.name, type=adapters[feature.type])
-                    description[feature.type].append(
-                        f"> [`{_(feature.name)}`](https://google.com) {set_tags(feature)}\n> {_(feature.description)}\n\u200b"
+                    description[FeatureType.context_message].append(
+                        f"{prefix[feature.type]} `{_(feature.name).lower()}` {set_tags(feature)}\n{_(feature.description)}"
                     )
 
-                case FeatureType.misc:
+                case Misc():
+                    prefix = {
+                        MiscCommandsType.MESSAGE: Emojis.misc_command_text,
+                        MiscCommandsType.REACTION: Emojis.misc_command_reaction,
+                    }
+
                     description[feature.type].append(
-                        f"> [`{_(feature.name)}`](https://google.com) {set_tags(feature)}\n> {_(feature.description)}\n\u200b"
+                        f"[{prefix[feature.misc_type]}](https://google.com) `{_(feature.name).lower()}` {set_tags(feature)}\n{_(feature.description)}"
                     )
+                case _:
+                    pass  # should never happen
 
         for feature_type, feature_type_ui in feature_types_ui.items():
             if not description[feature_type]:
                 continue
-            embed.add_field(name=feature_type_ui, value="\n".join(description[feature_type]), inline=False)
+            chunks: Iterable[Sequence[str]] = splitter(description[feature_type], 2)
+            empty: list[str] = []  # type purpose only
+            embed.add_field(name=feature_type_ui, value="\n".join(next(chunks, empty)), inline=True)
+            embed.add_field(name="\u200b", value="\n".join(next(chunks, empty)), inline=True)
+            embed.add_field(name="\u200b", value="\u200b", inline=True)
+
         return embed
 
     def feature_embed(self, feature: Feature) -> Embed:
