@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, TypedDict, cast
 
+import discord
 from discord import app_commands
 from typing_extensions import NotRequired
 
@@ -34,6 +35,7 @@ class Feature:
     nsfw: bool
     default_permissions: int | None
     beta: bool
+    soon: bool
     description: str
 
 
@@ -74,27 +76,65 @@ def extract_features(mybot: MyBot) -> Features:
     for app_command in mybot.tree.get_commands():
         extras = cast(Extras, app_command.extras)
 
-        if type(app_command) is app_commands.Command:
-            slash_command = SlashCommand(
-                name=app_command.name,
-                guild_only=app_command.guild_only,
-                nsfw=app_command.nsfw,
-                default_permissions=app_command.default_permissions.value if app_command.default_permissions else None,
-                description=app_command.description,
-                parameters=[],
-                beta=extras.get("beta", False),
-            )
-
-            for parameter in app_command.parameters:
-                parameter_payload = SlashCommandParameter(
-                    name=parameter.name,
-                    description=parameter.description,
-                    type=parameter.type.value,
-                    required=parameter.required,
+        match app_command:
+            case app_commands.Command():
+                feature = SlashCommand(
+                    name=app_command.name,
+                    guild_only=app_command.guild_only,
+                    nsfw=app_command.nsfw,
+                    default_permissions=app_command.default_permissions.value
+                    if app_command.default_permissions
+                    else None,
+                    description=app_command.description,
+                    parameters=[],
+                    beta=extras.get("beta", False),
+                    soon=extras.get("soon", False),
                 )
-                slash_command.parameters.append(parameter_payload)
 
-            features.append(slash_command)
+                for parameter in app_command.parameters:
+                    parameter_payload = SlashCommandParameter(
+                        name=parameter.name,
+                        description=parameter.description,
+                        type=parameter.type.value,
+                        required=parameter.required,
+                    )
+                    feature.parameters.append(parameter_payload)
+
+                features.append(feature)
+            case app_commands.ContextMenu():
+                equiv = {
+                    discord.AppCommandType.user: FeatureType.context_user,
+                    discord.AppCommandType.message: FeatureType.context_message,
+                }
+                feature = ContextCommand(
+                    type=equiv[app_command.type],
+                    name=app_command.name,
+                    guild_only=app_command.guild_only,
+                    nsfw=app_command.nsfw,
+                    default_permissions=app_command.default_permissions.value
+                    if app_command.default_permissions
+                    else None,
+                    description=extras.get("description", ""),
+                    beta=extras.get("beta", False),
+                    soon=extras.get("soon", False),
+                )
+
+                features.append(feature)
+            case app_commands.Group():
+                # TODO : handle groups
+                feature = SlashCommand(
+                    name=app_command.name,
+                    guild_only=app_command.guild_only,
+                    nsfw=app_command.nsfw,
+                    default_permissions=app_command.default_permissions.value
+                    if app_command.default_permissions
+                    else None,
+                    description=app_command.description,
+                    beta=extras.get("beta", False),
+                    soon=extras.get("soon", False),
+                    parameters=[],
+                )
+                features.append(feature)
 
     for misc_cmd in mybot.misc_commands():
         misc_feat = Misc(
@@ -103,6 +143,7 @@ def extract_features(mybot: MyBot) -> Features:
             guild_only=misc_cmd.guild_only,
             default_permissions=misc_cmd.default_permissions,
             beta=misc_cmd.extras.get("beta", False),
+            soon=misc_cmd.extras.get("soon", False),
             nsfw=misc_cmd.nsfw,
             misc_type=misc_cmd.type,
         )

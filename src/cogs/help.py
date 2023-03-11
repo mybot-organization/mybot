@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from collections import OrderedDict
 from typing import TYPE_CHECKING, Self, cast
 
 import discord
@@ -67,19 +68,60 @@ class Help(Cog):
         )
 
     def general_embed(self) -> Embed:
-        beta = Emojis.beta_1 + Emojis.beta_2
-
         embed = response_constructor(ResponseType.info, _("Commands of MyBot"))["embed"]
-        description = ""
+
+        feature_types_ui = OrderedDict(
+            (
+                (FeatureType.chat_input, _("Slash commands")),
+                (FeatureType.context_message, _("Message context commands")),
+                (FeatureType.context_user, _("User context commands")),
+                (FeatureType.misc, _("Miscellaneous features")),
+            )
+        )
+        description: dict[FeatureType, list[str]] = {key: [] for key in feature_types_ui}
+
+        def set_tags(feature: Feature) -> str:
+            tags: list[str] = []
+
+            beta = f"[{Emojis.beta_1 + Emojis.beta_2}](https://google.com/)"
+            soon = f"[{Emojis.soon_1 + Emojis.soon_2}](https://google.com/)"
+
+            if feature.beta:
+                tags.append(beta)
+            if feature.soon:
+                tags.append(soon)
+
+            return " ".join(tags)
 
         for feature in self.bot.features_infos:  # TODO: check for feature type
-            app_command = get(self.bot.app_commands, name=feature.name, type=discord.AppCommandType.chat_input)
-            if app_command is None:
-                logger.warning(f"Feature {feature.name} didn't get its app_command for some reason.")
-                continue
-            description += f"</{feature.name}:{app_command.id}>\n{_(feature.description)} {beta * feature.beta}\n"
+            match feature.type:
+                case FeatureType.chat_input:
+                    app_command = get(self.bot.app_commands, name=feature.name, type=discord.AppCommandType.chat_input)
+                    if app_command is None:
+                        logger.warning(f"Feature {feature.name} didn't get its app_command for some reason.")
+                        continue
+                    description[feature.type].append(
+                        f"> </{feature.name}:{app_command.id}> {set_tags(feature)}\n> {_(feature.description)}\n\u200b"
+                    )
+                case FeatureType.context_message | FeatureType.context_user:
+                    adapters = {
+                        FeatureType.context_message: discord.AppCommandType.message,
+                        FeatureType.context_user: discord.AppCommandType.user,
+                    }
+                    app_command = get(self.bot.app_commands, name=feature.name, type=adapters[feature.type])
+                    description[feature.type].append(
+                        f"> [`{_(feature.name)}`](https://google.com) {set_tags(feature)}\n> {_(feature.description)}\n\u200b"
+                    )
 
-        embed.add_field(name=_("Chat input commands"), value=description)
+                case FeatureType.misc:
+                    description[feature.type].append(
+                        f"> [`{_(feature.name)}`](https://google.com) {set_tags(feature)}\n> {_(feature.description)}\n\u200b"
+                    )
+
+        for feature_type, feature_type_ui in feature_types_ui.items():
+            if not description[feature_type]:
+                continue
+            embed.add_field(name=feature_type_ui, value="\n".join(description[feature_type]), inline=False)
         return embed
 
     def feature_embed(self, feature: Feature) -> Embed:
