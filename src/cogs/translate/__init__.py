@@ -177,7 +177,9 @@ class Translate(SpecialCog["MyBot"]):
 
     @bot_required_permissions(send_messages=True, embed_links=True)
     @misc_command(
-        "translate", description=_("Translate text in the language corresponding on the flag you add.", _locale=None)
+        "translate",
+        description=_("Translate text in the language corresponding on the flag you add.", _locale=None),
+        extras={"beta": True},
     )
     @misc_check(is_activated)
     @misc_check(is_user_authorized)
