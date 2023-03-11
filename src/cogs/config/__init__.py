@@ -27,7 +27,12 @@ logger = logging.getLogger(__name__)
 
 @app_commands.guild_only()
 @app_commands.default_permissions(administrator=True)
-class Config(SpecialGroupCog["MyBot"], group_name=__("config"), group_description=__("Set configurations.")):
+class Config(
+    SpecialGroupCog["MyBot"],
+    group_name=__("config"),
+    group_description=__("Set configurations."),
+    group_extras={"beta": True},
+):
     guild_group = app_commands.Group(
         name=__("guild"),
         description=__("Set configuration for the guild."),
