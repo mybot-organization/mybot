@@ -52,7 +52,7 @@ class Help(Cog):
         else:
             embed = self.general_embed()
 
-        await inter.response.send_message(embed=embed, view=view)
+        await inter.response.send_message(embed=embed)  # , view=view)
 
     @_help.autocomplete("feature_identifier")
     async def feature_identifier_autocompleter(self, inter: Interaction, current: str) -> list[Choice[str]]:
