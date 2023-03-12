@@ -73,7 +73,7 @@ class MiscCommand(Generic[CogT, P, T]):
         self.guild_only = getattr(callback, "__misc_commands_guild_only__", False)
         self.default_permissions = 0  # TODO
 
-        self.extras = extras
+        self.extras = extras | getattr(callback, "__misc_commands_extras__", {})
 
         self.trigger_condition = trigger_condition
 

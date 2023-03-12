@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Coroutine, ParamSpec, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Any, Coroutine, ParamSpec, TypeAlias, TypeVar, Union
+
+from discord import Message
 
 if TYPE_CHECKING:
-    import discord
-
     from .misc_command import MiscCommandContextFilled, MiscCommandContextRaw
     from .special_cog import SpecialCog
 
-UnresolvedContext: TypeAlias = MiscCommandContextRaw | MiscCommandContextFilled | discord.Message
+UnresolvedContext: TypeAlias = Union["MiscCommandContextRaw", "MiscCommandContextFilled", Message]
 UnresolvedContextT = TypeVar("UnresolvedContextT", bound=UnresolvedContext)
 
 P = ParamSpec("P")

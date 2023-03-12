@@ -10,7 +10,7 @@ from discord import Embed, Message, app_commands
 from discord.app_commands import locale_str as __
 
 from core import ResponseType, SpecialCog, TemporaryCache, misc_command, response_constructor
-from core.checkers import bot_required_permissions, is_activated, is_user_authorized, misc_check
+from core.checkers import is_activated, is_user_authorized, misc_check, misc_cmd_bot_required_permissions
 from core.errors import BadArgument, BaseError
 from core.i18n import _
 
@@ -193,7 +193,6 @@ class Translate(SpecialCog["MyBot"]):
             and Language.from_emote(payload.emoji.name, None) is not None
         )
 
-    @bot_required_permissions(send_messages=True, embed_links=True)
     @misc_command(
         "translate",
         description=_("Translate text in the language corresponding on the flag you add.", _locale=None),
@@ -201,6 +200,7 @@ class Translate(SpecialCog["MyBot"]):
         extras={"beta": True},
         trigger_condition=translate_misc_condition,
     )
+    @misc_cmd_bot_required_permissions(send_messages=True, embed_links=True)
     @misc_check(is_activated)
     @misc_check(is_user_authorized)
     async def translate_misc_command(self, payload: RawReactionActionEvent):
