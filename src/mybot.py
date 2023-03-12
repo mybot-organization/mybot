@@ -235,7 +235,7 @@ class MyBot(AutoShardedBot):
         Returns:
             _type_: the list of misc commands
         """
-        misc_commands: list[MiscCommand] = []
+        misc_commands: list[MiscCommand[Any, ..., Any]] = []
         for cog in self.cogs.values():
             if isinstance(cog, SpecialCog):
                 for misc_command in cog.get_misc_commands():
@@ -243,7 +243,7 @@ class MyBot(AutoShardedBot):
         return misc_commands
 
     async def on_error(self, event_method: str, /, *args: Any, **kwargs: Any) -> None:
-        pass  # we consider that events don't raise errors, except if it is MiscCommand.
+        logger.error(f"An error occurred in {event_method}.", exc_info=True)
 
     async def on_misc_command_error(
         self,

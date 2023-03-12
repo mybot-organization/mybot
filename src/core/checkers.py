@@ -135,7 +135,7 @@ class _Semaphore:
         self.wake_up()
 
 
-def bot_required_permissions(**perms: bool) -> Any:
+def bot_required_permissions(**perms: bool) -> Callable[[T], T]:
     invalid = set(perms) - set(discord.Permissions.VALID_FLAGS)
     if invalid:
         raise TypeError(f"Invalid permission(s): {', '.join(invalid)}")
@@ -160,7 +160,7 @@ def bot_required_permissions(**perms: bool) -> Any:
             func.extras["bot_required_permissions"] = [perm for perm, value in perms.items() if value is True]
             func.add_check(app_cmd_predicate)
         elif hasattr(func, "__listener_as_command__"):
-            misc_command: MiscCommand = getattr(func, "__listener_as_command__")
+            misc_command: MiscCommand[Any, ..., Any] = getattr(func, "__listener_as_command__")
             misc_command.extras["bot_required_permissions"] = [perm for perm, value in perms.items() if value is True]
             misc_command.add_check(misc_cmd_predicate)
         else:

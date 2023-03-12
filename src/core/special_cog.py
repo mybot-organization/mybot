@@ -14,7 +14,7 @@ _BotType = TypeVar("_BotType", bound="Bot | AutoShardedBot")
 
 
 class SpecialCog(commands.Cog, Generic[_BotType]):
-    __cog_misc_commands__: list[MiscCommand]
+    __cog_misc_commands__: list[MiscCommand[Any, ..., Any]]
     bot: _BotType
 
     def __new__(cls, *args: Any, **kwargs: Any) -> Self:
@@ -24,14 +24,14 @@ class SpecialCog(commands.Cog, Generic[_BotType]):
         for _, listener in cls.__cog_listeners__:
             misc_command = getattr(getattr(cls, listener), "__listener_as_command__", None)
             if isinstance(misc_command, MiscCommand):
-                cls.__cog_misc_commands__.append(misc_command)
+                cls.__cog_misc_commands__.append(misc_command)  # pyright: ignore [reportUnknownArgumentType]
 
         return cls
 
     def __init__(self, bot: _BotType) -> None:
         self.bot = bot
 
-    def get_misc_commands(self):
+    def get_misc_commands(self) -> list[MiscCommand[Any, ..., Any]]:
         """Return all the misc commands in this cog."""
         return [m for m in self.__cog_misc_commands__]
 
