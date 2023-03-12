@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-10 21:35+0000\n"
+"POT-Creation-Date: 2023-03-12 00:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -187,31 +187,31 @@ msgstr ""
 msgid "{} message(s) deleted."
 msgstr ""
 
-#: src/cogs/help.py:27
+#: src/cogs/help.py:29
 msgid "slash command"
 msgstr ""
 
-#: src/cogs/help.py:28
+#: src/cogs/help.py:30
 msgid "message context"
 msgstr ""
 
-#: src/cogs/help.py:29
+#: src/cogs/help.py:31
 msgid "user context"
 msgstr ""
 
-#: src/cogs/help.py:30
+#: src/cogs/help.py:32
 msgid "miscellaneous"
 msgstr ""
 
-#: src/cogs/help.py:38
+#: src/cogs/help.py:40
 msgid "help"
 msgstr ""
 
-#: src/cogs/help.py:38
+#: src/cogs/help.py:40
 msgid "Get help about the bot."
 msgstr ""
 
-#: src/cogs/help.py:39
+#: src/cogs/help.py:41
 msgid "feature"
 msgstr ""
 
@@ -219,11 +219,19 @@ msgstr ""
 msgid "Commands of MyBot"
 msgstr ""
 
-#: src/cogs/help.py:82
-msgid "Chat input commands"
+#: src/cogs/help.py:76
+msgid "Slash commands"
 msgstr ""
 
-#: src/cogs/help.py:87
+#: src/cogs/help.py:77
+msgid "Context commands"
+msgstr ""
+
+#: src/cogs/help.py:78
+msgid "Miscellaneous features"
+msgstr ""
+
+#: src/cogs/help.py:150
 msgid "Help about {} [{}]"
 msgstr ""
 
