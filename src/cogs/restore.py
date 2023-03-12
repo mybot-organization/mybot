@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class Restore(SpecialCog["MyBot"]):
     @bot_required_permissions(manage_webhooks=True)
-    @misc_command("restore", description="Send a message back in chat if a link is send.")
+    @misc_command("restore", description="Send a message back in chat if a link is send.", extras={"soon": True})
     @misc_check(is_activated)
     @misc_check(is_user_authorized)
     async def on_message(self, message: Message) -> None:

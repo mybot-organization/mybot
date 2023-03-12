@@ -26,11 +26,19 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+@app_commands.default_permissions(administrator=True)
+@app_commands.guild_only()
 class PollCog(SpecialGroupCog["MyBot"], group_name=__("poll"), group_description=__("Create a new poll")):
     def __init__(self, bot: MyBot):
         super().__init__(bot)
 
-        self.bot.tree.add_command(app_commands.ContextMenu(name=__("Edit poll"), callback=self.edit_poll))
+        self.bot.tree.add_command(
+            app_commands.ContextMenu(
+                name=__("Edit poll"),
+                callback=self.edit_poll,
+                extras={"description": _("Use this to edit a poll even after creation.", _locale=None)},
+            )
+        )
 
         self.current_votes: dict[int, dict[int, tuple[Interaction, ui.View]]] = {}  # poll_id: {user_id: interaction}
 

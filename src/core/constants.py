@@ -20,8 +20,17 @@ class Emoji(str):
 
 
 class Emojis:
-    beta_1 = Emoji(1012449366449078384)
-    beta_2 = Emoji(1012449349424390265)
+    beta_1 = Emoji(1083897907981320272)
+    beta_2 = Emoji(1083897910728609872)
+
+    soon_1 = Emoji(1083897922522988575)
+    soon_2 = Emoji(1083897924146180198)
+
+    misc_command_reaction = Emoji(1084116094245163141)
+    misc_command_text = Emoji(1084118001088999544)
+
+    slash_command = Emoji(1084137615609057351)
+    message_context = Emoji(1084139743484334151)
 
     toggle_off = Emoji(1077634526844567603)
     toggle_on = Emoji(1077634491729838180)

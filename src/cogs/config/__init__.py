@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from discord import Permissions, app_commands
+from discord import app_commands
 from discord.app_commands import locale_str as __
 
 from core import SpecialGroupCog, cog_property
@@ -25,16 +25,21 @@ logger = logging.getLogger(__name__)
 # So all commands are defined here, and their implementation are in other files.
 
 
-class Config(SpecialGroupCog["MyBot"], group_name=__("config"), group_description=__("Set configurations.")):
+@app_commands.guild_only()
+@app_commands.default_permissions(administrator=True)
+class Config(
+    SpecialGroupCog["MyBot"],
+    group_name=__("config"),
+    group_description=__("Set configurations."),
+    group_extras={"beta": True},
+):
     guild_group = app_commands.Group(
         name=__("guild"),
         description=__("Set configuration for the guild."),
-        default_permissions=Permissions(administrator=True),
     )
     bbot_group = app_commands.Group(
         name=__("bot"),
         description=__("Set configuration for the bot."),
-        default_permissions=Permissions(administrator=True),
     )
 
     @cog_property("config_guild")
@@ -50,7 +55,6 @@ class Config(SpecialGroupCog["MyBot"], group_name=__("config"), group_descriptio
         description=__("Add restriction to an emote for a role."),
         extras={"soon": True},
     )
-    @app_commands.guild_only()
     async def emote(self, inter: Interaction) -> None:
         await self.guild_cog.emote(inter)
 
@@ -58,7 +62,6 @@ class Config(SpecialGroupCog["MyBot"], group_name=__("config"), group_descriptio
         name=__("public_translations"),
         description=__("Set if the translations are visible for everyone or not."),
     )
-    @app_commands.guild_only()
     async def public_translations(self, inter: Interaction, value: bool) -> None:
         await self.bot_cog.public_translation(inter, value)
 

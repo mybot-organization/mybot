@@ -131,7 +131,16 @@ class Translate(SpecialCog["MyBot"]):
         super().__init__(bot)
         self.cache: TemporaryCache[str, TranslationTask] = TemporaryCache(expire=timedelta(days=1), max_size=10_000)
 
-        self.bot.tree.add_command(app_commands.ContextMenu(name=__("Translate"), callback=self.translate_message_ctx))
+        self.bot.tree.add_command(
+            app_commands.ContextMenu(
+                name=__("Translate"),
+                callback=self.translate_message_ctx,
+                extras={
+                    "beta": True,
+                    "description": _("Translate a message based on your discord settings.", _locale=None),
+                },
+            )
+        )
 
     async def public_translations(self, guild_id: int | None):
         if guild_id is None:  # we are in private channels, IG
@@ -167,7 +176,11 @@ class Translate(SpecialCog["MyBot"]):
         )
 
     @bot_required_permissions(send_messages=True, embed_links=True)
-    @misc_command("translate")
+    @misc_command(
+        "translate",
+        description=_("Translate text in the language corresponding on the flag you add.", _locale=None),
+        extras={"beta": True},
+    )
     @misc_check(is_activated)
     @misc_check(is_user_authorized)
     async def on_raw_reaction_add(self, payload: RawReactionActionEvent):

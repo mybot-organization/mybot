@@ -27,7 +27,12 @@ logger = logging.getLogger(__name__)
 # So all commands are defined here, and their implementation are in other files.
 
 
-class Game(SpecialGroupCog["MyBot"], group_name=__("game"), group_description=__("Play some games.")):
+class Game(
+    SpecialGroupCog["MyBot"],
+    group_name=__("game"),
+    group_description=__("Play some games."),
+    group_extras={"soon": True},
+):
     @cog_property("game_connect4")
     def connect4_cog(self) -> GameConnect4:
         ...
