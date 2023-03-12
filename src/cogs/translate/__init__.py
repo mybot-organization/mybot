@@ -11,6 +11,7 @@ from discord.app_commands import locale_str as __
 
 from core import ResponseType, SpecialCog, TemporaryCache, misc_command, response_constructor
 from core.checkers import bot_required_permissions, is_activated, is_user_authorized, misc_check
+from core.errors import BadArgument, BaseError
 from core.i18n import _
 
 from .translator import Language, batch_translate, detect
@@ -23,13 +24,12 @@ if TYPE_CHECKING:
 
     from ._types import BatchTranslatorFunction, DetectorFunction, LanguageProtocol, PreSendStrategy, SendStrategy
 
+    Language: LanguageProtocol
+    detect: DetectorFunction
+    batch_translate: BatchTranslatorFunction
+
 
 logger = logging.getLogger(__name__)
-
-
-detect: DetectorFunction
-batch_translate: BatchTranslatorFunction
-Language: LanguageProtocol
 
 
 # fmt: off
@@ -154,12 +154,14 @@ class Translate(SpecialCog["MyBot"]):
         extras={"beta": True},
     )
     async def translate_slash(self, inter: Interaction, to: str, text: str, from_: str | None = None) -> None:
-        to_language = Language.from_code(to)
+        to_language = Language.from_code(to, None)
         if to_language is None:
-            return
+            raise BadArgument(_("The language you provided is not supported."))
 
         if from_ is not None:
-            from_language = Language.from_code(from_)
+            from_language = Language.from_code(from_, None)
+            if from_language is None:
+                raise BadArgument(_(f"The language you provided under the argument `from_` is not supported : {from_}"))
         else:
             from_language = None
 
@@ -175,8 +177,21 @@ class Translate(SpecialCog["MyBot"]):
             send_strategies=strategies,
         )
 
+    @translate_slash.autocomplete("to")
+    @translate_slash.autocomplete("from_")
+    async def translate_slash_autocomplete_to(self, inter: Interaction, current: str) -> list[app_commands.Choice[str]]:
+        return [
+            app_commands.Choice(name=lang.name, value=lang.code)
+            for lang in Language.available_languages()
+            if lang.code.startswith(current)
+        ][:25]
+
     async def translate_misc_condition(self, payload: RawReactionActionEvent) -> bool:
-        return payload.emoji.is_unicode_emoji() and payload.emoji.name in EVERY_FLAGS
+        return (
+            payload.emoji.is_unicode_emoji()
+            and payload.emoji.name in EVERY_FLAGS
+            and Language.from_emote(payload.emoji.name, None) is not None
+        )
 
     @bot_required_permissions(send_messages=True, embed_links=True)
     @misc_command(
@@ -189,13 +204,8 @@ class Translate(SpecialCog["MyBot"]):
     @misc_check(is_activated)
     @misc_check(is_user_authorized)
     async def translate_misc_command(self, payload: RawReactionActionEvent):
-        emote = payload.emoji.name
-
-        if emote not in EVERY_FLAGS:
-            return
-
         user = await self.bot.getch_user(payload.user_id)
-        if not user or user.bot:
+        if not user or user.bot:  # TODO : automatically ignore bots
             return
 
         channel = await self.bot.getch_channel(payload.channel_id)
@@ -205,10 +215,6 @@ class Translate(SpecialCog["MyBot"]):
             channel = cast(MessageableChannel, channel)
 
         message = await channel.fetch_message(payload.message_id)
-
-        language = Language.from_emote(emote)
-        if not language:
-            raise Exception()  # TODO: unsupported
 
         async def public_pre_strategy():
             await channel.typing()
@@ -225,7 +231,7 @@ class Translate(SpecialCog["MyBot"]):
             TranslationTask(
                 content=message.content or None, tr_embeds=[EmbedTranslation(embed) for embed in message.embeds[:4]]
             ),
-            language,
+            Language.from_emote(payload.emoji.name),
             None,
             send_strategies=strategies,
             message_reference=message,
@@ -235,7 +241,7 @@ class Translate(SpecialCog["MyBot"]):
     async def translate_message_ctx(self, inter: Interaction, message: Message) -> None:
         to_language = Language.from_discord_locale(inter.locale)
         if not to_language:
-            return  # TODO: raise unsupported.
+            raise BaseError(_("Your locale is not supported."))
 
         if await self.public_translations(inter.guild_id):
             strategies = Strategies(pre=inter.response.defer, send=inter.followup.send)
