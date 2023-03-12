@@ -17,7 +17,9 @@ if TYPE_CHECKING:
     from mybot import MyBot
 
 
-FeatureCodebaseTypes = app_commands.Command[Any, Any, Any] | app_commands.Group | app_commands.ContextMenu | MiscCommand
+FeatureCodebaseTypes = (
+    app_commands.Command[Any, ..., Any] | app_commands.Group | app_commands.ContextMenu | MiscCommand[Any, ..., Any]
+)
 
 
 class FeatureType(Enum):

@@ -12,13 +12,15 @@ It need to implement:
 from __future__ import annotations
 
 import asyncio
-from typing import NamedTuple, Sequence
+from typing import NamedTuple, Self, Sequence, TypeVar, overload
 
 import langdetect
 from discord import Locale
-from discord.utils import find, get
+from discord.utils import MISSING, find, get
 
 from core.libre_translate import Language as LibreLanguage, LibreTranslate
+
+T = TypeVar("T")
 
 
 class Relation(NamedTuple):
@@ -174,41 +176,78 @@ relations: tuple[Relation, ...] = (
 # fmt: on
 
 
-class Language(NamedTuple):
-    name: str
-    code: str
-    locale: Locale | None
-    adapter: LibreLanguage
+class Language:
+    def __init__(self, name: str, code: str, adapter: LibreLanguage, locale: Locale | None):
+        self.name = name
+        self.code = code
+        self.adapter = adapter
+        self.locale = locale
+
+    @overload
+    @classmethod
+    def from_emote(cls, emote: str) -> Language:
+        ...
+
+    @overload
+    @classmethod
+    def from_emote(cls, emote: str, default: T) -> Language | T:
+        ...
 
     @classmethod
-    def from_emote(cls, emote: str) -> Language | None:
+    def from_emote(cls, emote: str, default: T = MISSING) -> Language | T:
         relation = find(lambda rel: emote in rel.emotes, relations)
-        return (
-            Language(name=relation.name, code=relation.code, adapter=relation.adapter, locale=relation.discord_locale)
-            if relation
-            else None
-        )
+        if relation:
+            return Language(
+                name=relation.name, code=relation.code, adapter=relation.adapter, locale=relation.discord_locale
+            )
+        if default is MISSING:
+            raise ValueError(f"Invalid emote: {emote}")
+        return default
+
+    @overload
+    @classmethod
+    def from_discord_locale(cls, locale: Locale) -> Self:
+        ...
+
+    @overload
+    @classmethod
+    def from_discord_locale(cls, locale: Locale, default: T) -> Self | T:
+        ...
 
     @classmethod
-    def from_discord_locale(cls, locale: Locale) -> Language | None:
+    def from_discord_locale(cls, locale: Locale, default: T = MISSING) -> Language | T:
         relation = get(relations, discord_locale=locale)
-        return (
-            Language(name=relation.name, code=relation.code, adapter=relation.adapter, locale=relation.discord_locale)
-            if relation
-            else None
-        )
+        if relation:
+            return Language(
+                name=relation.name, code=relation.code, adapter=relation.adapter, locale=relation.discord_locale
+            )
+        if default is MISSING:
+            raise ValueError(f"Invalid locale: {locale}")
+        return default
+
+    @overload
+    @classmethod
+    def from_code(cls, code: str) -> Self:
+        ...
+
+    @overload
+    @classmethod
+    def from_code(cls, code: str, default: T) -> Self | T:
+        ...
 
     @classmethod
-    def from_code(cls, code: str) -> Language | None:
+    def from_code(cls, code: str, default: T = MISSING) -> Language | T:
         relation = get(relations, code=code)
-        return (
-            Language(name=relation.name, code=relation.code, adapter=relation.adapter, locale=relation.discord_locale)
-            if relation
-            else None
-        )
+        if relation:
+            return Language(
+                name=relation.name, code=relation.code, adapter=relation.adapter, locale=relation.discord_locale
+            )
+        if default is MISSING:
+            raise ValueError(f"Invalid code: {code}")
+        return default
 
-    @staticmethod
-    def available_languages() -> list[Language]:
+    @classmethod
+    def available_languages(cls) -> list[Self]:
         return [
             Language(name=rel.name, code=rel.code, adapter=rel.adapter, locale=rel.discord_locale) for rel in relations
         ]
@@ -229,7 +268,7 @@ async def batch_translate(texts: Sequence[str], to: Language, from_: Language | 
 
 async def detect(text: str) -> Language | None:
     try:
-        language = Language.from_code(langdetect.detect(text))
+        language = Language.from_code(langdetect.detect(text), None)
     except langdetect.lang_detect_exception.LangDetectException:
         return None
     else:

@@ -1,27 +1,22 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Concatenate, Coroutine
+from typing import TYPE_CHECKING, Any, Coroutine, ParamSpec, TypeAlias, TypeVar, Union
 
-from typing_extensions import ParamSpec, TypeVar
+from discord import Message
 
 if TYPE_CHECKING:
-    import discord
-
     from .misc_command import MiscCommandContextFilled, MiscCommandContextRaw
     from .special_cog import SpecialCog
 
-    MiscCommandUnresolvedContext = MiscCommandContextRaw | MiscCommandContextFilled | discord.Message
+UnresolvedContext: TypeAlias = Union["MiscCommandContextRaw", "MiscCommandContextFilled", Message]
+UnresolvedContextT = TypeVar("UnresolvedContextT", bound=UnresolvedContext)
 
-
-P = ParamSpec("P", default=...)
-T = TypeVar("T", default=Any)
-ContextT = TypeVar("ContextT", bound="MiscCommandUnresolvedContext", default=Any)
+P = ParamSpec("P")
+T = TypeVar("T")
 
 CogT = TypeVar("CogT", bound="SpecialCog[Any]")
 
 
 Snowflake = int
 
-
 CoroT = Coroutine[Any, Any, T]
-MiscCommandCallback = Callable[Concatenate[CogT, ContextT, P], CoroT[T]]
