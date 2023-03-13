@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from datetime import timedelta
+from datetime import datetime, timedelta
 from functools import partial
 from typing import TYPE_CHECKING, Any, NamedTuple, Sequence, cast
 
-from discord import Embed, Message, app_commands
+import discord
+from discord import Embed, Message, app_commands, ui
 from discord.app_commands import locale_str as __
 
 from core import ResponseType, SpecialCog, TemporaryCache, misc_command, response_constructor
@@ -126,10 +127,31 @@ class EmbedTranslation:
         return Embed.from_dict(self.dict_embed)
 
 
+class TempUsage:
+    def __init__(self):
+        self.cache: dict[datetime, list[int]] = {}
+
+    def clean(self):
+        for k in list(self.cache.keys()):
+            if k < datetime.now() - timedelta(hours=12):
+                del self.cache[k]
+
+    def count_usage(self, id: int):
+        self.clean()
+        return sum(l.count(id) for l in self.cache.values())
+
+    def add_usage(self, id: int):
+        self.clean()
+        key = datetime.now().replace(minute=0, second=0, microsecond=0)
+        self.cache.setdefault(key, [])
+        self.cache[key].append(id)
+
+
 class Translate(SpecialCog["MyBot"]):
     def __init__(self, bot: MyBot):
         super().__init__(bot)
         self.cache: TemporaryCache[str, TranslationTask] = TemporaryCache(expire=timedelta(days=1), max_size=10_000)
+        self.tmp_user_usage = TempUsage()
 
         self.bot.tree.add_command(
             app_commands.ContextMenu(
@@ -171,6 +193,7 @@ class Translate(SpecialCog["MyBot"]):
             strategies = Strategies(pre=partial(inter.response.defer, ephemeral=True), send=inter.followup.send)
 
         await self.process(
+            inter.user.id,
             TranslationTask(content=text),
             to_language,
             from_language,
@@ -228,6 +251,7 @@ class Translate(SpecialCog["MyBot"]):
             strategies = Strategies(pre=private_pre_strategy, send=user.send)
 
         await self.process(
+            payload.user_id,
             TranslationTask(
                 content=message.content or None, tr_embeds=[EmbedTranslation(embed) for embed in message.embeds[:4]]
             ),
@@ -249,6 +273,7 @@ class Translate(SpecialCog["MyBot"]):
             strategies = Strategies(pre=partial(inter.response.defer, ephemeral=True), send=inter.followup.send)
 
         await self.process(
+            inter.user.id,
             TranslationTask(
                 content=message.content, tr_embeds=[EmbedTranslation(embed) for embed in message.embeds[:4]]
             ),
@@ -258,14 +283,44 @@ class Translate(SpecialCog["MyBot"]):
             message_reference=message,
         )
 
+    async def check_user_quotas(self, user_id: int, strategy: SendStrategy) -> bool:
+        if self.tmp_user_usage.count_usage(user_id) < 10:
+            return True
+        if await self.bot.get_topgg_vote(user_id):
+            return True
+
+        view = ui.View().add_item(
+            ui.Button(
+                style=discord.ButtonStyle.url,
+                label=_("Vote for the bot", _locale=None),
+                url=f"https://top.gg/bot/{self.bot.config.BOT_ID}/vote",
+            )
+        )
+        await strategy(
+            **response_constructor(
+                ResponseType.warning,
+                _(
+                    "You have reached the maximum number of translations per day. Vote for the bot to remove this limit !",
+                    _locale=None,
+                ),
+            ),
+            view=view,
+        )
+
+        return False
+
     async def process(
         self,
+        user_id: int,
         translation_task: TranslationTask,
         to: LanguageProtocol,
         from_: LanguageProtocol | None,
         send_strategies: Strategies,
         message_reference: Message | None = None,
     ):
+        if not await self.check_user_quotas(user_id, send_strategies.send):
+            return
+        self.tmp_user_usage.add_usage(user_id)
         await send_strategies.pre()
 
         if from_ is None:

@@ -253,7 +253,8 @@ class Language:
         ]
 
 
-libre_translate = LibreTranslate()
+# libre_translate = LibreTranslate("http://host.docker.internal:5001/")
+libre_translate = LibreTranslate("https://translate.argosopentech.com/")
 
 
 async def translate(text: str, to: Language, from_: Language | None = None) -> str:
