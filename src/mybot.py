@@ -11,7 +11,7 @@ from discord.ext.commands import AutoShardedBot, errors  # pyright: ignore[repor
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from commands_exporter import extract_features
-from core import config, db
+from core import TemporaryCache, config, db
 from core.custom_command_tree import CustomCommandTree
 from core.error_handler import ErrorHandler
 from core.i18n import Translator
@@ -38,6 +38,7 @@ class MyBot(AutoShardedBot):
     error_handler: ErrorHandler
     topgg: topggpy.DBLClient | None
     topgg_webhook_manager: topggpy.WebhookManager | None
+    topgg_current_votes: TemporaryCache[int, bool] = TemporaryCache(60 * 60)  # 1 hour
 
     def __init__(self, running: bool = True, startup_sync: bool = False) -> None:
         self.startup_sync: bool = startup_sync
@@ -45,7 +46,7 @@ class MyBot(AutoShardedBot):
 
         self.error_handler = ErrorHandler(self)
         if config.TOPGG_TOKEN is not None:
-            self.topgg = topggpy.DBLClient(config.TOPGG_TOKEN)
+            self.topgg = topggpy.DBLClient(config.TOPGG_TOKEN, default_bot_id=config.BOT_ID)
             self.topgg_webhook_manager = topggpy.WebhookManager()
             (
                 self.topgg_webhook_manager.endpoint()
@@ -77,17 +78,17 @@ class MyBot(AutoShardedBot):
         # Keep an alphabetic order, it is more clear.
         self.extensions_names: list[str] = [
             "admin",
-            "api",
-            "calculator",
-            "clear",
+            # "api",
+            # "calculator",
+            # "clear",
             "config",
-            "game",
+            # "game",
             "help",
             "poll",
-            "ping",
-            "restore",
-            "stats",
-            "translate",
+            # "ping",
+            # "restore",
+            # "stats",
+            # "translate",
         ]
         self.config = config
         self.app_commands = []
@@ -122,6 +123,13 @@ class MyBot(AutoShardedBot):
     async def topgg_endpoint(self, vote_data: topggpy.types.BotVoteData) -> None:
         logger.debug("Received vote from top.gg", extra=vote_data)
         self.dispatch("topgg_vote", vote_data)
+
+    async def get_topgg_vote(self, user_id: int) -> bool:
+        if self.topgg is None:
+            return True
+        if user_id not in self.topgg_current_votes and await self.topgg.get_user_vote(user_id):
+            self.topgg_current_votes[user_id] = True
+        return self.topgg_current_votes.get(user_id, False)
 
     async def connect_db(self):
         if config.POSTGRES_PASSWORD is None:

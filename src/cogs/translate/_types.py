@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Protocol, Self, Sequence, TypeVar, overload, runtime_checkable
 
-from discord import Embed, Locale
+import discord
+from discord import Embed, Locale, ui
 from discord.utils import MISSING
 
 if TYPE_CHECKING:
@@ -83,7 +84,9 @@ class DetectorFunction(Protocol):
 
 
 class SendStrategy(Protocol):
-    async def __call__(self, *, content: str = Any, embeds: Sequence[Embed] = Any) -> Any:
+    async def __call__(
+        self, *, content: str = Any, embeds: Sequence[Embed] = Any, view: ui.View = discord.utils.MISSING
+    ) -> Any:
         ...
 
 
