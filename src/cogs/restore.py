@@ -22,7 +22,7 @@ class Restore(SpecialCog["MyBot"]):
     @misc_check(is_activated)
     @misc_check(is_user_authorized)
     async def on_message(self, message: Message) -> None:
-        raise NotImplementedError("Calculator is not implemented.")
+        raise NotImplementedError("Restore is not implemented.")
 
 
 async def setup(bot: MyBot):
