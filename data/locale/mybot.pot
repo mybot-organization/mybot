@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-14 09:45+0000\n"
+"POT-Creation-Date: 2023-03-14 19:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -255,17 +255,17 @@ msgstr ""
 msgid "Quelques statistiques sur MyBot"
 msgstr ""
 
-#: src/core/error_handler.py:53
+#: src/core/error_handler.py:36
 msgid "Support server"
 msgstr ""
 
-#: src/core/error_handler.py:69
+#: src/core/error_handler.py:53
 #, python-brace-format
 msgid ""
 "This command is already executed the max amount of times. (Max: {error.rate})"
 msgstr ""
 
-#: src/core/error_handler.py:72
+#: src/core/error_handler.py:56
 #, python-brace-format
 msgid ""
 "An unhandled error happened.\n"
