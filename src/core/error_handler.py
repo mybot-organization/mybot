@@ -6,14 +6,13 @@ from typing import TYPE_CHECKING, TypeVar
 from discord import ButtonStyle, ui
 from discord.app_commands import CommandNotFound
 from discord.ext import commands
-from discord.utils import get
 
 from . import ResponseType, response_constructor
 from .errors import BaseError, MaxConcurrencyReached
 from .i18n import _
 
 if TYPE_CHECKING:
-    from discord import Interaction, Invite
+    from discord import Interaction
     from discord.app_commands import AppCommandError
 
     from core.errors import MiscCommandException
@@ -28,29 +27,14 @@ BotT = TypeVar("BotT", bound="commands.Bot | commands.AutoShardedBot")
 
 class ErrorHandler:
     def __init__(self, bot: MyBot):
-        self._invite: Invite | None = None
-
         self.bot: MyBot = bot
-
-    @property
-    async def _support_invite(self) -> Invite:
-        if self._invite is None:
-            self._invite = get(await self.bot.support.invites(), max_age=0, max_uses=0, inviter=self.bot.user)
-
-        if self._invite is None:  # If invite is STILL None
-            if tmp := self.bot.support.rules_channel:
-                channel = tmp
-            else:
-                channel = self.bot.support.channels[0]
-
-            self._invite = await channel.create_invite(reason="Support guild invite.")
-
-        return self._invite
 
     async def send_error(self, inter: Interaction, error_message: str) -> None:
         """A function to send an error message."""
         view = ui.View()
-        view.add_item(ui.Button(style=ButtonStyle.url, label=_("Support server"), url=(await self._support_invite).url))
+        view.add_item(
+            ui.Button(style=ButtonStyle.url, label=_("Support server"), url=(await self.bot.support_invite).url)
+        )
 
         strategy = inter.response.send_message
         if inter.response.is_done():
@@ -58,6 +42,8 @@ class ErrorHandler:
         await strategy(**response_constructor(ResponseType.error, error_message), ephemeral=True, view=view)
 
     async def handle_app_command_error(self, inter: Interaction, error: AppCommandError) -> None:
+        if inter.guild:
+            print(inter.guild.members)
         match error:
             case CommandNotFound():
                 return

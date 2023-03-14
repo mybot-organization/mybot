@@ -8,10 +8,11 @@ import discord
 import topgg as topggpy
 from discord.ext import tasks
 from discord.ext.commands import AutoShardedBot, errors  # pyright: ignore[reportMissingTypeStubs]
+from discord.utils import get
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from commands_exporter import extract_features
-from core import TemporaryCache, config, db
+from core import ResponseType, TemporaryCache, config, db, response_constructor
 from core.custom_command_tree import CustomCommandTree
 from core.error_handler import ErrorHandler
 from core.i18n import Translator
@@ -43,6 +44,7 @@ class MyBot(AutoShardedBot):
     def __init__(self, running: bool = True, startup_sync: bool = False) -> None:
         self.startup_sync: bool = startup_sync
         self.running = running
+        self._invite: discord.Invite | None = None
 
         self.error_handler = ErrorHandler(self)
         if config.TOPGG_TOKEN is not None:
@@ -63,6 +65,7 @@ class MyBot(AutoShardedBot):
         intents = discord.Intents().none()
         intents.reactions = True
         intents.guilds = True
+        intents.messages = True
         logger.debug(f"Intents : {', '.join(flag[0] for flag in intents if flag[1])}")
 
         super().__init__(
@@ -160,11 +163,82 @@ class MyBot(AutoShardedBot):
             logger.critical("Support server cannot be retrieved")
             sys.exit(1)
         self.support = tmp
+        await self.support_invite  # load the invite
 
         logger.info(f"Logged in as : {bot_user.name}")
         logger.info(f"ID : {bot_user.id}")
 
         # await self.sync_database()
+
+    async def on_message(self, message: discord.Message) -> None:
+        await self.wait_until_ready()
+        if self.user is None:
+            return
+
+        embed = response_constructor(ResponseType.warning, "MyBot is now using slash commands !").embed
+        embed.add_field(
+            name="🇫🇷 Salut, moi c'est Toby !",
+            value=(
+                "Saches que dorénavant, MyBot fonctionne uniquement avec des **slash commands**. C'est le petit menu "
+                "qui apparait quand on faire `/` dans un salon.\n"
+                "Si tu ne vois pas les commandes de MyBot apparaitre, essayes de réinviter le bot avec ce lien ci-dessous !\n"
+                f"Si tu rencontres un problème, n'hésite pas à rejoindre le serveur de support.\n\n"
+            ),
+            inline=False,
+        )
+        embed.add_field(
+            name="🇬🇧 Hi, I'm Toby !",
+            value=(
+                "Know that from now on, MyBot only works with **slash commands**. It's the small menu that appears when you "
+                "type `/` in a channel.\n"
+                "If you don't see MyBot's commands appear, try to reinvite the bot with the link below !\n"
+                f"If you encounter a problem, don't hesitate to join the support server.\n\n"
+            ),
+            inline=False,
+        )
+        view = discord.ui.View()
+        view.add_item(
+            discord.ui.Button(
+                label="Invite link",
+                style=discord.ButtonStyle.url,
+                emoji="🔗",
+                url=f"https://discord.com/api/oauth2/authorize?client_id={config.BOT_ID}&scope=bot%20applications.commands",
+            )
+        )
+        view.add_item(
+            discord.ui.Button(
+                label="Support invite",
+                style=discord.ButtonStyle.url,
+                emoji="📢",
+                url=(await self.support_invite).url,
+            )
+        )
+
+        # match message:  # TODO report pyright
+        #     case discord.Message(channel=discord.DMChannel()):
+        #         me = message.channel.me
+        #     case discord.Message(guild=discord.Guild()):
+        #         me = message.guild.me
+        #     case _:
+        #         return
+
+        if self.user.mentioned_in(message):
+            await message.channel.send(embed=embed, view=view)
+
+    @property
+    async def support_invite(self) -> discord.Invite:
+        if self._invite is None:
+            self._invite = get(await self.support.invites(), max_age=0, max_uses=0, inviter=self.user)
+
+        if self._invite is None:  # If invite is STILL None
+            if tmp := self.support.rules_channel:
+                channel = tmp
+            else:
+                channel = self.support.channels[0]
+
+            self._invite = await channel.create_invite(reason="Support guild invite.")
+
+        return self._invite
 
     async def load_extensions(self) -> None:
         for ext in self.extensions_names:
