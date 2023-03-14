@@ -171,6 +171,7 @@ class MyBot(AutoShardedBot):
         # await self.sync_database()
 
     async def on_message(self, message: discord.Message) -> None:
+        # TODO : check scope, check if mentionned not replied
         await self.wait_until_ready()
         if self.user is None:
             return

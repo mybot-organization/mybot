@@ -57,3 +57,7 @@ class BotMissingPermissions(MixinException):
 
 class BadArgument(BaseError):
     pass
+
+
+class BotUserNotPresent(errors.AppCommandError):
+    pass

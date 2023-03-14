@@ -42,8 +42,6 @@ class ErrorHandler:
         await strategy(**response_constructor(ResponseType.error, error_message), ephemeral=True, view=view)
 
     async def handle_app_command_error(self, inter: Interaction, error: AppCommandError) -> None:
-        if inter.guild:
-            print(inter.guild.members)
         match error:
             case CommandNotFound():
                 return
