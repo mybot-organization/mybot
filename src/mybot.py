@@ -78,17 +78,17 @@ class MyBot(AutoShardedBot):
         # Keep an alphabetic order, it is more clear.
         self.extensions_names: list[str] = [
             "admin",
-            "api",
-            "calculator",
-            "clear",
+            # "api",
+            # "calculator",
+            # "clear",
             "config",
-            "game",
+            # "game",
             "help",
             "poll",
-            "ping",
-            "restore",
-            "stats",
-            "translate",
+            # "ping",
+            # "restore",
+            # "stats",
+            # "translate",
         ]
         self.config = config
         self.app_commands = []
