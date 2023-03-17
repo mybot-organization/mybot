@@ -35,7 +35,6 @@ class MicrosoftTranslator:
         kwargs["params"] |= {"api-version": self._api_version}
 
         async with self._client.request(method, url, headers=headers, **kwargs) as response:
-            print(response.headers)
             return await response.json()
 
     async def translate(self, texts: Iterable[str], to: str, from_: str | None = None) -> list[TranslationResult]:
