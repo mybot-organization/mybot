@@ -154,7 +154,7 @@ class Translate(SpecialCog["MyBot"]):
         self.translators: list[TranslatorAdapter] = []
         for adapter in self.bot.config.TRANSLATOR_SERVICES.split(","):
             adapter_module = importlib.import_module(f".adapters.{adapter}", __name__)
-            self.translators.append(adapter_module.get_translator())
+            self.translators.append(adapter_module.get_translator()())
 
         self.bot.tree.add_command(
             app_commands.ContextMenu(
@@ -208,6 +208,7 @@ class Translate(SpecialCog["MyBot"]):
     @translate_slash.autocomplete("from_")
     async def translate_slash_autocomplete_to(self, inter: Interaction, current: str) -> list[app_commands.Choice[str]]:
         available_languages = await self.translators[0].available_languages()
+
         return [
             app_commands.Choice(name=lang.name, value=lang.lang_code)
             for lang in available_languages
