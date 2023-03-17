@@ -8,11 +8,11 @@ class Language(NamedTuple):
     name: str
     unicode_flag_emotes: Sequence[str]
     discord_locale: Locale | None = None
-    _ietf_bcp_47: str | None = None
+    ietf_bcp_47: str | None = None
 
     @property
     def lang_code(self) -> str:
-        return self._ietf_bcp_47 or self.discord_locale.value  # pyright: ignore [reportOptionalMemberAccess]
+        return self.ietf_bcp_47 or self.discord_locale.value  # pyright: ignore [reportOptionalMemberAccess]
 
     def __eq__(self, e: object) -> bool:
         return isinstance(e, Language) and e.name == self.name
@@ -38,7 +38,7 @@ class LanguagesEnum(Enum):
     ),
     arabic = Language(
         name='arabic',
-        _ietf_bcp_47='ar-SA',
+        ietf_bcp_47='ar-SA',
         unicode_flag_emotes=("🇩🇿", "🇧🇭", "🇰🇲", "🇩🇯", "🇪🇬", "🇪🇷", "🇯🇴", "🇰🇼", "🇱🇧", "🇱🇾", "🇲🇷", "🇲🇦", "🇴🇲", "🇶🇦", "🇸🇦", "🇸🇩",
                              "🇸🇾", "🇹🇳", "🇦🇪", "🇪🇭", "🇾🇪"),
     )
@@ -70,12 +70,12 @@ class LanguagesEnum(Enum):
     )
     indonesian = Language(
         name='indonesian',
-        _ietf_bcp_47='id-ID',
+        ietf_bcp_47='id-ID',
         unicode_flag_emotes=("🇮🇩",)
     )
     irish = Language(
         name='irish',
-        _ietf_bcp_47='en-IE',
+        ietf_bcp_47='en-IE',
         unicode_flag_emotes=("🇮🇪",)
     )
     italian = Language(
