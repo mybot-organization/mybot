@@ -92,9 +92,9 @@ class EmbedTranslation:
         if "fields" in self.dict_embed:
             for i, field in enumerate(self.dict_embed["fields"]):
                 pointers.append(f"fields.{i}.name")
-                pointers.append(field["name"])
+                values.append(field["name"])
                 pointers.append(f"fields.{i}.value")
-                pointers.append(field["value"])
+                values.append(field["value"])
         if "author" in self.dict_embed:
             if "name" in self.dict_embed["author"]:
                 pointers.append("author.name")
