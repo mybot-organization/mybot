@@ -11,7 +11,7 @@ import asyncio
 async def main():
     translator = MicrosoftTranslator(TOKEN)
     try:
-        print(await translator.translate("J'aime vraiment le fromage", "it"))
+        print(await translator.translate(["Il like cheese", "I want to a chewing-gum"], "fr-CA"))
     finally:
         await translator.close()
 
