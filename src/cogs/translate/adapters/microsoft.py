@@ -5,32 +5,34 @@ from lingua import Language as LinguaLanguage, LanguageDetectorBuilder
 from core import config
 from core.modules.microsoft_translation import MicrosoftTranslator
 
-from ..languages import Language, Languages
+from ..languages import Language, Languages, LanguagesEnum
 from ..translator_abc import TranslatorAdapter
 
 lingua_to_language = {
-    LinguaLanguage.ENGLISH: Languages.british_english,
-    LinguaLanguage.ARABIC: Languages.arabic,
-    LinguaLanguage.CHINESE: Languages.chinese,
-    LinguaLanguage.FRENCH: Languages.french,
-    LinguaLanguage.GERMAN: Languages.german,
-    LinguaLanguage.HINDI: Languages.hindi,
-    LinguaLanguage.INDONESIAN: Languages.indonesian,
-    LinguaLanguage.IRISH: Languages.irish,
-    LinguaLanguage.ITALIAN: Languages.italian,
-    LinguaLanguage.JAPANESE: Languages.japanese,
-    LinguaLanguage.KOREAN: Languages.korean,
-    LinguaLanguage.POLISH: Languages.polish,
-    LinguaLanguage.PORTUGUESE: Languages.brazil_portuguese,
-    LinguaLanguage.RUSSIAN: Languages.russian,
-    LinguaLanguage.SPANISH: Languages.spanish,
-    LinguaLanguage.TURKISH: Languages.turkish,
-    LinguaLanguage.VIETNAMESE: Languages.vietnamese,
+    LinguaLanguage.ENGLISH: LanguagesEnum.british_english,
+    LinguaLanguage.ARABIC: LanguagesEnum.arabic,
+    LinguaLanguage.CHINESE: LanguagesEnum.chinese,
+    LinguaLanguage.FRENCH: LanguagesEnum.french,
+    LinguaLanguage.GERMAN: LanguagesEnum.german,
+    LinguaLanguage.HINDI: LanguagesEnum.hindi,
+    LinguaLanguage.INDONESIAN: LanguagesEnum.indonesian,
+    LinguaLanguage.IRISH: LanguagesEnum.irish,
+    LinguaLanguage.ITALIAN: LanguagesEnum.italian,
+    LinguaLanguage.JAPANESE: LanguagesEnum.japanese,
+    LinguaLanguage.KOREAN: LanguagesEnum.korean,
+    LinguaLanguage.POLISH: LanguagesEnum.polish,
+    LinguaLanguage.PORTUGUESE: LanguagesEnum.brazil_portuguese,
+    LinguaLanguage.RUSSIAN: LanguagesEnum.russian,
+    LinguaLanguage.SPANISH: LanguagesEnum.spanish,
+    LinguaLanguage.TURKISH: LanguagesEnum.turkish,
+    LinguaLanguage.VIETNAMESE: LanguagesEnum.vietnamese,
 }
 
 
 class Translator(TranslatorAdapter):
     def __init__(self) -> None:
+        if config.MS_TRANSLATE_KEY is None or config.MS_TRANSLATE_REGION is None:
+            raise ValueError("Missing Microsoft Translator configuration")
         self.instance = MicrosoftTranslator(config.MS_TRANSLATE_KEY, config.MS_TRANSLATE_REGION)
         self.detector = (
             LanguageDetectorBuilder.from_languages(*lingua_to_language.keys())
@@ -55,6 +57,9 @@ class Translator(TranslatorAdapter):
             return None
         return lingua_to_language[result].value
 
+    async def available_languages(self) -> Languages:
+        return Languages(x.value for x in LanguagesEnum)
 
-async def get_translators() -> Type[TranslatorAdapter]:
+
+def get_translator() -> Type[TranslatorAdapter]:
     return Translator

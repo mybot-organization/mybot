@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import NamedTuple, Sequence
+from typing import Iterable, Iterator, NamedTuple, Sequence
 
 from discord import Locale
 
@@ -21,19 +21,7 @@ class Language(NamedTuple):
         return hash((self.name, self.lang_code))
 
 
-class Languages(Enum):
-    @classmethod
-    def from_locale(cls, locale: Locale) -> Language:
-        return next(x.value for x in Languages if x.value.discord_locale == locale)
-
-    @classmethod
-    def from_code(cls, lang_code: str) -> Language | None:
-        return next((x.value for x in cls if x.value.lang_code == lang_code), None)
-
-    @classmethod
-    def from_emote(cls, unicode_emote_flag: str) -> Language | None:
-        return next((x.value for x in cls if unicode_emote_flag in x.value.unicode_flag_emotes), None)
-
+class LanguagesEnum(Enum):
     # fmt: off
     british_english = Language(
         name='british english',
@@ -136,6 +124,21 @@ class Languages(Enum):
         discord_locale=Locale.vietnamese,
         unicode_flag_emotes=("🇻🇳",)
     )
+    # fmt: on
 
 
-# fmt: on
+class Languages(Iterable[Language]):
+    def __init__(self, languages: Iterable[Language]):
+        self._languages = languages
+
+    def __iter__(self) -> Iterator[Language]:
+        return iter(self._languages)
+
+    def from_locale(self, locale: Locale) -> Language:
+        return next(x for x in self._languages if x.discord_locale == locale)
+
+    def from_code(self, lang_code: str) -> Language | None:
+        return next((x for x in self._languages if x.lang_code == lang_code), None)
+
+    def from_emote(self, unicode_emote_flag: str) -> Language | None:
+        return next((x for x in self._languages if unicode_emote_flag in x.unicode_flag_emotes), None)
