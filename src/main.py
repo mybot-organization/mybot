@@ -41,12 +41,14 @@ def bot(
     sync_only: bool,
 ):
     required_env_var = {"POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB", "MYBOT_TOKEN"}
-    optionnal_env_var = {"TOPGG_TOKEN", "TOPGG_AUTH"}
+    optionnal_env_var = {"TOPGG_TOKEN", "TOPGG_AUTH", "MS_TRANSLATE_KEY", "MS_TRANSLATE_REGION", "TRANSLATOR_SERVICES"}
     kwargs: dict[str, Any] = {}
 
     if missing_env_var := required_env_var - set(os.environ):
         raise RuntimeError(f"The following environment variables are missing: {', '.join(missing_env_var)}")
 
+    if len({"MS_TRANSLATE_KEY", "MS_TRANSLATE_REGION"} & set(os.environ)) == 1:
+        raise RuntimeError("MS_TRANSLATE_KEY and MS_TRANSLATE_REGION should be either both defined or both undefined.")
     if len({"TOPGG_TOKEN", "TOPGG_AUTH"} & set(os.environ)) == 1:
         raise RuntimeError("TOPGG_TOKEN and TOPGG_AUTH should be either both defined or both undefined.")
 

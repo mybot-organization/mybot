@@ -23,6 +23,10 @@ class Config:
     EXPORT_MODE: bool = False
     TOPGG_TOKEN: str | None = None
     TOPGG_AUTH: str | None = None
+    MS_TRANSLATE_KEY: str | None = None
+    MS_TRANSLATE_REGION: str | None = None
+    # comma separated list of services to use for translation. Corresponding files should be in cogs/translate/adapters.
+    TRANSLATOR_SERVICES: str = "libretranslate"
 
     _defined: ClassVar[bool] = False
 
