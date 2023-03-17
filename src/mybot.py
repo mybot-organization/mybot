@@ -91,7 +91,7 @@ class MyBot(AutoShardedBot):
             # "ping",
             # "restore",
             # "stats",
-            # "translate",
+            "translate",
         ]
         self.config = config
         self.app_commands = []
