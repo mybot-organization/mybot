@@ -35,7 +35,7 @@ class LanguagesEnum(Enum):
         name='american english',
         discord_locale=Locale.american_english,
         unicode_flag_emotes=("🇺🇸", "🇺🇲"),
-    ),
+    )
     arabic = Language(
         name='arabic',
         ietf_bcp_47='ar-SA',
@@ -97,28 +97,28 @@ class LanguagesEnum(Enum):
         name="polish",
         discord_locale=Locale.polish,
         unicode_flag_emotes=("🇵🇱",)
-    ),
+    )
     brazil_portuguese = Language(
         name="brazil portuguese",
         discord_locale=Locale.brazil_portuguese,
         unicode_flag_emotes=("🇦🇴", "🇧🇷", "🇨🇻", "🇬🇼", "🇲🇿", "🇵🇹", "🇸🇹", "🇹🇱")
-    ),
+    )
     russian = Language(
         name="russian",
         discord_locale=Locale.russian,
         unicode_flag_emotes=("🇦🇶", "🇷🇺")
-    ),
+    )
     spanish = Language(
         name="spanish",
         discord_locale=Locale.spain_spanish,
         unicode_flag_emotes=("🇦🇷", "🇧🇴", "🇨🇱", "🇨🇴", "🇨🇷", "🇨🇺", "🇩🇴", "🇪🇨", "🇸🇻", "🇬🇹", "🇭🇳", "🇲🇽", "🇳🇮", "🇵🇦", "🇵🇾", "🇵🇪", "🇵🇷", "🇪🇸", 
                 "🇺🇾", "🇻🇪"),
-    ),
+    )
     turkish = Language(
         name="turk",
         discord_locale=Locale.turkish,
         unicode_flag_emotes=("🇹🇷",)
-    ),
+    )
     vietnamese = Language(
         name="vietnames",
         discord_locale=Locale.vietnamese,
@@ -129,7 +129,7 @@ class LanguagesEnum(Enum):
 
 class Languages(Iterable[Language]):
     def __init__(self, languages: Iterable[Language]):
-        self._languages = languages
+        self._languages = list(languages)
 
     def __iter__(self) -> Iterator[Language]:
         return iter(self._languages)
