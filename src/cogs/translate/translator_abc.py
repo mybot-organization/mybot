@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 
-from .languages import Language
+from .languages import Language, Languages
 
 
 class TranslatorAdapter(ABC):
@@ -18,4 +18,8 @@ class TranslatorAdapter(ABC):
 
     @abstractmethod
     async def detect(self, text: str) -> Language | None:
+        ...
+
+    @abstractmethod
+    async def available_languages(self) -> Languages:
         ...
