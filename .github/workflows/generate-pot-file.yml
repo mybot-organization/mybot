@@ -1,4 +1,4 @@
-name: Generate po template file
+name: Generate pot file
 
 on:
   push:
@@ -9,10 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: airopi/gettext:0.21.1
-      volumes:
-        - ./:/tmp
 
     steps:
       - uses: actions/checkout@v3
@@ -20,11 +16,14 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           ref: ${{ github.ref }}
 
-      - name: Execute xgettext
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: babel extract (pot file generation)
         run: |
-          cd tmp
-          ls
-          xgettext -d mybot -p ./data/locale -o mybot.pot -L python -k__ --from-code UTF-8 ./src/**/*.py
+          pip install babel
+          sh ./bin/generate-pot-file.yml
 
       - uses: EndBug/add-and-commit@v9
         with:
