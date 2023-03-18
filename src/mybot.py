@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 class MyBot(AutoShardedBot):
     support: Guild
-    tree: CustomCommandTree  # type: ignore
+    tree: CustomCommandTree  # pyright: ignore[reportIncompatibleMethodOverride]
     app_commands: list[AppCommand]
     error_handler: ErrorHandler
     topgg: topggpy.DBLClient | None
