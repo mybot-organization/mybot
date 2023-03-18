@@ -1,21 +1,22 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: mybot-discord\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-11 22:35+0000\n"
-"PO-Revision-Date: 2023-01-11 23:27\n"
+"Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
+"POT-Creation-Date: 2023-03-18 19:56+0000\n"
+"PO-Revision-Date: 2023-03-18 21:00\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
-"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.12.1\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Crowdin-Project: mybot-discord\n"
 "X-Crowdin-Project-ID: 532668\n"
 "X-Crowdin-Language: fr\n"
 "X-Crowdin-File: /dev/data/locale/mybot.pot\n"
 "X-Crowdin-File-ID: 48\n"
+"Language: fr_FR\n"
 
 #: src/cogs/calculator.py:29
 msgid "calculator"
@@ -93,11 +94,11 @@ msgstr "Supprimer uniquement les messages de l'utilisateur spécifié."
 msgid "Delete only messages whose user has the specified role."
 msgstr "Supprimer uniquement les messages dont l'utilisateur a le rôle spécifié."
 
-#: src/cogs/clear.py:106
+#: src/cogs/clear.py:105
 msgid "Delete only messages that match the specified search (can be regex)."
 msgstr "Supprimer uniquement les messages qui correspondent à la recherche spécifiée (peut être une regex)."
 
-#: src/cogs/clear.py:109
+#: src/cogs/clear.py:108
 msgid "Delete only messages that contains the selected entry. #TODO"
 msgstr "Supprimer uniquement les messages qui contiennent l'entrée sélectionnée. #TODO"
 
@@ -113,7 +114,7 @@ msgstr "Supprimer uniquement les messages envoyés avant le message ou la date s
 msgid "Delete only messages sent after the specified message or date.  (yyyy-mm-dd) #TODO"
 msgstr "Supprimer uniquement les messages envoyés après le message ou la date spécifiés. (aaaa-mm-jj) #TODO"
 
-#: src/cogs/clear.py:115
+#: src/cogs/clear.py:114
 msgid "Include/exclude pinned messages in deletion, or deletes \"only\" pinned messages. (default to exclude)"
 msgstr "Inclure/exclure les messages épinglés dans la suppression ou supprimer \"seulement\" ces messages."
 
@@ -154,16 +155,16 @@ msgid "pinned"
 msgstr "épinglés"
 
 #: src/cogs/clear.py:152
-#, python-brace-format
 msgid "You must supply a number between 1 and 250. (0 < {amount} < 251)"
 msgstr "Vous devez fournir un nombre entre 1 et 250. (0 < {amount} < 251)"
 
-#: src/cogs/clear.py:186
+#: src/cogs/clear.py:186 src/cogs/poll/edit.py:233 src/cogs/poll/edit.py:326
+#: src/cogs/poll/edit.py:384 src/cogs/poll/edit.py:423
+#: src/cogs/poll/edit.py:460 src/cogs/poll/edit.py:497
 msgid "Cancel"
 msgstr "Annuler"
 
 #: src/cogs/clear.py:194
-#, python-brace-format
 msgid "Clearing {amount} message(s)..."
 msgstr "Suppression de {amount} message(s)..."
 
@@ -179,31 +180,31 @@ msgstr "Suppression annulée. {} message(s) supprimé(s)."
 msgid "{} message(s) deleted."
 msgstr "{} message(s) supprimé(s)."
 
-#: src/cogs/help.py:27
+#: src/cogs/help.py:29
 msgid "slash command"
 msgstr "commande slash"
 
-#: src/cogs/help.py:28
+#: src/cogs/help.py:30
 msgid "message context"
 msgstr "contexte de message"
 
-#: src/cogs/help.py:29
+#: src/cogs/help.py:31
 msgid "user context"
 msgstr "contexte d'utilisateur"
 
-#: src/cogs/help.py:30
+#: src/cogs/help.py:32
 msgid "miscellaneous"
 msgstr "divers"
 
-#: src/cogs/help.py:38
+#: src/cogs/help.py:40
 msgid "help"
 msgstr "aide"
 
-#: src/cogs/help.py:38
+#: src/cogs/help.py:40
 msgid "Get help about the bot."
 msgstr "Obtenir de l'aide à propos du bot."
 
-#: src/cogs/help.py:39
+#: src/cogs/help.py:41
 msgid "feature"
 msgstr "fonctionnalité"
 
@@ -211,11 +212,19 @@ msgstr "fonctionnalité"
 msgid "Commands of MyBot"
 msgstr "Commandes de MyBot"
 
-#: src/cogs/help.py:82
-msgid "Chat input commands"
-msgstr "Commandes d'entrée tchat"
+#: src/cogs/help.py:76
+msgid "Slash commands"
+msgstr "Commandes slash"
 
-#: src/cogs/help.py:87
+#: src/cogs/help.py:77
+msgid "Context commands"
+msgstr "Commandes contextuelles"
+
+#: src/cogs/help.py:78
+msgid "Miscellaneous features"
+msgstr "Fonctionnalités diverses"
+
+#: src/cogs/help.py:150
 msgid "Help about {} [{}]"
 msgstr "Aide à propos de {} [{}]"
 
@@ -227,14 +236,6 @@ msgstr "ping"
 msgid "Get the bot latency."
 msgstr "Obtenir la latence du bot."
 
-#: src/cogs/poll.py:26
-msgid "poll"
-msgstr "sondage"
-
-#: src/cogs/poll.py:27
-msgid "Do a poll."
-msgstr "Effectuer un sondage."
-
 #: src/cogs/stats.py:43
 msgid "stats"
 msgstr "stats"
@@ -245,19 +246,424 @@ msgstr "Obtenir quelques statistiques sur le bot."
 
 #: src/cogs/stats.py:49
 msgid "Quelques statistiques sur MyBot"
-msgstr ""
+msgstr "Quelques statistiques sur MyBot"
 
-#: src/core/custom_command_tree.py:51
+#: src/cogs/config/__init__.py:32
+msgid "config"
+msgstr "configuration"
+
+#: src/cogs/config/__init__.py:33
+msgid "Set configurations."
+msgstr "Définir des configurations."
+
+#: src/cogs/config/__init__.py:37
+msgid "guild"
+msgstr "serveur"
+
+#: src/cogs/config/__init__.py:38
+msgid "Set configuration for the guild."
+msgstr "Définir la configuration du serveur."
+
+#: src/cogs/config/__init__.py:41
+msgid "bot"
+msgstr "bot"
+
+#: src/cogs/config/__init__.py:42
+msgid "Set configuration for the bot."
+msgstr "Définir la configuration du bot."
+
+#: src/cogs/config/__init__.py:54
+msgid "emote"
+msgstr "emoji"
+
+#: src/cogs/config/__init__.py:55
+msgid "Add restriction to an emote for a role."
+msgstr "Ajouter une restriction à un émoji pour un rôle."
+
+#: src/cogs/config/__init__.py:62
+msgid "public_translations"
+msgstr "traductions_publique"
+
+#: src/cogs/config/__init__.py:63
+msgid "Set if the translations are visible for everyone or not."
+msgstr "Définir si les traductions sont visibles par tous ou non."
+
+#: src/cogs/config/config_bot.py:29
+msgid "Translations will now be public."
+msgstr "Les traductions seront désormais publiques."
+
+#: src/cogs/config/config_bot.py:30
+msgid "Translations will now be private."
+msgstr "Les traductions seront désormais privées."
+
+#: src/cogs/game/__init__.py:32
+msgid "game"
+msgstr "jeu"
+
+#: src/cogs/game/__init__.py:33
+msgid "Play some games."
+msgstr "Jouez à des jeux."
+
+#: src/cogs/game/__init__.py:49
+msgid "connect4"
+msgstr "puissance4"
+
+#: src/cogs/game/__init__.py:50
+msgid "Play connect 4"
+msgstr "Jouer au puissance 4"
+
+#: src/cogs/game/__init__.py:57
+msgid "rpc"
+msgstr "rpc"
+
+#: src/cogs/game/__init__.py:58
+msgid "Play rock paper cisors"
+msgstr "Jouer à Pierre Feuille Ciseaux"
+
+#: src/cogs/game/__init__.py:65
+msgid "tictactoe"
+msgstr "morpion"
+
+#: src/cogs/game/__init__.py:66
+msgid "Play tictactoe"
+msgstr "Jouer au morpion"
+
+#: src/cogs/poll/__init__.py:32
+msgid "poll"
+msgstr "sondage"
+
+#: src/cogs/poll/__init__.py:32 src/cogs/poll/__init__.py:110
+#: src/cogs/poll/edit.py:190
+msgid "Create a new poll"
+msgstr "Créer un nouveau sondage"
+
+#: src/cogs/poll/__init__.py:38
+msgid "Edit poll"
+msgstr "Modifier un sondage"
+
+#: src/cogs/poll/__init__.py:40
+msgid "Use this to edit a poll even after creation."
+msgstr "Utilisez ceci pour modifier un sondage même après sa création."
+
+#: src/cogs/poll/__init__.py:73
+msgid "custom_choice"
+msgstr "choix_customisable"
+
+#: src/cogs/poll/__init__.py:74
+msgid "A poll with customizable options."
+msgstr "Un sondage avec des options personnalisables."
+
+#: src/cogs/poll/__init__.py:82
+msgid "yesno"
+msgstr "oui_non"
+
+#: src/cogs/poll/__init__.py:83
+msgid "A simple poll with \"Yes\" and \"No\" as options."
+msgstr "Un simple sondage avec \"Oui\" et \"Non\" comme options."
+
+#: src/cogs/poll/__init__.py:98
+msgid "This message is not a poll."
+msgstr "Ce message n'est pas un sondage."
+
+#: src/cogs/poll/__init__.py:100
+msgid "You can't edit this poll."
+msgstr "Vous ne pouvez pas modifier ce sondage."
+
+#: src/cogs/poll/__init__.py:117 src/cogs/poll/edit.py:196
+msgid "Poll question"
+msgstr "Question du sondage"
+
+#: src/cogs/poll/__init__.py:117 src/cogs/poll/edit.py:197
+msgid "Do you agree this bot is awesome?"
+msgstr "Êtes-vous d'accord que ce bot est génial ?"
+
+#: src/cogs/poll/__init__.py:121 src/cogs/poll/edit.py:204
+msgid "Poll description"
+msgstr "Description du sondage"
+
+#: src/cogs/poll/__init__.py:122 src/cogs/poll/edit.py:206
+msgid "Tell more about your poll here."
+msgstr "Dites-en plus à propos de votre sondage ici."
+
+#: src/cogs/poll/__init__.py:144
+msgid "Choice 1"
+msgstr "Choix 1"
+
+#: src/cogs/poll/__init__.py:145
+msgid "Yes, totally!"
+msgstr "Oui, totalement !"
+
+#: src/cogs/poll/__init__.py:149
+msgid "Choice 2"
+msgstr "Choix 2"
+
+#: src/cogs/poll/__init__.py:150
+msgid "Absolutely!"
+msgstr "Absolument !"
+
+#: src/cogs/poll/display.py:78
+msgid "Poll created by {}"
+msgstr "Sondage créé par {}"
+
+#: src/cogs/poll/display.py:88
+msgid "Poll closed.\n"
+msgstr "Sondage fermé.\n"
+
+#: src/cogs/poll/display.py:90
+msgid "No end date.\n"
+msgstr "Pas de date de fin.\n"
+
+#: src/cogs/poll/display.py:91
+msgid "Poll ends <t:{}:R>\n"
+msgstr "Le sondage se termine <t:{}:R>\n"
+
+#: src/cogs/poll/edit.py:26
+msgid "Select what you want to edit."
+msgstr "Sélectionnez ce que vous voulez modifier."
+
+#: src/cogs/poll/edit.py:60 src/cogs/poll/edit.py:496
+msgid "Reset"
+msgstr "Réinitialiser"
+
+#: src/cogs/poll/edit.py:61
+msgid "Save"
+msgstr "Sauvegarder"
+
+#: src/cogs/poll/edit.py:75
+msgid "The results are {}."
+msgstr "Les résultats sont {}."
+
+#: src/cogs/poll/edit.py:75
+msgid "public"
+msgstr "publique"
+
+#: src/cogs/poll/edit.py:75
+msgid "private"
+msgstr "privé"
+
+#: src/cogs/poll/edit.py:78
+msgid "Users {} change their answer once voted."
+msgstr "Les utilisateurs {} changer leur réponse une fois voté."
+
+#: src/cogs/poll/edit.py:79
+msgid "can"
+msgstr "peuvent"
+
+#: src/cogs/poll/edit.py:79
+msgid "can't"
+msgstr "ne peuvent pas"
+
+#: src/cogs/poll/edit.py:92
+msgid "Reopen poll"
+msgstr "Réouvrir le sondage"
+
+#: src/cogs/poll/edit.py:95
+msgid "Close poll"
+msgstr "Fermer le sondage"
+
+#: src/cogs/poll/edit.py:162
+msgid "The poll has been updated while you were voting."
+msgstr "Le sondage a été mis à jour pendant votre vote."
+
+#: src/cogs/poll/edit.py:186
+msgid "Edit   title and description"
+msgstr "Modifier le titre et la description"
+
+#: src/cogs/poll/edit.py:222
+msgid "Edit ending time"
+msgstr "Modifier l'heure de fin"
+
+#: src/cogs/poll/edit.py:223
+msgid "Set a poll duration, it will be closed automatically."
+msgstr "Définissez la durée du sondage, il sera fermé automatiquement."
+
+#: src/cogs/poll/edit.py:230
+msgid "Select the number of days."
+msgstr "Saisissez le nombre de jours."
+
+#: src/cogs/poll/edit.py:231
+msgid "Select the number of hours."
+msgstr "Sélectionnez le nombre d'heures."
+
+#: src/cogs/poll/edit.py:232
+msgid "Select the number of minutes."
+msgstr "Sélectionnez le nombre de minutes."
+
+#: src/cogs/poll/edit.py:234 src/cogs/poll/edit.py:325
+#: src/cogs/poll/edit.py:383 src/cogs/poll/edit.py:424
+#: src/cogs/poll/edit.py:461
+msgid "Back"
+msgstr "Retour"
+
+#: src/cogs/poll/edit.py:236
+msgid "{} day(s)"
+msgstr "{} jour(s)"
+
+#: src/cogs/poll/edit.py:237
+msgid "{} hour(s)"
+msgstr "{} heure(s)"
+
+#: src/cogs/poll/edit.py:239
+msgid "{} minute(s)"
+msgstr "{} minute(s)"
+
+#: src/cogs/poll/edit.py:315
+msgid "Edit choices"
+msgstr "Modifier les choix"
+
+#: src/cogs/poll/edit.py:316
+msgid "Add and removes choices for multiple choices polls."
+msgstr "Ajouter et supprimer des choix pour les sondages à choix multiples."
+
+#: src/cogs/poll/edit.py:323
+msgid "Add a choice"
+msgstr "Ajouter un choix"
+
+#: src/cogs/poll/edit.py:324
+msgid "Remove a choice"
+msgstr "Retirer un choix"
+
+#: src/cogs/poll/edit.py:355
+msgid "Add a new choice"
+msgstr "Ajouter un nouveau choix"
+
+#: src/cogs/poll/edit.py:360
+msgid "Choice"
+msgstr "Choix"
+
+#: src/cogs/poll/edit.py:361
+msgid "Enter a new choice here."
+msgstr "Saisissez un nouveau choix ici."
+
+#: src/cogs/poll/edit.py:385
+msgid "Select the choices you want to remove."
+msgstr "Sélectionnez les choix que vous souhaitez retirer."
+
+#: src/cogs/poll/edit.py:415
+msgid "Edit max choices"
+msgstr "Modifier le maximum de choix"
+
+#: src/cogs/poll/edit.py:416
+msgid "Set the maximum of simultaneous values users can choose."
+msgstr "Définissez le maximum de valeurs simultanées que les utilisateurs peuvent choisir."
+
+#: src/cogs/poll/edit.py:426
+msgid "Select the maximum number of choices."
+msgstr "Sélectionnez le nombre maximum de choix."
+
+#: src/cogs/poll/edit.py:452
+msgid "Edit allowed roles"
+msgstr "Modifier les rôles autorisés"
+
+#: src/cogs/poll/edit.py:453
+msgid "Only users with one of these role can vote."
+msgstr "Uniquement les utilisateurs ayant un de ces rôles peuvent voter."
+
+#: src/cogs/poll/edit.py:462
+msgid "Select the roles that can vote."
+msgstr "Sélectionnez les rôles qui peuvent voter."
+
+#: src/cogs/poll/edit.py:503
+msgid "This operation cannot be undone. By clicking on the \"RESET\" button, all the votes will be deleted."
+msgstr "Cette opération ne peut pas être annulée. En cliquant sur le bouton \"RÉINITIALISER\", tous les votes seront supprimés."
+
+#: src/cogs/poll/vote_menus.py:48
+msgid "Vote"
+msgstr "Voter"
+
+#: src/cogs/poll/vote_menus.py:61
+msgid "Sorry, this poll seems not to exist. Please contact an admin."
+msgstr "Désolé, ce sondage ne semble pas exister. Veuillez contacter un administrateur."
+
+#: src/cogs/poll/vote_menus.py:70
+msgid "Sorry, this poll is closed, you can't vote anymore!"
+msgstr "Désolé, ce sondage est fermé, vous ne pouvez plus voter !"
+
+#: src/cogs/poll/vote_menus.py:78
+msgid "Sorry, this poll is over, you can't vote anymore!"
+msgstr "Désolé, ce sondage est terminé, vous ne pouvez plus voter !"
+
+#: src/cogs/poll/vote_menus.py:85
+msgid "Sorry, you need one of the following roles to vote :"
+msgstr "Désolé, vous avez besoin de l'un des rôles suivants pour voter :"
+
+#: src/cogs/poll/vote_menus.py:161
+msgid "Remove vote"
+msgstr "Retirer le vote"
+
+#: src/cogs/poll/vote_menus.py:162
+msgid "Validate"
+msgstr "Valider"
+
+#: src/cogs/poll/vote_menus.py:199 src/cogs/poll/vote_menus.py:255
+msgid "Your vote has been removed."
+msgstr "Votre vote a été retiré."
+
+#: src/cogs/poll/vote_menus.py:219 src/cogs/poll/vote_menus.py:247
+msgid "Your vote has been taken into account!"
+msgstr "Votre vote a été pris en compte !"
+
+#: src/cogs/poll/vote_menus.py:226
+msgid "Yes"
+msgstr "Oui"
+
+#: src/cogs/poll/vote_menus.py:227
+msgid "No"
+msgstr "Non"
+
+#: src/cogs/translate/__init__.py:161
+msgid "Translate"
+msgstr "Traduire"
+
+#: src/cogs/translate/__init__.py:165
+msgid "Translate a message based on your discord settings."
+msgstr "Traduire un message en fonction de vos paramètres de Discord."
+
+#: src/cogs/translate/__init__.py:177
+msgid "translate"
+msgstr "traduire"
+
+#: src/cogs/translate/__init__.py:178
+msgid "Translate text in a selection of languages."
+msgstr "Traduire le texte dans une sélection de langues."
+
+#: src/cogs/translate/__init__.py:185
+msgid "The language you provided is not supported."
+msgstr "La langue que vous avez fournie n'est pas prise en charge."
+
+#: src/cogs/translate/__init__.py:228
+msgid "Translate text in the language corresponding on the flag you add."
+msgstr "Traduire le texte dans la langue correspondant au drapeau que vous ajoutez."
+
+#: src/cogs/translate/__init__.py:250
+msgid "The language you asked for is not supported."
+msgstr "La langue demandée n'est pas prise en charge."
+
+#: src/cogs/translate/__init__.py:281
+msgid "Your locale is not supported."
+msgstr "Votre langue n'est pas prise en charge."
+
+#: src/cogs/translate/__init__.py:308
+msgid "Vote for the bot"
+msgstr "Votez pour le bot"
+
+#: src/cogs/translate/__init__.py:315
+msgid "You have reached the maximum number of translations per day. Vote for the bot to remove this limit !"
+msgstr "Vous avez atteint le nombre maximum de traduction par jour. Votez pour le bot pour retirer cette limite !"
+
+#: src/cogs/translate/__init__.py:355
+msgid "Translate from {from_} to {to}"
+msgstr "Traduire depuis {from_} vers {to}"
+
+#: src/core/error_handler.py:36
 msgid "Support server"
 msgstr "Serveur support"
 
-#: src/core/custom_command_tree.py:69
-#, python-brace-format
+#: src/core/error_handler.py:53
 msgid "This command is already executed the max amount of times. (Max: {error.rate})"
 msgstr "Cette commande est déjà exécutée le nombre maximal de fois. (Max : {error.rate})"
 
-#: src/core/custom_command_tree.py:72
-#, python-brace-format
+#: src/core/error_handler.py:56
 msgid "An unhandled error happened.\n"
 "{error}"
 msgstr "Une erreur non gérée s'est produite.\n"
