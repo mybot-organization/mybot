@@ -384,7 +384,7 @@ class RemoveChoices(Menu["MyBot"]):
         self.cancel.label = _("Cancel")
         self.choices_to_remove.placeholder = _("Select the choices you want to remove.")
         for choice, i in self.linked_choice.items():
-            self.choices_to_remove.add_option(label=choice.label, value=str(i), emoji=LEGEND_EMOJIS[i])
+            self.choices_to_remove.add_option(label=choice.label[:99] + "…", value=str(i), emoji=LEGEND_EMOJIS[i])
         self.choices_to_remove.max_values = len(self.old_value) - 2
         self.choices_to_remove.min_values = 0
         return self

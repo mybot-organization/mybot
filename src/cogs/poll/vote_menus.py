@@ -53,7 +53,16 @@ class PollPublicMenu(Menu["MyBot"]):
         message_id: int = inter.message.id  # type: ignore (interaction is a button, so it has a message)
         async with self.bot.async_session.begin() as session:
             stmt = db.select(db.Poll).where(db.Poll.message_id == message_id).options(selectinload(db.Poll.choices))
-            poll = (await session.execute(stmt)).scalar_one()
+            poll = (await session.execute(stmt)).scalar_one_or_none()
+
+            if poll is None:
+                await inter.response.send_message(
+                    **response_constructor(
+                        ResponseType.error, _("Sorry, this poll seems not to exist. Please contact an admin.")
+                    ),
+                    ephemeral=True,
+                )
+                return
 
             if poll.closed:
                 await inter.response.send_message(
