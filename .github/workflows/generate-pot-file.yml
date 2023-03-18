@@ -3,8 +3,8 @@ name: Generate po template file
 on:
   push:
     branches: [dev]
-    paths:
-      - "**.py"
+    # paths:
+    #   - "**.py"
 
 jobs:
   build:
@@ -22,7 +22,10 @@ jobs:
           sudo apt-get install gettext
 
       - name: Execute xgettext
-        run: xgettext -d mybot -p ./data/locale -o mybot.pot -L python -k__ --from-code UTF-8 ./src/**/*.py
+        run: |
+          ls
+          ls ./src/cogs
+          xgettext -d mybot -p ./data/locale -o mybot.pot -L python -k__ --from-code UTF-8 ./src/**/*.py
 
       - uses: EndBug/add-and-commit@v9
         with:
