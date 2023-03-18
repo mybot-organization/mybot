@@ -183,8 +183,8 @@ class EditSubmenu(Menu["MyBot"]):
 
 
 class EditTitleAndDescription(EditSubmenu, ui.Modal):
-    select_name = _("Edit title and description", _locale=None)
-    select_description = _("", _locale=None)
+    select_name = _("Edit   title and description", _locale=None)
+    select_description = ""
 
     def __init__(self, parent: EditPoll):
         self.title = _("Create a new poll")

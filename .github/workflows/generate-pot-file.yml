@@ -1,4 +1,4 @@
-name: Generate po template file
+name: Generate pot file
 
 on:
   push:
@@ -16,16 +16,15 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           ref: ${{ github.ref }}
 
-      - name: install xgettext
-        run: |
-          sudo apt-get update
-          sudo apt-get install gettext
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: pip
 
-      - name: Execute xgettext
+      - name: babel extract (pot file generation)
         run: |
-          ls
-          ls ./src/cogs
-          xgettext -d mybot -p ./data/locale -o mybot.pot -L python -k__ --from-code UTF-8 ./src/**/*.py
+          pip install babel
+          sh ./bin/pot-generation.sh
 
       - uses: EndBug/add-and-commit@v9
         with:
