@@ -2,7 +2,7 @@ name: Generate pot file
 
 on:
   push:
-    branches: [feat/fix-pot-file-generation]
+    branches: [dev]
     paths:
       - "**.py"
 
@@ -19,11 +19,11 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+          cache: pip
 
       - name: babel extract (pot file generation)
         run: |
           pip install babel
-          ls
           sh ./bin/pot-generation.sh
 
       - uses: EndBug/add-and-commit@v9
