@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -15,7 +16,7 @@ from core.checkers import is_activated, is_user_authorized, misc_check, misc_cmd
 from core.errors import BadArgument, BaseError
 from core.i18n import _
 
-from .translator import Language, batch_translate, detect
+from .languages import Language
 
 if TYPE_CHECKING:
     from discord import Interaction, RawReactionActionEvent
@@ -23,11 +24,8 @@ if TYPE_CHECKING:
 
     from mybot import MyBot
 
-    from ._types import BatchTranslatorFunction, DetectorFunction, LanguageProtocol, PreSendStrategy, SendStrategy
-
-    Language: LanguageProtocol
-    detect: DetectorFunction
-    batch_translate: BatchTranslatorFunction
+    from ._types import PreSendStrategy, SendStrategy
+    from .translator_abc import TranslatorAdapter
 
 
 logger = logging.getLogger(__name__)
@@ -94,9 +92,9 @@ class EmbedTranslation:
         if "fields" in self.dict_embed:
             for i, field in enumerate(self.dict_embed["fields"]):
                 pointers.append(f"fields.{i}.name")
-                pointers.append(field["name"])
+                values.append(field["name"])
                 pointers.append(f"fields.{i}.value")
-                pointers.append(field["value"])
+                values.append(field["value"])
         if "author" in self.dict_embed:
             if "name" in self.dict_embed["author"]:
                 pointers.append("author.name")
@@ -153,6 +151,11 @@ class Translate(SpecialCog["MyBot"]):
         self.cache: TemporaryCache[str, TranslationTask] = TemporaryCache(expire=timedelta(days=1), max_size=10_000)
         self.tmp_user_usage = TempUsage()
 
+        self.translators: list[TranslatorAdapter] = []
+        for adapter in self.bot.config.TRANSLATOR_SERVICES.split(","):
+            adapter_module = importlib.import_module(f".adapters.{adapter}", __name__)
+            self.translators.append(adapter_module.get_translator()())
+
         self.bot.tree.add_command(
             app_commands.ContextMenu(
                 name=__("Translate"),
@@ -176,12 +179,13 @@ class Translate(SpecialCog["MyBot"]):
         extras={"beta": True},
     )
     async def translate_slash(self, inter: Interaction, to: str, text: str, from_: str | None = None) -> None:
-        to_language = Language.from_code(to, None)
+        available_languages = await self.translators[0].available_languages()
+        to_language = available_languages.from_code(to)
         if to_language is None:
             raise BadArgument(_("The language you provided is not supported."))
 
         if from_ is not None:
-            from_language = Language.from_code(from_, None)
+            from_language = available_languages.from_code(from_)
             if from_language is None:
                 raise BadArgument(_(f"The language you provided under the argument `from_` is not supported : {from_}"))
         else:
@@ -203,17 +207,20 @@ class Translate(SpecialCog["MyBot"]):
     @translate_slash.autocomplete("to")
     @translate_slash.autocomplete("from_")
     async def translate_slash_autocomplete_to(self, inter: Interaction, current: str) -> list[app_commands.Choice[str]]:
+        available_languages = await self.translators[0].available_languages()
+
         return [
-            app_commands.Choice(name=lang.name, value=lang.code)
-            for lang in Language.available_languages()
-            if lang.code.startswith(current)
+            app_commands.Choice(name=lang.name, value=lang.lang_code)
+            for lang in available_languages
+            if lang.name.startswith(current)
         ][:25]
 
     async def translate_misc_condition(self, payload: RawReactionActionEvent) -> bool:
+        available_languages = await self.translators[0].available_languages()
         return (
             payload.emoji.is_unicode_emoji()
             and payload.emoji.name in EVERY_FLAGS
-            and Language.from_emote(payload.emoji.name, None) is not None
+            and available_languages.from_emote(payload.emoji.name) is not None
         )
 
     @misc_command(
@@ -237,6 +244,11 @@ class Translate(SpecialCog["MyBot"]):
         if TYPE_CHECKING:
             channel = cast(MessageableChannel, channel)
 
+        available_languages = await self.translators[0].available_languages()
+        language = available_languages.from_emote(payload.emoji.name)
+        if language is None:
+            raise ValueError(_("The language you asked for is not supported."))
+
         message = await channel.fetch_message(payload.message_id)
 
         async def public_pre_strategy():
@@ -255,7 +267,7 @@ class Translate(SpecialCog["MyBot"]):
             TranslationTask(
                 content=message.content or None, tr_embeds=[EmbedTranslation(embed) for embed in message.embeds[:4]]
             ),
-            Language.from_emote(payload.emoji.name),
+            language,
             None,
             send_strategies=strategies,
             message_reference=message,
@@ -263,7 +275,8 @@ class Translate(SpecialCog["MyBot"]):
 
     # command definition is in Translate.__init__ because of dpy limitation!
     async def translate_message_ctx(self, inter: Interaction, message: Message) -> None:
-        to_language = Language.from_discord_locale(inter.locale)
+        available_languages = await self.translators[0].available_languages()
+        to_language = available_languages.from_locale(inter.locale)
         if not to_language:
             raise BaseError(_("Your locale is not supported."))
 
@@ -313,32 +326,38 @@ class Translate(SpecialCog["MyBot"]):
         self,
         user_id: int,
         translation_task: TranslationTask,
-        to: LanguageProtocol,
-        from_: LanguageProtocol | None,
+        to: Language,
+        from_: Language | None,
         send_strategies: Strategies,
         message_reference: Message | None = None,
     ):
+        translator = self.translators[0]
         if not await self.check_user_quotas(user_id, send_strategies.send):
             return
         self.tmp_user_usage.add_usage(user_id)
         await send_strategies.pre()
 
         if from_ is None:
-            from_ = await detect(translation_task.values[0])
+            from_ = await translator.detect(translation_task.values[0])
 
         use_cache = message_reference is not None  # we cache because we can retrieve.
-        if use_cache and (cached := self.cache.get(f"{message_reference.id}:{to.code}")):
+        if use_cache and (cached := self.cache.get(f"{message_reference.id}:{to.lang_code}")):
             translation_task = cached
         else:
-            translated_values = await batch_translate(translation_task.values, to, from_)
+            translated_values = await translator.batch_translate(translation_task.values, to, from_)
             translation_task.inject_translations(translated_values)
 
             if use_cache:
-                self.cache[f"{message_reference.id}:{to.code}"] = translation_task
+                self.cache[f"{message_reference.id}:{to.lang_code}"] = translation_task
 
         head = response_constructor(
             ResponseType.success,
-            _("Translate from {from_} to {to}", from_=from_.name if from_ else "auto", to=to.name, _locale=to.locale),
+            _(
+                "Translate from {from_} to {to}",
+                from_=from_.name if from_ else "auto",
+                to=to.name,
+                _locale=to.discord_locale,
+            ),
             author_url=message_reference.jump_url if message_reference else None,
         ).embed
         head.description = translation_task.content
