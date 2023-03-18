@@ -1,4 +1,5 @@
 data/database
+config.toml
 
 # editors
 .vscode/

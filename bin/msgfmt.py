@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 # Written by Martin v. Löwis <loewis@informatik.hu-berlin.de>
+# type: ignore 
 
 """Generate binary message catalog from textual translation description.
 This program converts a textual Uniforum-style message catalog (.po file) into

@@ -3,6 +3,5 @@ bandit
 toml
 tox
 pyright
-sqlalchemy[mypy]
 isort
 pytest

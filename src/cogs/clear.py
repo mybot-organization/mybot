@@ -15,16 +15,16 @@ from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import get
 from typing_extensions import Self
 
-from utils import ResponseType, response_constructor
-from utils.checks import MaxConcurrency
-from utils.errors import BaseError, MaxConcurrencyReached
-from utils.i18n import _
+from core import ResponseType, response_constructor
+from core.checkers import MaxConcurrency
+from core.errors import BaseError, MaxConcurrencyReached
+from core.i18n import _
 
 if TYPE_CHECKING:
     from discord import TextChannel, Thread, VoiceChannel
 
+    from core._types import Snowflake
     from mybot import MyBot
-    from utils._types import Snowflake
 
     PurgeableChannel = TextChannel | VoiceChannel | Thread
 
@@ -73,7 +73,10 @@ class Clear(Cog):
     def ChannelBucket(inter: discord.Interaction):
         return inter.channel_id
 
-    @app_commands.command()
+    @app_commands.command(
+        description=__("Delete multiple messages with some filters."),
+        extras={"beta": True},
+    )
     @app_commands.default_permissions(manage_messages=True)
     @app_commands.guild_only()
     @app_commands.choices(

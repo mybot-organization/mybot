@@ -1,5 +1,10 @@
 wheel
-asyncpg
-sqlalchemy[asyncio]
-typing_extensions
-git+https://github.com/Rapptz/discord.py@master
+asyncpg==0.27.0
+sqlalchemy[asyncio]==2.0.4
+typing_extensions==4.4.0
+discord.py==2.2.2
+click==8.1.3
+psutil==5.9.4
+alembic==1.9.2
+topggpy==2.0.0a0
+lingua-language-detector==1.3.2

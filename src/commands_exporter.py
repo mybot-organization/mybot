@@ -2,77 +2,198 @@ from __future__ import annotations
 
 import asyncio
 import json
-from typing import Literal, TypedDict
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import TYPE_CHECKING, Any, TypedDict, cast, overload
 
+import discord
 from discord import app_commands
+from typing_extensions import NotRequired
 
-from mybot import MyBot
+from core._config import define_config
+from core.misc_command import MiscCommand, MiscCommandsType
+
+if TYPE_CHECKING:
+    from mybot import MyBot
 
 
-class Features(TypedDict):
-    slash_commands: list[SlashCommand]
-    context_commands: list[ContextCommand]
+FeatureCodebaseTypes = (
+    app_commands.Command[Any, ..., Any] | app_commands.Group | app_commands.ContextMenu | MiscCommand[Any, ..., Any]
+)
 
 
-class Command(TypedDict):
+class FeatureType(Enum):
+    chat_input = "chat_input"
+    context_user = "context_user"
+    context_message = "context_message"
+    misc = "misc"
+
+
+@dataclass(kw_only=True)
+class Feature:
+    type: FeatureType
     name: str
     guild_only: bool
     nsfw: bool
     default_permissions: int | None
-
-
-class SlashCommand(Command):
+    beta: bool
+    soon: bool
     description: str
+
+
+@dataclass(kw_only=True)
+class SlashCommand(Feature):
+    type: FeatureType = FeatureType.chat_input
     parameters: list[SlashCommandParameter]
+    sub_commands: list[SlashCommand] = field(default_factory=list)
+    parent: SlashCommand | None = None
 
 
-class SlashCommandParameter(TypedDict):
+@dataclass()
+class SlashCommandParameter:
     name: str
     description: str
     required: bool
     type: int
 
 
-class ContextCommand(Command):
-    type: Literal["user", "message"]
+@dataclass(kw_only=True)
+class ContextCommand(Feature):
+    pass
 
 
-async def features_to_dict() -> Features:
-    mybot = MyBot()
-    features = Features(slash_commands=[], context_commands=[])
+@dataclass(kw_only=True)
+class Misc(Feature):
+    type: FeatureType = FeatureType.misc
+    misc_type: MiscCommandsType
 
-    await mybot.load_extensions()
 
-    for app_command in mybot.tree.get_commands():
-        if type(app_command) is app_commands.Command:
-            slash_command = SlashCommand(
-                name=app_command.name,
-                guild_only=app_command.guild_only,
-                nsfw=app_command.nsfw,
-                default_permissions=app_command.default_permissions.value if app_command.default_permissions else None,
-                description=app_command.description,
+class Extras(TypedDict):
+    beta: NotRequired[bool]
+    description: NotRequired[str]  # if ContextMenu
+    bot_required_permissions: NotRequired[list[str]]
+
+
+@overload
+def fill_features(
+    child: app_commands.Group | app_commands.Command[Any, ..., Any],
+    features: list[SlashCommand],
+    parent: SlashCommand,
+) -> None:
+    ...
+
+
+@overload
+def fill_features(child: FeatureCodebaseTypes, features: list[Feature], parent: SlashCommand | None = None) -> None:
+    ...
+
+
+def fill_features(
+    child: FeatureCodebaseTypes, features: list[Feature] | list[SlashCommand], parent: SlashCommand | None = None
+) -> None:
+    extras = cast(Extras, child.extras)
+
+    def shared_kwargs(child: FeatureCodebaseTypes) -> dict[str, Any]:
+        return {
+            "name": child.name,
+            "guild_only": child.guild_only,
+            "nsfw": child.nsfw,
+            "beta": extras.get("beta", False),
+            "soon": extras.get("soon", False),
+        }
+
+    match child:
+        case app_commands.Command():
+            feature = SlashCommand(
+                **shared_kwargs(child),
+                default_permissions=child.default_permissions.value if child.default_permissions else None,
+                description=child.description,
                 parameters=[],
+                parent=parent,
             )
 
-            for parameter in app_command.parameters:
+            for parameter in child.parameters:
                 parameter_payload = SlashCommandParameter(
                     name=parameter.name,
                     description=parameter.description,
                     type=parameter.type.value,
                     required=parameter.required,
                 )
-                slash_command["parameters"].append(parameter_payload)
+                feature.parameters.append(parameter_payload)
+        case app_commands.Group():
+            feature = SlashCommand(
+                **shared_kwargs(child),
+                default_permissions=child.default_permissions.value if child.default_permissions else None,
+                description=child.description,
+                parameters=[],
+                sub_commands=[],
+                parent=parent,
+            )
+            for sub_command in child.commands:
+                fill_features(sub_command, feature.sub_commands, feature)
+        case app_commands.ContextMenu():
+            equiv = {
+                discord.AppCommandType.user: FeatureType.context_user,
+                discord.AppCommandType.message: FeatureType.context_message,
+            }
+            feature = ContextCommand(
+                type=equiv[child.type],
+                name=child.name,
+                guild_only=child.guild_only,
+                nsfw=child.nsfw,
+                default_permissions=child.default_permissions.value if child.default_permissions else None,
+                description=extras.get("description", ""),
+                beta=extras.get("beta", False),
+                soon=extras.get("soon", False),
+            )
+        case MiscCommand():
+            feature = Misc(
+                name=child.name,
+                description=child.description,
+                guild_only=child.guild_only,
+                default_permissions=child.default_permissions,
+                beta=child.extras.get("beta", False),
+                soon=child.extras.get("soon", False),
+                nsfw=child.nsfw,
+                misc_type=child.type,
+            )
 
-            features["slash_commands"].append(slash_command)
+    features.append(feature)  # type: ignore
+
+
+def extract_features(mybot: MyBot) -> list[Feature]:
+    features: list[Feature] = []
+
+    for app_command in mybot.tree.get_commands():
+        fill_features(app_command, features)
+
+    for misc_cmd in mybot.misc_commands():
+        fill_features(misc_cmd, features)
 
     return features
 
 
-async def export(filename: str = "features.json") -> None:
-    features: Features = await features_to_dict()
+async def export(mybot: MyBot, filename: str = "features.json") -> None:
+    features: list[Feature] = extract_features(mybot)
+
+    # TODO : fix features export to json.
+
     with open(filename, "w") as file:
         json.dump(features, file, indent=4)
 
 
+async def main():
+    mybot = MyBot(False)
+    await mybot.load_extensions()
+
+    print(extract_features(mybot))
+
+    # await export(mybot)
+
+
 if __name__ == "__main__":
-    asyncio.run(export())
+    from mybot import MyBot
+
+    define_config(EXPORT_MODE=True)
+
+    asyncio.run(main())
