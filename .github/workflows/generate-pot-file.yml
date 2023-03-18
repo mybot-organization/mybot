@@ -23,6 +23,7 @@ jobs:
       - name: babel extract (pot file generation)
         run: |
           pip install babel
+          ls
           sh ./bin/generate-pot-file.yml
 
       - uses: EndBug/add-and-commit@v9
