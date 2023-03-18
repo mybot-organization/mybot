@@ -3,8 +3,8 @@ name: Generate po template file
 on:
   push:
     branches: [dev]
-    # paths:
-    #   - "**.py"
+    paths:
+      - "**.py"
 
 jobs:
   build:
