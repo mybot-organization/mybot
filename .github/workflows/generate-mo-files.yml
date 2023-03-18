@@ -2,7 +2,7 @@ name: Generate MO from PO files
 
 on:
   push:
-    branches: [ auto/crowdin ]
+    branches: [auto/crowdin]
 
 jobs:
   build:
@@ -10,14 +10,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.10' 
+          python-version: "3.11"
 
       - name: Run a one-line script
-        run: python ./bin/msgfmt.py ./data/locale/**/LC_MESSAGES/*.po
-        
+        run: sh ./bin/po-to-mo.sh
+
       - uses: EndBug/add-and-commit@v9
         with:
-          message: 'MO files generated.'
-          
+          message: "MO files generated."
