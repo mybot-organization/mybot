@@ -1,2 +1,8 @@
 #!/usr/bin/env bash
-xgettext -d mybot -p ./data/locale -o mybot.pot -L python -k__ ./src/**/*.py
+pybabel extract \
+    --msgid-bugs-address="contact@mybot-discord.com" \
+    --project="MyBot" \
+    --version="1.0" \
+    -k "_ __" \
+    -o ./data/locale/mybot.pot \
+    ./src/
