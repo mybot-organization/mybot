@@ -24,7 +24,7 @@ jobs:
         run: |
           pip install babel
           ls
-          sh ./bin/generate-pot-file.yml
+          sh ./bin/pot-generation.sh
 
       - uses: EndBug/add-and-commit@v9
         with:
