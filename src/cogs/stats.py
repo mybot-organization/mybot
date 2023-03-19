@@ -38,7 +38,7 @@ class Stats(Cog):  # TODO: add checkers
 
     @app_commands.command(
         name=__("stats"),
-        description=__("Get somes stats about the bot."),
+        description=__("Get some stats about the bot."),
         extras={"soon": True},
     )
     async def stats(self, inter: Interaction) -> None:

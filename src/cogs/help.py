@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 friendly_commands_types = {
-    FeatureType.CHAT_INPUT: _("slash command", _locale=None),  # Allow xgettext to retrieve this strings
+    FeatureType.CHAT_INPUT: _("slash command", _locale=None),
     FeatureType.CONTEXT_MESSAGE: _("message context", _locale=None),
     FeatureType.CONTEXT_USER: _("user context", _locale=None),
     FeatureType.MISC: _("miscellaneous", _locale=None),

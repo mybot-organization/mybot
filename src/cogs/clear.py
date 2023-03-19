@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from core._types import Snowflake
     from mybot import MyBot
 
-    PurgeableChannel = TextChannel | VoiceChannel | Thread
+    AllowPurgeChannel = TextChannel | VoiceChannel | Thread
 
 
 logger = logging.getLogger(__name__)
@@ -147,7 +147,7 @@ class Clear(Cog):
 
         # Because of @guild_only, we can assume that the channel is a guild channel
         # Also, the channel should not be able to be a ForumChannel or StageChannel or CategoryChannel
-        channel = cast("PurgeableChannel", inter.channel)
+        channel = cast("AllowPurgeChannel", inter.channel)
 
         if not 0 < amount < 251:
             raise ValueError(_("You must supply a number between 1 and 250. (0 < {amount} < 251)", amount=amount))
@@ -240,7 +240,7 @@ class Clear(Cog):
 
     async def _clear(
         self,
-        channel: PurgeableChannel,
+        channel: AllowPurgeChannel,
         amount: int,
         deleted_messages: list[discord.Message],
         filters: ClearFilters,
@@ -284,7 +284,7 @@ class Clear(Cog):
 
     @staticmethod
     async def filtered_history(
-        channel: PurgeableChannel, amount: int, filters: ClearFilters
+        channel: AllowPurgeChannel, amount: int, filters: ClearFilters
     ) -> AsyncGenerator[discord.Message, None]:
         guild = channel.guild
 

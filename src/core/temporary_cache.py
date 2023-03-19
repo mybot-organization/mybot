@@ -48,7 +48,7 @@ class TemporaryCache(Mapping[_K, _V]):
         """Iterate over the keys of the cache. Works like dict.__iter__. (Is literally dict.__iter__)
 
         Returns:
-            Iteraror[_K]: An instencied iterator that iter over the keys.
+            Iteraror[_K]: An instanced iterator that iter over the keys.
         """
         return iter(self._cache)
 

@@ -184,8 +184,8 @@ class MyBot(AutoShardedBot):
             name="🇫🇷 Salut, moi c'est Toby !",
             value=(
                 "Saches que dorénavant, MyBot fonctionne uniquement avec des **slash commands**. C'est le petit menu "
-                "qui apparait quand on faire `/` dans un salon.\n"
-                "Si tu ne vois pas les commandes de MyBot apparaitre, essayes de réinviter le bot avec ce lien"
+                "qui apparaît quand on faire `/` dans un salon.\n"
+                "Si tu ne vois pas les commandes de MyBot apparaître, essayes de réinviter le bot avec ce lien"
                 " ci-dessous !\n"
                 "Si tu rencontres un problème, n'hésite pas à rejoindre le serveur de support.\n\n"
             ),
