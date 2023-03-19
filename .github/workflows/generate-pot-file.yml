@@ -14,7 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          ref: master
+          path: master/
 
       - uses: actions/setup-python@v4
         with:
@@ -23,11 +24,25 @@ jobs:
 
       - name: babel extract (pot file generation)
         run: |
+          cd master
           pip install babel
           sh ./bin/pot-generation.sh
-          git checkout auto/translations-source
 
-      - uses: EndBug/add-and-commit@v9
+      - uses: actions/checkout@v3
         with:
-          new_branch: auto/translations-source
-          message: "POT file generated."
+          ref: auto/translations-source
+          path: translations/
+
+      - name: setup git
+        run: |
+          cd translations
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+
+      - name: commit
+        run: |
+          mv -f master/data/locale/mybot.pot translations/data/locale/mybot.pot
+          cd translations
+          git add ./data/locale/mybot.pot
+          git commit -m "POT file generated"
+          git push origin auto/translations-source
