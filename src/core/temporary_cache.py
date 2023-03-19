@@ -13,7 +13,8 @@ _P = ParamSpec("_P")  # Type for Args
 
 
 class TemporaryCache(Mapping[_K, _V]):
-    """Create a temporary cache working like python's dict. Every time the cache is accessed / modified, it will be cleaned.
+    """Create a temporary cache working like python's dict.
+    Every time the cache is accessed / modified, it will be cleaned.
 
     It implements the Mapping ABC, so it can be used like a dict.
     __contains__, keys, items, values, get, setdefault, __eq__, __ne__ are well defined.
@@ -100,7 +101,7 @@ class TemporaryCache(Mapping[_K, _V]):
             value (_V): The value of the item to set.
         """
         cached_value = CachedValue(date=datetime.now() + self._expire, value=value)
-        if self._max_size and self.__len__() >= self._max_size:
+        if self._max_size and len(self) >= self._max_size:
             self._cache.popitem(last=False)
         self._cache[key] = cached_value
 

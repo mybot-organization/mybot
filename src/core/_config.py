@@ -35,16 +35,14 @@ class Config:
 
     def __getattribute__(self, name: str) -> Any:
         if name in super().__getattribute__("__dataclass_fields__").keys():
-            if Config._defined == False:
+            if Config._defined is False:
                 logger.warning("Config accessed but not defined.")
         return super().__getattribute__(name)
 
 
 def define_config(config_path: str | None = None, **kwargs: Any):
-    global config
-
     if config_path:
-        with open(config_path) as f:
+        with open(config_path, mode="r", encoding="utf-8") as f:
             kwargs |= tomllib.load(f.buffer)
 
     config.__init__(**kwargs)

@@ -63,15 +63,15 @@ class ClearFilters(NamedTuple):
     pinned: Pinned
 
 
+def channel_bucket(inter: discord.Interaction):
+    return inter.channel_id
+
+
 class Clear(Cog):
     def __init__(self, bot: MyBot):
         self.bot: MyBot = bot
 
-        self.clear_max_concurrency = MaxConcurrency(1, key=Clear.ChannelBucket, wait=False)
-
-    @staticmethod
-    def ChannelBucket(inter: discord.Interaction):
-        return inter.channel_id
+        self.clear_max_concurrency = MaxConcurrency(1, key=channel_bucket, wait=False)
 
     @app_commands.command(
         description=__("Delete multiple messages with some filters."),
@@ -139,6 +139,7 @@ class Clear(Cog):
         after: str | None = None,
         pinned: Pinned = Pinned.exclude,
     ):
+        del has, length  # unused  # TODO
         await self.clear_max_concurrency.acquire(inter)
 
         if inter.channel is None:
@@ -185,6 +186,7 @@ class Clear(Cog):
 
             @ui.button(label=_("Cancel", _locale=inter.locale), style=discord.ButtonStyle.red)
             async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
+                del inter, button  # unused
                 self.pressed = True
                 self.stop()
 
@@ -206,13 +208,13 @@ class Clear(Cog):
                 tasks,
                 return_when=asyncio.FIRST_COMPLETED,
             )
-        except discord.HTTPException:
-            raise BaseError(f"Could not delete messages in {channel.mention}.")  # TODO: handle this better
-        else:
-            for task in pending:
-                task.cancel()
-            for task in done:
-                task.exception()
+        except discord.HTTPException as e:
+            raise BaseError(f"Could not delete messages in {channel.mention}.") from e
+
+        for task in pending:
+            task.cancel()
+        for task in done:
+            task.exception()
 
         if tasks[0] in done:
             text_response = (

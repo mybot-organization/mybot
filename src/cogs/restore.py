@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 
 from core import SpecialCog, misc_command
 from core.checkers import is_activated, is_user_authorized, misc_check, misc_cmd_bot_required_permissions
-from core.i18n import _
 
 if TYPE_CHECKING:
     from discord import Message

@@ -8,8 +8,6 @@ from discord.app_commands import CommandTree
 
 from core.errors import BotUserNotPresent
 
-from .i18n import _
-
 if TYPE_CHECKING:
     from discord import Interaction
     from discord.app_commands import AppCommandError
@@ -35,6 +33,6 @@ class CustomCommandTree(CommandTree["MyBot"]):
     async def interaction_check(self, inter: Interaction[MyBot], /) -> bool:
         if inter.channel is None:
             return False  # TODO : why ?
-        if not inter.guild and not inter.channel.type is discord.ChannelType.private:
+        if not inter.guild and inter.channel.type is not discord.ChannelType.private:
             raise BotUserNotPresent
         return True

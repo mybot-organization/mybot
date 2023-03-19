@@ -35,8 +35,8 @@ class MutableList(Mutable, list[T]):
             if isinstance(value, list):
                 return MutableList(value)
             return Mutable.coerce(key, value)
-        else:
-            return value
+
+        return value
 
 
 class PollType(enum.Enum):

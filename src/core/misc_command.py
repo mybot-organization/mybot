@@ -84,7 +84,10 @@ class MiscCommand(Generic[CogT, P, T]):
 
     async def do_call(self, cog: CogT, context: UnresolvedContext, *args: P.args, **kwargs: P.kwargs) -> T:
         if self.trigger_condition:
-            if not await discord.utils.maybe_coroutine(self.trigger_condition, cog, context, *args, **kwargs):  # type: ignore
+            trigger_condition = await discord.utils.maybe_coroutine(
+                self.trigger_condition, cog, context, *args, **kwargs  # type: ignore
+            )
+            if not trigger_condition:
                 return  # type: ignore
         resolved_context = await MiscCommandContext.resolve(self.bot, context, self)
         try:
@@ -117,16 +120,18 @@ def misc_command(
     Checkers will be called within the second argument of the function (right after the Cog (self))
 
     Args:
-        name (str): name of the "command"
+        name: name of the "command"
         description (str, optional): Description of the command. Defaults to "...".
-        guild_only (bool, optional): If feature is only on guild or not. DO NOT DO ANY CHECK. Defaults to False.
-        nsfw (bool, optional): If the feature contains NSFW content. DO NOT DO ANY CHECK. Defaults to False.
-        default_permissions (int | None, optional): Default permissions needed to use the feature. DO NOT DO ANY CHECK. Defaults to None.
-        listener_name (LiteralNames | None, optional): If the function has a specific name, set the event name here. Defaults to None.
-        extras (dict[Any, Any] | None, optional): Some extras informations. Defaults to None.
+        guild_only: If feature is only on guild or not. DO NOT DO ANY CHECK. Defaults to False.
+        nsfw: If the feature contains NSFW content. DO NOT DO ANY CHECK. Defaults to False.
+        default_permissions:
+            Default permissions needed to use the feature. DO NOT DO ANY CHECK. Defaults to None.
+        listener_name :
+            If the function has a specific name, set the event name here. Defaults to None.
+        extras: Some extras informations. Defaults to None.
 
     Returns:
-        Callable[..., Any]: A wrapped function, bound with a MiscCommand.
+        A wrapped function, bound with a MiscCommand.
     """
 
     def inner(func: Callback[CogT, UnresolvedContextT, P, T]) -> Callback[CogT, UnresolvedContextT, P, T]:

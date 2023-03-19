@@ -43,7 +43,11 @@ class Translator(app_commands.Translator):
         if context.location is app_commands.TranslationContextLocation.parameter_description:
             if len(new_string) > 100:
                 logger.warning(
-                    f"The translated string is too long: {context.location} for {context.data.name} from {context.data.command.name}\n{new_string}"
+                    "The translated string is too long: %s for %s from %s\n%s",
+                    context.location,
+                    context.data.name,
+                    context.data.command.name,
+                    new_string,
                 )
                 new_string = new_string[:99] + "…"
         return new_string
@@ -63,7 +67,7 @@ def i18n(string: str, /, *args: Any, _locale: Locale | None = MISSING, **kwargs:
             inter = None
 
         if inter is None:
-            logger.warning(f"i18n function cannot retrieve an interaction for this string.\n{string=}")
+            logger.warning("i18n function cannot retrieve an interaction for this string.\nstring=%s", string)
             return string
 
         _locale = inter.locale
