@@ -26,8 +26,11 @@ jobs:
           pip install babel
           sh ./bin/pot-generation.sh
 
+      - uses: actions/checkout@v3
+        with:
+          ref: auto/translations-source
+
       - uses: EndBug/add-and-commit@v9
         with:
           new_branch: auto/translations-source
-          push: "--force --set-upstream"
           message: "POT file generated."
