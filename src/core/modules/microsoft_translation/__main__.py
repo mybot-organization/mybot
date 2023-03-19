@@ -1,11 +1,9 @@
+import asyncio
 from sys import argv
 
 from . import MicrosoftTranslator
 
 TOKEN = argv[1]
-
-
-import asyncio
 
 
 async def main():
