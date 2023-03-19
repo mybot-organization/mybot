@@ -25,10 +25,7 @@ jobs:
         run: |
           pip install babel
           sh ./bin/pot-generation.sh
-
-      - uses: actions/checkout@v3
-        with:
-          ref: auto/translations-source
+          git checkout auto/translations-source
 
       - uses: EndBug/add-and-commit@v9
         with:
