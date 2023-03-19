@@ -31,7 +31,9 @@ jobs:
 
       - name: commit
         run: |
-          git switch -c auto/translations-source
           git add ./data/locale/mybot.pot
+          git stash
+          git switch -c auto/translations-source
+          git stash pop
           git commit -m "POT file generated"
-          git push origin auto/translations-source --force
+          git push origin auto/translations-source
