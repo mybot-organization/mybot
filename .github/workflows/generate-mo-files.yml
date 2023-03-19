@@ -3,6 +3,8 @@ name: Generate MO from PO files
 on:
   push:
     branches: [auto/crowdin]
+    paths:
+      - "**.po"
 
 jobs:
   build:
