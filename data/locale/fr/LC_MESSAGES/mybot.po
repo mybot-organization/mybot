@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
 "POT-Creation-Date: 2023-03-19 19:48+0000\n"
-"PO-Revision-Date: 2023-03-19 19:49\n"
+"PO-Revision-Date: 2023-03-19 22:06\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -242,7 +242,7 @@ msgstr "statistiques"
 
 #: src/cogs/stats.py:41
 msgid "Get some stats about the bot."
-msgstr ""
+msgstr "Obtenir quelques statistiques sur le bot."
 
 #: src/cogs/config/__init__.py:31
 msgid "config"
@@ -314,7 +314,7 @@ msgstr "rpc"
 
 #: src/cogs/game/__init__.py:57
 msgid "Play rock paper scissors"
-msgstr ""
+msgstr "Jouer à Pierre Feuille Ciseaux"
 
 #: src/cogs/game/__init__.py:64
 msgid "tictactoe"
@@ -645,7 +645,7 @@ msgstr "Votez pour le bot"
 
 #: src/cogs/translate/__init__.py:316
 msgid "You have reached the maximum number of translations per day.Vote for the bot to remove this limit !"
-msgstr ""
+msgstr "Vous avez atteint le nombre maximum de traduction par jour. Votez pour le bot pour retirer cette limite !"
 
 #: src/cogs/translate/__init__.py:357
 msgid "Translate from {from_} to {to}"
