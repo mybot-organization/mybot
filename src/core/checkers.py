@@ -10,7 +10,6 @@ import discord
 from discord.app_commands import Command, ContextMenu, check as app_check
 from typing_extensions import Self
 
-from ._types import CoroT
 from .errors import BotMissingPermissions, MaxConcurrencyReached
 from .misc_command import MiscCommandContext, misc_check as misc_check
 
@@ -28,8 +27,8 @@ if TYPE_CHECKING:
 
 
 class _CommandType(Enum):
-    misc = auto()
-    app = auto()
+    MISC = auto()
+    APP = auto()
 
 
 class MaxConcurrency:
@@ -144,14 +143,15 @@ class _Semaphore:
 
 def add_extra(type_: _CommandType, func: T, name: str, value: Any) -> T:
     copy_func = func  # typing behavior
-    if type_ is _CommandType.app:
+    if type_ is _CommandType.APP:
         if isinstance(func, (Command, ContextMenu)):
             func.extras[name] = value
         else:
             logger.critical(
-                "Because we need to add extras, this decorator must be above the command decorator. (Command should already be defined)"
+                "Because we need to add extras, this decorator must be above the command decorator. "
+                "(Command should already be defined)"
             )
-    elif type_ is _CommandType.misc:
+    elif type_ is _CommandType.MISC:
         if hasattr(func, "__listener_as_command__"):
             command: Command[Any, ..., Any] = getattr(func, "__listener_as_command__")
             command.extras[name] = value
@@ -187,14 +187,14 @@ def _bot_required_permissions(type_: _CommandType, **perms: bool) -> Callable[[T
 
     def decorator(func: T) -> T:
         match type_:
-            case _CommandType.app:
+            case _CommandType.APP:
                 add_extra(
                     type_, func, "bot_required_permissions", [perm for perm, value in perms.items() if value is True]
                 )
                 return app_check(bot_required_permissions_predicate(perms))(func)
-            case _CommandType.misc:
+            case _CommandType.MISC:
                 add_extra(
-                    _CommandType.misc,
+                    _CommandType.MISC,
                     func,
                     "bot_required_permissions",
                     [perm for perm, value in perms.items() if value is True],
@@ -208,21 +208,23 @@ def misc_cmd_bot_required_permissions(**perms: bool) -> Callable[[T], T]:
     invalid = set(perms) - set(discord.Permissions.VALID_FLAGS)
     if invalid:
         raise TypeError(f"Invalid permission(s): {', '.join(invalid)}")
-    return _bot_required_permissions(_CommandType.misc, **perms)
+    return _bot_required_permissions(_CommandType.MISC, **perms)
 
 
 def app_command_bot_required_permissions(**perms: bool) -> Callable[[T], T]:
     invalid = set(perms) - set(discord.Permissions.VALID_FLAGS)
     if invalid:
         raise TypeError(f"Invalid permission(s): {', '.join(invalid)}")
-    return _bot_required_permissions(_CommandType.app, **perms)
+    return _bot_required_permissions(_CommandType.APP, **perms)
 
 
 async def is_user_authorized(context: MiscCommandContext) -> bool:
+    del context  # unused
     # TODO: check using the database if the user is authorized
     return True
 
 
 async def is_activated(context: MiscCommandContext) -> bool:
+    del context  # unused
     # TODO: check using the database if the misc command is activated
     return True

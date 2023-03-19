@@ -43,7 +43,11 @@ class Translator(app_commands.Translator):
         if context.location is app_commands.TranslationContextLocation.parameter_description:
             if len(new_string) > 100:
                 logger.warning(
-                    f"The translated string is too long: {context.location} for {context.data.name} from {context.data.command.name}\n{new_string}"
+                    "The translated string is too long: %s for %s from %s\n%s",
+                    context.location,
+                    context.data.name,
+                    context.data.command.name,
+                    new_string,
                 )
                 new_string = new_string[:99] + "…"
         return new_string

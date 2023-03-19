@@ -38,7 +38,7 @@ class PollDisplay:
         embed = discord.Embed(title=poll.title)
 
         votes: dict[str, int] | None
-        if poll.public_results == True:
+        if poll.public_results is True:
             async with bot.async_session.begin() as session:
                 stmt = (
                     db.select(db.PollAnswer.value, func.count())
@@ -100,7 +100,7 @@ class PollDisplay:
             case db.PollType.CHOICE:
 
                 def format_legend_choice(index: int, choice: db.PollChoice) -> str:
-                    if self.poll.public_results == False:
+                    if self.poll.public_results is False:
                         return f"{LEGEND_EMOJIS[index]} {choice.label}"
                     percent = self.calculate_proportion(str(choice.id)) * 100
                     return f"{LEGEND_EMOJIS[index]} `{percent:6.2f}%` {choice.label}"
@@ -109,7 +109,7 @@ class PollDisplay:
             case db.PollType.BOOLEAN:
 
                 def format_legend_boolean(boolean_value: bool) -> str:
-                    if self.poll.public_results == False:
+                    if self.poll.public_results is False:
                         return f"{LEGEND_EMOJIS[BOOLEAN_INDEXES[boolean_value]]} {_('Yes!') if boolean_value else _('No!')}"
                     return f"{LEGEND_EMOJIS[BOOLEAN_INDEXES[boolean_value]]} `{self.calculate_proportion('1' if boolean_value else '0') * 100:6.2f}%` {_('Yes!') if boolean_value else _('No!')}"
 

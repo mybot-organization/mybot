@@ -26,10 +26,10 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 friendly_commands_types = {
-    FeatureType.chat_input: _("slash command", _locale=None),  # Allow xgettext to retrieve this strings
-    FeatureType.context_message: _("message context", _locale=None),
-    FeatureType.context_user: _("user context", _locale=None),
-    FeatureType.misc: _("miscellaneous", _locale=None),
+    FeatureType.CHAT_INPUT: _("slash command", _locale=None),  # Allow xgettext to retrieve this strings
+    FeatureType.CONTEXT_MESSAGE: _("message context", _locale=None),
+    FeatureType.CONTEXT_USER: _("user context", _locale=None),
+    FeatureType.MISC: _("miscellaneous", _locale=None),
 }
 
 
@@ -73,9 +73,9 @@ class Help(Cog):
 
         feature_types_ui = OrderedDict(
             (
-                (FeatureType.chat_input, _("Slash commands")),
-                (FeatureType.context_message, _("Context commands")),
-                (FeatureType.misc, _("Miscellaneous features")),
+                (FeatureType.CHAT_INPUT, _("Slash commands")),
+                (FeatureType.CONTEXT_MESSAGE, _("Context commands")),
+                (FeatureType.MISC, _("Miscellaneous features")),
             )
         )
         description: dict[FeatureType, list[str]] = {key: [] for key in feature_types_ui}
@@ -111,14 +111,14 @@ class Help(Cog):
                         )
                 case ContextCommand():
                     adapters = {
-                        FeatureType.context_message: discord.AppCommandType.message,
-                        FeatureType.context_user: discord.AppCommandType.user,
+                        FeatureType.CONTEXT_MESSAGE: discord.AppCommandType.message,
+                        FeatureType.CONTEXT_USER: discord.AppCommandType.user,
                     }
                     prefix = {
-                        FeatureType.context_message: Emojis.message_context,
+                        FeatureType.CONTEXT_MESSAGE: Emojis.message_context,
                     }
                     app_command = get(self.bot.app_commands, name=feature.name, type=adapters[feature.type])
-                    description[FeatureType.context_message].append(
+                    description[FeatureType.CONTEXT_MESSAGE].append(
                         f"{prefix[feature.type]} `{_(feature.name).lower()}` {set_tags(feature)}\n{_(feature.description)}"
                     )
 

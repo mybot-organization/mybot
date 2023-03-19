@@ -87,12 +87,13 @@ def response_constructor(
 def response_constructor(
     response_type: ResponseType, message: str, embedded: bool = True, author_url: str | None = None
 ) -> MessageDisplay:
+    del embedded  # TODO
     embed = discord.Embed(
         color=_embed_colors[response_type],
     )
 
     if len(message) > 256:
-        logger.warning(f'This error message is too long to be displayed in author field. "{message}"')
+        logger.warning('This error message is too long to be displayed in author field. "%s"', message)
         message = message[:253] + "..."
 
     embed.set_author(name=message, icon_url=_embed_author_icon_urls[response_type], url=author_url)

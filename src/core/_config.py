@@ -41,10 +41,8 @@ class Config:
 
 
 def define_config(config_path: str | None = None, **kwargs: Any):
-    global config
-
     if config_path:
-        with open(config_path) as f:
+        with open(config_path, mode="r", encoding="utf-8") as f:
             kwargs |= tomllib.load(f.buffer)
 
     config.__init__(**kwargs)

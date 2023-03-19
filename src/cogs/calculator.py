@@ -10,13 +10,10 @@ from discord import app_commands
 from discord.app_commands import locale_str as __
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 
-from core.i18n import _
-
 if TYPE_CHECKING:
     from discord import Interaction
 
     from mybot import MyBot
-
 
 logger = logging.getLogger(__name__)
 

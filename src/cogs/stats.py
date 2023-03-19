@@ -9,8 +9,6 @@ from discord.app_commands import locale_str as __
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import get
 
-from core.i18n import _
-
 if TYPE_CHECKING:
     from discord import Interaction
 

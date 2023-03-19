@@ -11,7 +11,7 @@ from discord.ext.commands import AutoShardedBot, errors  # pyright: ignore[repor
 from discord.utils import get
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from commands_exporter import extract_features
+from commands_exporter import Feature, extract_features
 from core import ResponseType, TemporaryCache, config, db, response_constructor
 from core.custom_command_tree import CustomCommandTree
 from core.error_handler import ErrorHandler
@@ -40,6 +40,9 @@ class MyBot(AutoShardedBot):
     topgg: topggpy.DBLClient | None
     topgg_webhook_manager: topggpy.WebhookManager | None
     topgg_current_votes: TemporaryCache[int, bool] = TemporaryCache(60 * 60)  # 1 hour
+    features_infos: list[Feature]
+    db_engine: AsyncEngine
+    async_session: async_sessionmaker[AsyncSession]
 
     def __init__(self, running: bool = True, startup_sync: bool = False) -> None:
         self.startup_sync: bool = startup_sync
@@ -139,7 +142,7 @@ class MyBot(AutoShardedBot):
             logger.critical("Missing environment variable POSTGRES_PASSWORD.")
             sys.exit(1)
 
-        self.db_engine: AsyncEngine = create_async_engine(
+        self.db_engine = create_async_engine(
             f"postgresql+asyncpg://{config.POSTGRES_USER}:{config.POSTGRES_PASSWORD}@database:5432/{config.POSTGRES_DB}"
         )
         self.async_session = async_sessionmaker(self.db_engine, expire_on_commit=False)
@@ -171,7 +174,7 @@ class MyBot(AutoShardedBot):
         # await self.sync_database()
 
     async def on_message(self, message: discord.Message) -> None:
-        # TODO : check scope, check if mentionned not replied
+        # TODO : check scope, check if mentioned not replied
         await self.wait_until_ready()
         if self.user is None:
             return
@@ -267,8 +270,7 @@ class MyBot(AutoShardedBot):
             usr = self.get_user(id) or await self.fetch_user(id)
         except discord.NotFound:
             return None
-        else:
-            return usr
+        return usr
 
     async def getch_channel(self, id: int, /) -> GuildChannel | PrivateChannel | Thread | None:
         """Get a channel, or fetch is if not in cache.
@@ -281,10 +283,9 @@ class MyBot(AutoShardedBot):
         """
         try:
             channel = self.get_channel(id) or await self.fetch_channel(id)
-        except discord.NotFound | discord.Forbidden:
+        except (discord.NotFound, discord.Forbidden):
             return None
-        else:
-            return channel
+        return channel
 
     async def get_guild_db(self, guild_id: int, session: AsyncSession | None = None) -> db.GuildDB:
         """Get a GuildDB object from the database.
@@ -327,6 +328,7 @@ class MyBot(AutoShardedBot):
         return misc_commands
 
     async def on_error(self, event_method: str, /, *args: Any, **kwargs: Any) -> None:
+        del args, kwargs  # unused
         logger.error("An error occurred in %s.", event_method, exc_info=True)
 
     async def on_misc_command_error(
