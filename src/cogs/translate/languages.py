@@ -117,12 +117,12 @@ class LanguagesEnum(Enum):
                              "🇵🇪", "🇵🇷", "🇪🇸", "🇺🇾", "🇻🇪"),
     )
     turkish = Language(
-        name="turk",
+        name="turkish",
         discord_locale=Locale.turkish,
         unicode_flag_emotes=("🇹🇷",)
     )
     vietnamese = Language(
-        name="vietnames",
+        name="vietnamese",
         discord_locale=Locale.vietnamese,
         unicode_flag_emotes=("🇻🇳",)
     )

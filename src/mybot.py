@@ -182,18 +182,19 @@ class MyBot(AutoShardedBot):
             value=(
                 "Saches que dorénavant, MyBot fonctionne uniquement avec des **slash commands**. C'est le petit menu "
                 "qui apparait quand on faire `/` dans un salon.\n"
-                "Si tu ne vois pas les commandes de MyBot apparaitre, essayes de réinviter le bot avec ce lien ci-dessous !\n"
-                f"Si tu rencontres un problème, n'hésite pas à rejoindre le serveur de support.\n\n"
+                "Si tu ne vois pas les commandes de MyBot apparaitre, essayes de réinviter le bot avec ce lien"
+                " ci-dessous !\n"
+                "Si tu rencontres un problème, n'hésite pas à rejoindre le serveur de support.\n\n"
             ),
             inline=False,
         )
         embed.add_field(
             name="🇬🇧 Hi, I'm Toby !",
             value=(
-                "Know that from now on, MyBot only works with **slash commands**. It's the small menu that appears when you "
-                "type `/` in a channel.\n"
+                "Know that from now on, MyBot only works with **slash commands**. It's the small menu that appears "
+                "when  you type `/` in a channel.\n"
                 "If you don't see MyBot's commands appear, try to reinvite the bot with the link below !\n"
-                f"If you encounter a problem, don't hesitate to join the support server.\n\n"
+                "If you encounter a problem, don't hesitate to join the support server.\n\n"
             ),
             inline=False,
         )
@@ -203,7 +204,7 @@ class MyBot(AutoShardedBot):
                 label="Invite link",
                 style=discord.ButtonStyle.url,
                 emoji="🔗",
-                url=f"https://discord.com/api/oauth2/authorize?client_id={config.BOT_ID}&scope=bot%20applications.commands",
+                url=f"https://discord.com/api/oauth2/authorize?client_id={config.BOT_ID}&scope=bot%20applications.commands",  # noqa: E501
             )
         )
         view.add_item(
