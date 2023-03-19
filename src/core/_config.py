@@ -1,7 +1,7 @@
 """
-Config informations should always be retrived from bot.config, this ensure that the config has been overwritten if
+Config informations should always be retrieved from bot.config, this ensure that the config has been overwritten if
 needed. Otherwise, if the config is used before the invocation of main() from main.py, config informations are not set
-correcty.
+correctly.
 A warning should be raised if we try to access config while it is not defined.
 """
 

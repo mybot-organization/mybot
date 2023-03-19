@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-# Subcommands cannot be seperated in multiple files.
+# Subcommands cannot be separated in multiple files.
 # https://github.com/Rapptz/discord.py/discussions/8069
 # So all commands are defined here, and their implementation are in other files.
 
@@ -54,7 +54,7 @@ class Game(
 
     @app_commands.command(
         name=__("rpc"),
-        description=__("Play rock paper cisors"),
+        description=__("Play rock paper scissors"),
         extras={"soon": True},
     )
     async def rpc(self, inter: Interaction) -> None:

@@ -1,5 +1,5 @@
 # TODO: use TemporaryCache
-# TODO: add an easter egg
+# TODO: add an Easter egg
 
 
 from __future__ import annotations
