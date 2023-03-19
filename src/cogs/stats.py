@@ -46,11 +46,6 @@ class Stats(Cog):  # TODO: add checkers
     )
     async def stats(self, inter: Interaction) -> None:
         raise NotImplementedError()
-        embed = response_constructor(ResponseType.info, _("Quelques statistiques sur MyBot")).embed
-        for c_id, v in self.temp_store.items():
-            cmd = cast(AppCommand, get(self.bot.app_commands, id=c_id))
-            embed.add_field(name=cmd.name, value=str(v))
-        await inter.response.send_message(embed=embed)
 
 
 async def setup(bot: MyBot):
