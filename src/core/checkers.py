@@ -189,7 +189,8 @@ def _bot_required_permissions(type_: _CommandType, **perms: bool) -> Callable[[T
         if type_ is _CommandType.app:
             add_extra(type_, func, "bot_required_permissions", [perm for perm, value in perms.items() if value is True])
             return app_check(bot_required_permissions_predicate(perms))(func)
-        elif type_ is _CommandType.misc:
+
+        if type_ is _CommandType.misc:
             add_extra(
                 _CommandType.misc,
                 func,
