@@ -136,7 +136,7 @@ class TempUsage:
 
     def count_usage(self, id: int):
         self.clean()
-        return sum(l.count(id) for l in self.cache.values())
+        return sum(v.count(id) for v in self.cache.values())
 
     def add_usage(self, id: int):
         self.clean()
