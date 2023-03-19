@@ -34,6 +34,4 @@ jobs:
           git switch -c auto/translations-source
           git add ./data/locale/mybot.pot
           git commit -m "POT file generated"
-          git config pull.rebase true
-          git pull origin auto/translations-source
-          git push origin auto/translations-source
+          git push origin auto/translations-source --force
