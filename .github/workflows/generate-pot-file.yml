@@ -28,16 +28,21 @@ jobs:
           pip install babel
           sh ./bin/pot-generation.sh
 
-      - name: setup git
-        run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "<>"
-
       - uses: actions/checkout@v3
         with:
           ref: auto/translations-source
           path: translations/
 
+      - name: setup git
+        run: |
+          cd translations
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+
       - name: commit
         run: |
-          ls
+          mv -f master/data/locale/mybot.pot translations/data/locale/mybot.pot
+          cd translations
+          git add ./data/locale/mybot.pot
+          git commit -m "POT file generated"
+          git push origin auto/translations-source
