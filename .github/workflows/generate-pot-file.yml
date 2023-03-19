@@ -13,6 +13,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: master
+          path: master/
 
       - uses: actions/setup-python@v4
         with:
@@ -21,6 +24,7 @@ jobs:
 
       - name: babel extract (pot file generation)
         run: |
+          ls
           pip install babel
           sh ./bin/pot-generation.sh
 
@@ -29,13 +33,11 @@ jobs:
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
 
+      - uses: actions/checkout@v3
+        with:
+          ref: auto/translations-source
+          path: translations/
+
       - name: commit
         run: |
-          git add ./data/locale/mybot.pot
-          git stash
-          git switch auto/translations-source
-          git pull origin auto/translations-source
-          git stash pop
-          git add ./data/locale/mybot.pot
-          git commit -m "POT file generated"
-          git push origin auto/translations-source
+          ls
