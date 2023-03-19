@@ -24,7 +24,7 @@ jobs:
 
       - name: babel extract (pot file generation)
         run: |
-          ls
+          cd master
           pip install babel
           sh ./bin/pot-generation.sh
 
