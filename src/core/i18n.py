@@ -63,7 +63,7 @@ def i18n(string: str, /, *args: Any, _locale: Locale | None = MISSING, **kwargs:
             inter = None
 
         if inter is None:
-            logger.warning(f"i18n function cannot retrieve an interaction for this string.\n{string=}")
+            logger.warning("i18n function cannot retrieve an interaction for this string.\nstring=%s", string)
             return string
 
         _locale = inter.locale

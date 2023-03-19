@@ -66,7 +66,7 @@ class MyBot(AutoShardedBot):
         intents.reactions = True
         intents.guilds = True
         intents.messages = True
-        logger.debug(f"Intents : {', '.join(flag[0] for flag in intents if flag[1])}")
+        logger.debug("Intents : %s", ", ".join(flag[0] for flag in intents if flag[1]))
 
         super().__init__(
             command_prefix="!",  # Maybe consider use of IntegrationBot instead of AutoShardedBot
@@ -136,7 +136,7 @@ class MyBot(AutoShardedBot):
 
     async def connect_db(self):
         if config.POSTGRES_PASSWORD is None:
-            logger.critical(f"Missing environment variable POSTGRES_PASSWORD.")
+            logger.critical("Missing environment variable POSTGRES_PASSWORD.")
             sys.exit(1)
 
         self.db_engine: AsyncEngine = create_async_engine(
@@ -149,7 +149,7 @@ class MyBot(AutoShardedBot):
             try:
                 await self.tree.sync(guild=discord.Object(guild_id))
             except discord.Forbidden as e:
-                logger.error(f"Failed to sync guild {guild_id}.", exc_info=e)
+                logger.error("Failed to sync guild %s.", guild_id, exc_info=e)
         self.app_commands = await self.tree.sync()
 
     async def on_ready(self) -> None:
@@ -165,8 +165,8 @@ class MyBot(AutoShardedBot):
         self.support = tmp
         await self.support_invite  # load the invite
 
-        logger.info(f"Logged in as : {bot_user.name}")
-        logger.info(f"ID : {bot_user.id}")
+        logger.info("Logged in as : %s", bot_user.name)
+        logger.info("ID : %d", bot_user.id)
 
         # await self.sync_database()
 
@@ -249,9 +249,9 @@ class MyBot(AutoShardedBot):
             try:
                 await self.load_extension(ext)
             except errors.ExtensionError as e:
-                logger.error(f"Failed to load extension {ext}.", exc_info=e)
+                logger.error("Failed to load extension %s.", ext, exc_info=e)
             else:
-                logger.info(f"Extension {ext} loaded successfully.")
+                logger.info("Extension %s loaded successfully.", ext)
 
     async def getch_user(self, id: int, /) -> User | None:
         """Get a user, or fetch it if not in cache.
@@ -326,7 +326,7 @@ class MyBot(AutoShardedBot):
         return misc_commands
 
     async def on_error(self, event_method: str, /, *args: Any, **kwargs: Any) -> None:
-        logger.error(f"An error occurred in {event_method}.", exc_info=True)
+        logger.error("An error occurred in %s.", event_method, exc_info=True)
 
     async def on_misc_command_error(
         self,

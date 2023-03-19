@@ -98,7 +98,7 @@ class Help(Cog):
                 case SlashCommand():
                     app_command = get(self.bot.app_commands, name=feature.name, type=discord.AppCommandType.chat_input)
                     if app_command is None:
-                        logger.warning(f"Feature {feature.name} didn't get its app_command for some reason.")
+                        logger.warning("Feature %s didn't get its app_command for some reason.", feature.name)
                         continue
                     if not feature.sub_commands:
                         description[feature.type].insert(

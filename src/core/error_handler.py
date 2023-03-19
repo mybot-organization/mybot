@@ -55,7 +55,7 @@ class ErrorHandler:
             case _:
                 await self.send_error(inter, _("An unhandled error happened.\n{error}", error=error))
 
-        logger.error(f"An unhandled error happened : {error} ({type(error)})")
+        logger.error("An unhandled error happened : %s (%s)", error, type(error))
 
     async def handle_misc_command_error(self, context: MiscCommandContext, error: MiscCommandException) -> None:
-        logger.debug(f"An error happened : {error} ({type(error)})")
+        logger.debug("An unhandled error happened.\n%s", error)
