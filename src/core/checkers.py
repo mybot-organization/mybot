@@ -186,18 +186,20 @@ def _bot_required_permissions(type_: _CommandType, **perms: bool) -> Callable[[T
         raise TypeError(f"Invalid permission(s): {', '.join(invalid)}")
 
     def decorator(func: T) -> T:
-        if type_ is _CommandType.app:
-            add_extra(type_, func, "bot_required_permissions", [perm for perm, value in perms.items() if value is True])
-            return app_check(bot_required_permissions_predicate(perms))(func)
-
-        if type_ is _CommandType.misc:
-            add_extra(
-                _CommandType.misc,
-                func,
-                "bot_required_permissions",
-                [perm for perm, value in perms.items() if value is True],
-            )
-            return misc_check(bot_required_permissions_predicate(perms))(func)
+        match type_:
+            case _CommandType.app:
+                add_extra(
+                    type_, func, "bot_required_permissions", [perm for perm, value in perms.items() if value is True]
+                )
+                return app_check(bot_required_permissions_predicate(perms))(func)
+            case _CommandType.misc:
+                add_extra(
+                    _CommandType.misc,
+                    func,
+                    "bot_required_permissions",
+                    [perm for perm, value in perms.items() if value is True],
+                )
+                return misc_check(bot_required_permissions_predicate(perms))(func)
 
     return decorator
 
