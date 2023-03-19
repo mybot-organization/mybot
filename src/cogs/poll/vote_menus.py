@@ -202,7 +202,7 @@ class ChoicePollVote(VoteMenu):
 
     @ui.button(style=discord.ButtonStyle.green)
     async def validate(self, inter: Interaction, button: ui.Button[Self]):
-        new_answers = {value for value in self.choice.values}
+        new_answers = set(self.choice.values)
         old_answers = {answer.value for answer in self.user_votes}
 
         async with self.parent.bot.async_session.begin() as session:
