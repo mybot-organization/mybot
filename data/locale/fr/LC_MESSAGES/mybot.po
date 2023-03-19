@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
-"POT-Creation-Date: 2023-03-18 19:56+0000\n"
-"PO-Revision-Date: 2023-03-18 21:00\n"
+"POT-Creation-Date: 2023-03-19 11:32+0000\n"
+"PO-Revision-Date: 2023-03-19 12:20\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -14,8 +14,8 @@ msgstr ""
 "X-Crowdin-Project: mybot-discord\n"
 "X-Crowdin-Project-ID: 532668\n"
 "X-Crowdin-Language: fr\n"
-"X-Crowdin-File: /dev/data/locale/mybot.pot\n"
-"X-Crowdin-File-ID: 48\n"
+"X-Crowdin-File: /auto.translations-source/data/locale/mybot.pot\n"
+"X-Crowdin-File-ID: 55\n"
 "Language: fr_FR\n"
 
 #: src/cogs/calculator.py:29
@@ -32,7 +32,7 @@ msgstr "Supprimer plusieurs messages avec des filtres."
 
 #: src/cogs/clear.py:84
 msgid "image"
-msgstr "image"
+msgstr ""
 
 #: src/cogs/clear.py:85
 msgid "video"
@@ -40,7 +40,7 @@ msgstr "vidéo"
 
 #: src/cogs/clear.py:86
 msgid "audio"
-msgstr "audio"
+msgstr ""
 
 #: src/cogs/clear.py:87
 msgid "stickers"
@@ -56,7 +56,7 @@ msgstr "n'importe quel fichier"
 
 #: src/cogs/clear.py:90
 msgid "embed"
-msgstr "embed"
+msgstr ""
 
 #: src/cogs/clear.py:91
 msgid "link (any URL)"
@@ -64,7 +64,7 @@ msgstr "lien (n'importe quelle URL)"
 
 #: src/cogs/clear.py:92
 msgid "mention"
-msgstr "mention"
+msgstr ""
 
 #: src/cogs/clear.py:93
 msgid "discord invitation"
@@ -111,8 +111,8 @@ msgid "Delete only messages sent before the specified message or date. (yyyy-mm-
 msgstr "Supprimer uniquement les messages envoyés avant le message ou la date spécifiés. (aaaa-mm-jj) #TODO"
 
 #: src/cogs/clear.py:113
-msgid "Delete only messages sent after the specified message or date.  (yyyy-mm-dd) #TODO"
-msgstr "Supprimer uniquement les messages envoyés après le message ou la date spécifiés. (aaaa-mm-jj) #TODO"
+msgid "Delete only messages sent after the specified message or date. (yyyy-mm-dd) #TODO"
+msgstr ""
 
 #: src/cogs/clear.py:114
 msgid "Include/exclude pinned messages in deletion, or deletes \"only\" pinned messages. (default to exclude)"
@@ -230,7 +230,7 @@ msgstr "Aide à propos de {} [{}]"
 
 #: src/cogs/ping.py:30
 msgid "ping"
-msgstr "ping"
+msgstr ""
 
 #: src/cogs/ping.py:31
 msgid "Get the bot latency."
@@ -238,15 +238,11 @@ msgstr "Obtenir la latence du bot."
 
 #: src/cogs/stats.py:43
 msgid "stats"
-msgstr "stats"
+msgstr ""
 
 #: src/cogs/stats.py:44
 msgid "Get somes stats about the bot."
 msgstr "Obtenir quelques statistiques sur le bot."
-
-#: src/cogs/stats.py:49
-msgid "Quelques statistiques sur MyBot"
-msgstr "Quelques statistiques sur MyBot"
 
 #: src/cogs/config/__init__.py:32
 msgid "config"
@@ -266,7 +262,7 @@ msgstr "Définir la configuration du serveur."
 
 #: src/cogs/config/__init__.py:41
 msgid "bot"
-msgstr "bot"
+msgstr ""
 
 #: src/cogs/config/__init__.py:42
 msgid "Set configuration for the bot."
@@ -314,7 +310,7 @@ msgstr "Jouer au puissance 4"
 
 #: src/cogs/game/__init__.py:57
 msgid "rpc"
-msgstr "rpc"
+msgstr ""
 
 #: src/cogs/game/__init__.py:58
 msgid "Play rock paper cisors"
@@ -466,8 +462,8 @@ msgid "The poll has been updated while you were voting."
 msgstr "Le sondage a été mis à jour pendant votre vote."
 
 #: src/cogs/poll/edit.py:186
-msgid "Edit   title and description"
-msgstr "Modifier le titre et la description"
+msgid "Edit title and description"
+msgstr ""
 
 #: src/cogs/poll/edit.py:222
 msgid "Edit ending time"
@@ -505,7 +501,7 @@ msgstr "{} heure(s)"
 
 #: src/cogs/poll/edit.py:239
 msgid "{} minute(s)"
-msgstr "{} minute(s)"
+msgstr ""
 
 #: src/cogs/poll/edit.py:315
 msgid "Edit choices"
