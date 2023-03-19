@@ -29,5 +29,5 @@ jobs:
       - uses: EndBug/add-and-commit@v9
         with:
           new_branch: auto/translations-source
-          push: "--force"
+          push: "--force --set-upstream"
           message: "POT file generated."
