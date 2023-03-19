@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
 "POT-Creation-Date: 2023-03-19 11:32+0000\n"
-"PO-Revision-Date: 2023-03-19 12:20\n"
+"PO-Revision-Date: 2023-03-19 13:49\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -32,7 +32,7 @@ msgstr "Supprimer plusieurs messages avec des filtres."
 
 #: src/cogs/clear.py:84
 msgid "image"
-msgstr ""
+msgstr "image"
 
 #: src/cogs/clear.py:85
 msgid "video"
@@ -40,7 +40,7 @@ msgstr "vidéo"
 
 #: src/cogs/clear.py:86
 msgid "audio"
-msgstr ""
+msgstr "audio"
 
 #: src/cogs/clear.py:87
 msgid "stickers"
@@ -56,7 +56,7 @@ msgstr "n'importe quel fichier"
 
 #: src/cogs/clear.py:90
 msgid "embed"
-msgstr ""
+msgstr "embed"
 
 #: src/cogs/clear.py:91
 msgid "link (any URL)"
@@ -64,7 +64,7 @@ msgstr "lien (n'importe quelle URL)"
 
 #: src/cogs/clear.py:92
 msgid "mention"
-msgstr ""
+msgstr "mention"
 
 #: src/cogs/clear.py:93
 msgid "discord invitation"
@@ -112,7 +112,7 @@ msgstr "Supprimer uniquement les messages envoyés avant le message ou la date s
 
 #: src/cogs/clear.py:113
 msgid "Delete only messages sent after the specified message or date. (yyyy-mm-dd) #TODO"
-msgstr ""
+msgstr "Supprimer seulement les messages envoyés avec un message spécifique ou une date (yyyy-mm-dd)"
 
 #: src/cogs/clear.py:114
 msgid "Include/exclude pinned messages in deletion, or deletes \"only\" pinned messages. (default to exclude)"
@@ -230,7 +230,7 @@ msgstr "Aide à propos de {} [{}]"
 
 #: src/cogs/ping.py:30
 msgid "ping"
-msgstr ""
+msgstr "ping"
 
 #: src/cogs/ping.py:31
 msgid "Get the bot latency."
@@ -238,7 +238,7 @@ msgstr "Obtenir la latence du bot."
 
 #: src/cogs/stats.py:43
 msgid "stats"
-msgstr ""
+msgstr "statistiques"
 
 #: src/cogs/stats.py:44
 msgid "Get somes stats about the bot."
@@ -262,7 +262,7 @@ msgstr "Définir la configuration du serveur."
 
 #: src/cogs/config/__init__.py:41
 msgid "bot"
-msgstr ""
+msgstr "bot"
 
 #: src/cogs/config/__init__.py:42
 msgid "Set configuration for the bot."
@@ -310,7 +310,7 @@ msgstr "Jouer au puissance 4"
 
 #: src/cogs/game/__init__.py:57
 msgid "rpc"
-msgstr ""
+msgstr "rpc"
 
 #: src/cogs/game/__init__.py:58
 msgid "Play rock paper cisors"
@@ -463,7 +463,7 @@ msgstr "Le sondage a été mis à jour pendant votre vote."
 
 #: src/cogs/poll/edit.py:186
 msgid "Edit title and description"
-msgstr ""
+msgstr "Modifier le titre et la description"
 
 #: src/cogs/poll/edit.py:222
 msgid "Edit ending time"
@@ -501,7 +501,7 @@ msgstr "{} heure(s)"
 
 #: src/cogs/poll/edit.py:239
 msgid "{} minute(s)"
-msgstr ""
+msgstr "{} minute(s)"
 
 #: src/cogs/poll/edit.py:315
 msgid "Edit choices"
