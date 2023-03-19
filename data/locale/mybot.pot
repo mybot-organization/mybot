@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MyBot 1.0\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
-"POT-Creation-Date: 2023-03-18 19:56+0000\n"
+"POT-Creation-Date: 2023-03-19 11:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -115,7 +115,7 @@ msgstr ""
 
 #: src/cogs/clear.py:113
 msgid ""
-"Delete only messages sent after the specified message or date.  (yyyy-mm-"
+"Delete only messages sent after the specified message or date. (yyyy-mm-"
 "dd) #TODO"
 msgstr ""
 
@@ -249,10 +249,6 @@ msgstr ""
 
 #: src/cogs/stats.py:44
 msgid "Get somes stats about the bot."
-msgstr ""
-
-#: src/cogs/stats.py:49
-msgid "Quelques statistiques sur MyBot"
 msgstr ""
 
 #: src/cogs/config/__init__.py:32
@@ -473,7 +469,7 @@ msgid "The poll has been updated while you were voting."
 msgstr ""
 
 #: src/cogs/poll/edit.py:186
-msgid "Edit   title and description"
+msgid "Edit title and description"
 msgstr ""
 
 #: src/cogs/poll/edit.py:222
