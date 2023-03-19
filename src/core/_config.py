@@ -35,7 +35,7 @@ class Config:
 
     def __getattribute__(self, name: str) -> Any:
         if name in super().__getattribute__("__dataclass_fields__").keys():
-            if Config._defined == False:
+            if Config._defined is False:
                 logger.warning("Config accessed but not defined.")
         return super().__getattribute__(name)
 
