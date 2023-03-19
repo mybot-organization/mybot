@@ -13,8 +13,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GH_TOKEN }}
 
       - uses: actions/setup-python@v4
         with:
@@ -25,9 +23,15 @@ jobs:
         run: |
           pip install babel
           sh ./bin/pot-generation.sh
-          git checkout auto/translations-source
 
-      - uses: EndBug/add-and-commit@v9
-        with:
-          new_branch: auto/translations-source
-          message: "POT file generated."
+      - name: setup git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+
+      - name: commit
+        run: |
+          git switch -c auto/translations-source
+          git add ./data/locale/mybot.pot
+          git commit -m "POT file generated"
+          git push origin auto/translations-source
