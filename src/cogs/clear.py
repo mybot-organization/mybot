@@ -110,7 +110,7 @@ class Clear(Cog):
         ),  # e.g. attachement:image will delete messages that has an image attached.
         length=__("Delete only messages where length match the specified entry. (e.g. '<=100', '5', '>10') #TODO"),
         before=__("Delete only messages sent before the specified message or date. (yyyy-mm-dd) #TODO"),
-        after=__("Delete only messages sent after the specified message or date.  (yyyy-mm-dd) #TODO"),
+        after=__("Delete only messages sent after the specified message or date. (yyyy-mm-dd) #TODO"),
         pinned=__(
             'Include/exclude pinned messages in deletion, or deletes "only" pinned messages. (default to exclude)'
         ),
