@@ -17,6 +17,7 @@ services:
     volumes:
       - ./data/locale:/app/locale
       - ./alembic:/app/alembic
+      - ./config.toml:/app/config.toml
     ports:
       - 666:8081
     expose:
