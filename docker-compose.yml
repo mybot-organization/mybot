@@ -2,6 +2,7 @@ version: '3'
 
 services:
   mybot:
+    image: airopi/mybot:stable
     build:
       context: .
       dockerfile: ./Dockerfile
