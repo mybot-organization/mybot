@@ -34,7 +34,7 @@ jobs:
           images: airopi/mybot
           tags: |
             type=raw,enabled=${{ env.beta }},value=beta
-            type=match,enabled=${{ env.stable }},value=stable
+            type=raw,enabled=${{ env.stable }},value=stable
             type=pep440,pattern={{raw}}
 
       - name: Build and push Docker image
