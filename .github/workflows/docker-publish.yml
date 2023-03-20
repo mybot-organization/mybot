@@ -22,15 +22,20 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Establish if it is a beta version
+        run: |
+          pat="refs/tags/v[0-9.]+b.+"
+          if [[ ${{ github.ref }} =~ $pat ]]; then echo -e "beta=true\nstable=false" >> $GITHUB_ENV; else echo -e "beta=false\nstable=true" >> $GITHUB_ENV; fi
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4
         with:
           images: airopi/mybot
           tags: |
-            type=match,enabled=true,pattern=v[.\d]+b.*,value=beta
-            type=match,enabled=true,pattern=v[.\d]+$,value=stable
-            type=pep440,pattern=v{{version}}
+            type=raw,enabled=${{ env.beta }},value=beta
+            type=match,enabled=${{ env.stable }},value=stable
+            type=pep440,pattern={{raw}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
