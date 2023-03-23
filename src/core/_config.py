@@ -27,6 +27,7 @@ class Config:
     MS_TRANSLATE_REGION: str | None = None
     # comma separated list of services to use for translation. Corresponding files should be in cogs/translate/adapters.
     TRANSLATOR_SERVICES: str = "libretranslate"
+    LOG_WEBHOOK_URL: str | None = None
 
     _defined: ClassVar[bool] = False
 
@@ -37,7 +38,10 @@ class Config:
         if name in super().__getattribute__("__dataclass_fields__").keys():
             if Config._defined is False:
                 logger.warning("Config accessed but not defined.")
-        return super().__getattribute__(name)
+        try:
+            return super().__getattribute__(name)
+        except AttributeError:
+            return None
 
 
 def define_config(config_path: str | None = None, **kwargs: Any):
