@@ -1,7 +1,7 @@
 FROM python:3.11.2 as base
 WORKDIR /app
 ENV PYTHONUNBUFFERED=0
-COPY requirements.txt config.toml* alembic.ini ./
+COPY requirements.txt alembic.ini ./
 RUN pip install -U -r requirements.txt
 
 FROM base as prod
