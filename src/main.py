@@ -41,7 +41,14 @@ def bot(
     sync_only: bool,
 ):
     required_env_var = {"POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB", "MYBOT_TOKEN"}
-    optional_env_var = {"TOPGG_TOKEN", "TOPGG_AUTH", "MS_TRANSLATE_KEY", "MS_TRANSLATE_REGION", "TRANSLATOR_SERVICES"}
+    optional_env_var = {
+        "TOPGG_TOKEN",
+        "TOPGG_AUTH",
+        "MS_TRANSLATE_KEY",
+        "MS_TRANSLATE_REGION",
+        "TRANSLATOR_SERVICES",
+        "LOG_WEBHOOK_URL",
+    }
     kwargs: dict[str, Any] = {}
 
     if missing_env_var := required_env_var - set(os.environ):
