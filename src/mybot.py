@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from discord.guild import GuildChannel
     from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
-    from core.errors import MiscCommandException
+    from core.errors import MiscCommandError
     from core.misc_command import MiscCommand
 
 logger = logging.getLogger(__name__)
@@ -334,6 +334,6 @@ class MyBot(AutoShardedBot):
     async def on_misc_command_error(
         self,
         context: MiscCommandContext[MyBot],
-        error: MiscCommandException,
+        error: MiscCommandError,
     ) -> None:
         await self.error_handler.handle_misc_command_error(context, error)

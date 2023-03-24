@@ -22,7 +22,7 @@ from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import maybe_coroutine
 from typing_extensions import TypeVar
 
-from .errors import CheckFail, MiscCommandException, NoPrivateMessage
+from .errors import MiscCheckFailure, MiscCommandError, MiscNoPrivateMessage
 
 if TYPE_CHECKING:
     from discord.abc import MessageableChannel
@@ -91,8 +91,8 @@ class MiscCommand(Generic[CogT, P, T]):
         try:
             for checker in self.checks:
                 if not await maybe_coroutine(checker, resolved_context):
-                    raise CheckFail()
-        except MiscCommandException as e:
+                    raise MiscCheckFailure()
+        except MiscCommandError as e:
             self.bot.dispatch("misc_command_error", resolved_context, e)
             return  # type: ignore
 
@@ -224,7 +224,7 @@ class MiscCommandContext(Generic[BotT]):
 def misc_guild_only() -> Callable[[T], T]:
     def predicate(ctx: MiscCommandContext[Any]) -> bool:
         if ctx.channel.guild is None:
-            raise NoPrivateMessage()
+            raise MiscNoPrivateMessage()
         return True
 
     def decorator(func: T) -> T:

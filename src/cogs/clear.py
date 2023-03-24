@@ -17,7 +17,7 @@ from typing_extensions import Self
 
 from core import ResponseType, response_constructor
 from core.checkers import MaxConcurrency
-from core.errors import BaseError, MaxConcurrencyReached
+from core.errors import MaxConcurrencyReached, NonSpecificError
 from core.i18n import _
 
 if TYPE_CHECKING:
@@ -209,7 +209,7 @@ class Clear(Cog):
                 return_when=asyncio.FIRST_COMPLETED,
             )
         except discord.HTTPException as e:
-            raise BaseError(f"Could not delete messages in {channel.mention}.") from e
+            raise NonSpecificError(f"Could not delete messages in {channel.mention}.") from e
 
         for task in pending:
             task.cancel()
