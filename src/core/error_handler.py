@@ -57,6 +57,6 @@ class ErrorHandler:
 
         logger.error("An unhandled error happened : %s (%s)", error, type(error))
 
-    async def handle_misc_command_error(self, context: MiscCommandContext, error: MiscCommandException) -> None:
+    async def handle_misc_command_error(self, context: MiscCommandContext[MyBot], error: MiscCommandException) -> None:
         del context  # unused (TODO)
         logger.debug("An unhandled error happened.\n%s", error)

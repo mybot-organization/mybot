@@ -21,6 +21,8 @@ logger = logging.getLogger(__name__)
 if TYPE_CHECKING:
     from discord import Interaction
 
+    from mybot import MyBot
+
     from ._types import CoroT
 
     MaxConcurrencyFunction = Union[Callable[[Interaction], CoroT[T]], Callable[[Interaction], T]]
@@ -163,7 +165,7 @@ def add_extra(type_: _CommandType, func: T, name: str, value: Any) -> T:
 
 
 def bot_required_permissions_predicate(perms: dict[str, bool]) -> Callable[..., bool]:
-    def predicate(ctx: Interaction | MiscCommandContext):
+    def predicate(ctx: Interaction | MiscCommandContext[MyBot]):
         match ctx:
             case discord.Interaction():
                 permissions = ctx.app_permissions
@@ -218,13 +220,13 @@ def app_command_bot_required_permissions(**perms: bool) -> Callable[[T], T]:
     return _bot_required_permissions(_CommandType.APP, **perms)
 
 
-async def is_user_authorized(context: MiscCommandContext) -> bool:
+async def is_user_authorized(context: MiscCommandContext[MyBot]) -> bool:
     del context  # unused
     # TODO: check using the database if the user is authorized
     return True
 
 
-async def is_activated(context: MiscCommandContext) -> bool:
+async def is_activated(context: MiscCommandContext[MyBot]) -> bool:
     del context  # unused
     # TODO: check using the database if the misc command is activated
     return True

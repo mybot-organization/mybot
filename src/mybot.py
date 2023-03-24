@@ -333,7 +333,7 @@ class MyBot(AutoShardedBot):
 
     async def on_misc_command_error(
         self,
-        context: MiscCommandContext,
+        context: MiscCommandContext[MyBot],
         error: MiscCommandException,
     ) -> None:
         await self.error_handler.handle_misc_command_error(context, error)
