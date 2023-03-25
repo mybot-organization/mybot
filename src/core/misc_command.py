@@ -22,13 +22,14 @@ from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import maybe_coroutine
 from typing_extensions import TypeVar
 
+from ._types import BotT, CogT
 from .errors import MiscCheckFailure, MiscCommandError, MiscNoPrivateMessage
 
 if TYPE_CHECKING:
     from discord.abc import MessageableChannel
     from discord.ext.commands.bot import AutoShardedBot, Bot  # pyright: ignore[reportMissingTypeStubs]
 
-    from ._types import BotT, CogT, CoroT, UnresolvedContext, UnresolvedContextT
+    from ._types import CoroT, UnresolvedContext, UnresolvedContextT
 
     ConditionCallback = Callable[Concatenate["CogT", UnresolvedContextT, "P"], CoroT[bool] | bool]
     Callback = Callable[Concatenate["CogT", UnresolvedContextT, "P"], CoroT["T"]]
