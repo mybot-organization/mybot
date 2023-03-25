@@ -1,6 +1,12 @@
+from enum import Enum, auto
 from typing import Iterator, Sequence, TypeVar
 
 T = TypeVar("T")
+
+
+class CommandType(Enum):
+    MISC = auto()
+    APP = auto()
 
 
 def chunker(seq: Sequence[T], size: int) -> Iterator[Sequence[T]]:

@@ -95,7 +95,6 @@ class Menu(ui.View, Generic[BotT]):
         return os.urandom(16).hex()
 
 
-# TODO : unused ?
 class ModalMenu(Menu[BotT], ui.Modal):
     def __init__(
         self,
@@ -105,8 +104,7 @@ class ModalMenu(Menu[BotT], ui.Modal):
         **kwargs: Any,
     ):
         self.custom_id: str = self.generate_custom_id()
-        # TODO : investigate why there is a type issue here
-        Menu.__init__(  # pyright: ignore[reportUnknownMemberType]
+        Menu[BotT].__init__(
             self,
             bot=bot,
             parent=parent,

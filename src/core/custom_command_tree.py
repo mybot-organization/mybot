@@ -32,7 +32,7 @@ class CustomCommandTree(CommandTree["MyBot"]):
 
     async def interaction_check(self, inter: Interaction[MyBot], /) -> bool:
         if inter.channel is None:
-            return False  # TODO : why ?
+            return False
         if not inter.guild and inter.channel.type is not discord.ChannelType.private:
             raise BotUserNotPresent
         return True
