@@ -1,29 +1,29 @@
 from __future__ import annotations
 
 import asyncio
-import datetime
 import logging
-import re
 import time
 from enum import Enum, auto
-from typing import TYPE_CHECKING, AsyncGenerator, Awaitable, Callable, NamedTuple, cast
+from typing import TYPE_CHECKING, AsyncGenerator, Awaitable, Callable, cast
 
 import discord
 from discord import app_commands, ui
-from discord.app_commands import locale_str as __
+from discord.app_commands import Transform, locale_str as __
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
-from discord.utils import get
 from typing_extensions import Self
 
-from core import ResponseType, response_constructor
+from core import Menu, ResponseType, response_constructor
 from core.checkers import MaxConcurrency
-from core.errors import MaxConcurrencyReached, NonSpecificError
+from core.errors import BadArgument, MaxConcurrencyReached, NonSpecificError, UnexpectedError
 from core.i18n import _
+from core.utils import async_all
+
+from .clear_transformers import PinnedTransformer, RegexTransformer, RoleTransformer, UserTransformer
+from .filters import Filter, PinnedFilter, RegexFilter, RoleFilter, UserFilter
 
 if TYPE_CHECKING:
     from discord import TextChannel, Thread, VoiceChannel
 
-    from core._types import Snowflake
     from mybot import MyBot
 
     AllowPurgeChannel = TextChannel | VoiceChannel | Thread
@@ -43,24 +43,6 @@ class Has(Enum):
     link = auto()
     mention = auto()
     discord_invite = auto()
-
-
-class Pinned(Enum):
-    include = 1
-    exclude = 2
-    only = 3
-
-
-class ClearFilters(NamedTuple):
-    user_id: Snowflake | None
-    role_id: Snowflake | None
-    pattern: re.Pattern[str] | None
-    # attachment_type: Has | None
-    before: datetime.datetime | None
-    after: datetime.datetime | None
-    max_length: int | None
-    min_length: int | None
-    pinned: Pinned
 
 
 def channel_bucket(inter: discord.Interaction):
@@ -92,17 +74,12 @@ class Clear(Cog):
             app_commands.Choice(name=__("mention"), value=Has.mention.value),
             app_commands.Choice(name=__("discord invitation"), value=Has.discord_invite.value),
         ],
-        pinned=[
-            app_commands.Choice(name=__("include"), value=Pinned.include.value),
-            app_commands.Choice(name=__("exclude"), value=Pinned.exclude.value),
-            app_commands.Choice(name=__("only"), value=Pinned.only.value),
-        ],
     )
     @app_commands.describe(
         amount=__("The amount of messages to delete."),
         user=__("Delete only messages from the specified user."),
         role=__("Delete only messages whose user has the specified role."),
-        search=__(
+        pattern=__(
             "Delete only messages that match the specified search (can be regex)."
         ),  # e.g. regex:hello will delete the message "hello world".
         has=__(
@@ -119,7 +96,7 @@ class Clear(Cog):
         amount=__("amount"),
         user=__("user"),
         role=__("role"),
-        search=__("search"),
+        pattern=__("search"),
         has=__("has"),
         length=__("length"),
         before=__("before"),
@@ -130,67 +107,31 @@ class Clear(Cog):
         self,
         inter: discord.Interaction,
         amount: int,
-        user: discord.User | None = None,
-        role: discord.Role | None = None,
-        search: str | None = None,
+        user: Transform[UserFilter, UserTransformer] | None = None,
+        role: Transform[RoleFilter, RoleTransformer] | None = None,
+        pattern: Transform[RegexFilter, RegexTransformer] | None = None,
         has: Has | None = None,
         length: str | None = None,
         before: str | None = None,
         after: str | None = None,
-        pinned: Pinned = Pinned.exclude,
+        pinned: Transform[PinnedFilter, PinnedTransformer] = PinnedFilter.default(),
     ):
-        del has, length  # unused  # TODO
         await self.clear_max_concurrency.acquire(inter)
 
         if inter.channel is None:
-            raise Exception(f"{inter} had its channel set to None")
+            raise UnexpectedError(f"{inter} had its channel set to None")
+
+        if not 0 < amount < 251:
+            raise BadArgument(_("You must supply a number between 1 and 250. (0 < {amount} < 251)", amount=amount))
 
         # Because of @guild_only, we can assume that the channel is a guild channel
         # Also, the channel should not be able to be a ForumChannel or StageChannel or CategoryChannel
         channel = cast("AllowPurgeChannel", inter.channel)
 
-        if not 0 < amount < 251:
-            raise ValueError(_("You must supply a number between 1 and 250. (0 < {amount} < 251)", amount=amount))
+        available_filters: list[Filter | None] = [pinned, user, role, pattern]  # , has, length, before, after]
+        filters: list[Filter] = [f for f in available_filters if f is not None]
 
-        if search:
-            pattern: re.Pattern[str] | None = re.compile(
-                search, re.MULTILINE
-            )  # TODO: handle raise re.error if not a good pattern
-        else:
-            pattern = None
-
-        # prebuild_pattern = None  # TODO
-        # attachment_type = None  # TODO
-        max_length = None  # TODO
-        min_length = None  # TODO
-        before = None  # TODO
-        after = None  # TODO
-
-        filters = ClearFilters(
-            user_id=user.id if user else None,
-            role_id=role.id if role else None,
-            pattern=pattern,
-            before=before,
-            after=after,
-            max_length=max_length,
-            min_length=min_length,
-            pinned=pinned,
-        )
-
-        class CancelClearView(ui.View):
-            pressed: bool = False
-
-            async def interaction_check(self, interaction: discord.Interaction) -> bool:
-                await interaction.response.defer()
-                return interaction.user.id == inter.user.id
-
-            @ui.button(label=_("Cancel", _locale=inter.locale), style=discord.ButtonStyle.red)
-            async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
-                del inter, button  # unused
-                self.pressed = True
-                self.stop()
-
-        view = CancelClearView(timeout=3 * 60)
+        view = await CancelClearView(self.bot, inter.user.id).build()
 
         await inter.response.send_message(
             **response_constructor(ResponseType.info, _("Clearing {amount} message(s)...", amount=amount)),
@@ -243,11 +184,12 @@ class Clear(Cog):
         channel: AllowPurgeChannel,
         amount: int,
         deleted_messages: list[discord.Message],
-        filters: ClearFilters,
+        filters: list[Filter],
     ) -> None:
         iterator: AsyncGenerator[discord.Message, None] = self.filtered_history(channel, amount, filters)
 
         async def _single_delete_strategy(messages: list[discord.Message]) -> None:
+            """Delete message older than 14 days. Delete them one by one."""
             for m in messages:
                 await asyncio.sleep(2)
                 await m.delete()
@@ -282,31 +224,15 @@ class Clear(Cog):
                 if strategy is channel.delete_messages:
                     deleted_messages.extend(to_delete)
 
-    @staticmethod
     async def filtered_history(
-        channel: AllowPurgeChannel, amount: int, filters: ClearFilters
+        self, channel: AllowPurgeChannel, amount: int, filters: list[Filter]
     ) -> AsyncGenerator[discord.Message, None]:
-        guild = channel.guild
-
         limit = amount if not any(filters) else None
         count = 0
 
         async for msg in channel.history(limit=limit):
-            if filters.user_id and msg.author.id != filters.user_id:
-                continue
-            if filters.role_id:
-                try:
-                    user = guild.get_member(msg.author.id) or await guild.fetch_member(msg.author.id)
-                except discord.HTTPException:
-                    continue
-
-                if get(user.roles, id=filters.role_id) is None:
-                    continue
-            if filters.pattern and not bool(filters.pattern.search(msg.content)):
-                continue
-            if filters.pinned == Pinned.exclude and msg.pinned:
-                continue
-            if filters.pinned == Pinned.only and not msg.pinned:
+            # if not all the filters are compliant, continue
+            if not await async_all(await filter.test(msg) for filter in filters):
                 continue
 
             count += 1
@@ -315,6 +241,27 @@ class Clear(Cog):
                 break
 
             yield msg
+
+
+class CancelClearView(Menu):
+    def __init__(self, bot: MyBot, user_id: int):
+        super().__init__(bot, timeout=3 * 60)
+        self.pressed: bool = False
+        self.user_id: int = user_id
+
+    async def build(self):
+        self.cancel.label = _("Cancel")
+        return self
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        await interaction.response.defer()
+        return interaction.user.id == self.user_id
+
+    @ui.button(style=discord.ButtonStyle.red)
+    async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
+        del inter, button  # unused
+        self.pressed = True
+        self.stop()
 
 
 async def setup(bot: MyBot):
