@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
 "POT-Creation-Date: 2023-03-25 14:45+0000\n"
-"PO-Revision-Date: 2023-03-25 14:46\n"
+"PO-Revision-Date: 2023-03-25 15:57\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -363,7 +363,7 @@ msgstr "Ce message n'est pas un sondage."
 
 #: src/cogs/poll/__init__.py:101
 msgid "You are not the author of this poll. You can't edit it."
-msgstr ""
+msgstr "Vous n'êtes pas le créateur du sondage. Vous ne pouvez pas le modifier."
 
 #: src/cogs/poll/__init__.py:118 src/cogs/poll/edit.py:200
 msgid "Poll question"
