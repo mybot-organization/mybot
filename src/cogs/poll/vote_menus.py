@@ -210,8 +210,8 @@ class ChoicePollVote(VoteMenu):
         old_answers = {answer.value for answer in self.user_votes}
 
         async with self.parent.bot.async_session.begin() as session:
-            for remove_anwser in old_answers - new_answers:
-                poll_answer = cast(db.PollAnswer, get(self.user_votes, value=remove_anwser))
+            for remove_answer in old_answers - new_answers:
+                poll_answer = cast(db.PollAnswer, get(self.user_votes, value=remove_answer))
                 await session.delete(poll_answer)
 
             for add_answer in new_answers - old_answers:

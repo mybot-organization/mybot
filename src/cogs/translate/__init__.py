@@ -13,7 +13,7 @@ from discord.app_commands import locale_str as __
 
 from core import ResponseType, SpecialCog, TemporaryCache, misc_command, response_constructor
 from core.checkers import is_activated, is_user_authorized, misc_check, misc_cmd_bot_required_permissions
-from core.errors import BadArgument, BaseError
+from core.errors import BadArgument, NonSpecificError
 from core.i18n import _
 
 from .languages import Language
@@ -279,7 +279,7 @@ class Translate(SpecialCog["MyBot"]):
         available_languages = await self.translators[0].available_languages()
         to_language = available_languages.from_locale(inter.locale)
         if not to_language:
-            raise BaseError(_("Your locale is not supported."))
+            raise NonSpecificError(_("Your locale is not supported."))
 
         if await self.public_translations(inter.guild_id):
             strategies = Strategies(pre=inter.response.defer, send=inter.followup.send)

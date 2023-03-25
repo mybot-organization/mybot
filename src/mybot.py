@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 import sys
 from typing import TYPE_CHECKING, Any, cast
 
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
     from discord.guild import GuildChannel
     from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
-    from core.errors import MiscCommandException
+    from core.errors import MiscCommandError
     from core.misc_command import MiscCommand
 
 logger = logging.getLogger(__name__)
@@ -174,33 +175,71 @@ class MyBot(AutoShardedBot):
         # await self.sync_database()
 
     async def on_message(self, message: discord.Message) -> None:
-        # TODO : check scope, check if mentioned not replied
         await self.wait_until_ready()
         if self.user is None:
             return
 
-        embed = response_constructor(ResponseType.warning, "MyBot is now using slash commands !").embed
-        embed.add_field(
-            name="🇫🇷 Salut, moi c'est Toby !",
-            value=(
-                "Saches que dorénavant, MyBot fonctionne uniquement avec des **slash commands**. C'est le petit menu "
-                "qui apparaît quand on faire `/` dans un salon.\n"
-                "Si tu ne vois pas les commandes de MyBot apparaître, essayes de réinviter le bot avec ce lien"
-                " ci-dessous !\n"
-                "Si tu rencontres un problème, n'hésite pas à rejoindre le serveur de support.\n\n"
-            ),
-            inline=False,
-        )
-        embed.add_field(
-            name="🇬🇧 Hi, I'm Toby !",
-            value=(
-                "Know that from now on, MyBot only works with **slash commands**. It's the small menu that appears "
-                "when  you type `/` in a channel.\n"
-                "If you don't see MyBot's commands appear, try to reinvite the bot with the link below !\n"
-                "If you encounter a problem, don't hesitate to join the support server.\n\n"
-            ),
-            inline=False,
-        )
+        bot_mentioned_regex = re.compile(f"<@!?{self.user.id}>")
+        if not bot_mentioned_regex.match(message.content):
+            return
+
+        if message.guild is None:
+            special_slash_message = False
+        else:
+            try:
+                await self.tree.fetch_commands(guild=message.guild)
+            except discord.HTTPException:
+                # I suppose that, in very rare case, if the bot is not added as an integration, this will raise an error
+                special_slash_message = True
+            else:
+                special_slash_message = False
+
+        if special_slash_message:
+            embed = response_constructor(ResponseType.warning, "MyBot is now using slash commands!").embed
+            embed.add_field(
+                name="🇫🇷 Salut, moi c'est Toby !",
+                value=(
+                    "Saches que dorénavant, MyBot fonctionne uniquement avec des **slash commands**. C'est le petit menu "
+                    "qui apparaît quand on faire `/` dans un salon.\n"
+                    "Si tu ne vois pas les commandes de MyBot apparaître, essayes de réinviter le bot avec ce lien"
+                    " ci-dessous !\n"
+                    "Si tu rencontres un problème, n'hésite pas à rejoindre le serveur de support.\n\n"
+                ),
+                inline=False,
+            )
+            embed.add_field(
+                name="🇬🇧 Hi, I'm Toby !",
+                value=(
+                    "Know that from now on, MyBot only works with **slash commands**. It's the small menu that appears "
+                    "when  you type `/` in a channel.\n"
+                    "If you don't see MyBot's commands appear, try to reinvite the bot with the link below !\n"
+                    "If you encounter a problem, don't hesitate to join the support server.\n\n"
+                ),
+                inline=False,
+            )
+        else:
+            embed = response_constructor(ResponseType.success, "MyBot, the cute bot at your service!").embed
+            embed.add_field(
+                name="🇫🇷 Salut, moi c'est Toby !",
+                value=(
+                    "Je suis un bot qui a pour but de rendre ton serveur plus agréable et plus interactif !\n"
+                    "Pour voir la liste des commandes, fais `/` dans un salon.\n"
+                    "Commences par faire `/help` pour voir les commandes disponibles.\n"
+                    "Si tu rencontres un problème, n'hésite pas à rejoindre le serveur de support.\n\n"
+                ),
+                inline=False,
+            )
+            embed.add_field(
+                name="🇬🇧 Hi, I'm Toby !",
+                value=(
+                    "I'm a bot that aims to make your server more pleasant and more interactive !\n"
+                    "To see the list of commands, type `/` in a channel.\n"
+                    "Start by doing `/help` to see the available commands.\n"
+                    "If you encounter a problem, don't hesitate to join the support server.\n\n"
+                ),
+                inline=False,
+            )
+
         view = discord.ui.View()
         view.add_item(
             discord.ui.Button(
@@ -219,16 +258,7 @@ class MyBot(AutoShardedBot):
             )
         )
 
-        # match message:  # TODO report pyright
-        #     case discord.Message(channel=discord.DMChannel()):
-        #         me = message.channel.me
-        #     case discord.Message(guild=discord.Guild()):
-        #         me = message.guild.me
-        #     case _:
-        #         return
-
-        if self.user.mentioned_in(message):
-            await message.channel.send(embed=embed, view=view)
+        await message.channel.send(embed=embed, view=view)
 
     @property
     async def support_invite(self) -> discord.Invite:
@@ -333,7 +363,7 @@ class MyBot(AutoShardedBot):
 
     async def on_misc_command_error(
         self,
-        context: MiscCommandContext,
-        error: MiscCommandException,
+        context: MiscCommandContext[MyBot],
+        error: MiscCommandError,
     ) -> None:
         await self.error_handler.handle_misc_command_error(context, error)

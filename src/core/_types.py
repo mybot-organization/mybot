@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Coroutine, ParamSpec, TypeAlias, TypeVar, Union
 
 from discord import Message
+from discord.ext import commands
 
 if TYPE_CHECKING:
     from .misc_command import MiscCommandContextFilled, MiscCommandContextRaw
@@ -15,6 +16,7 @@ P = ParamSpec("P")
 T = TypeVar("T")
 
 CogT = TypeVar("CogT", bound="SpecialCog[Any]")
+BotT = TypeVar("BotT", bound="commands.Bot | commands.AutoShardedBot")
 
 
 Snowflake = int

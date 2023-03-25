@@ -18,7 +18,7 @@ Detections: TypeAlias = list["Detection"]
 
 
 class Detection(TypedDict):
-    condidence: float
+    confidence: float
     language: Language
 
 

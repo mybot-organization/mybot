@@ -12,6 +12,7 @@ from sqlalchemy.orm import selectinload
 
 from core import SpecialGroupCog, db
 from core.checkers import app_command_bot_required_permissions
+from core.errors import NonSpecificError
 from core.i18n import _
 
 from .display import PollDisplay
@@ -95,9 +96,9 @@ class PollCog(SpecialGroupCog["MyBot"], group_name=__("poll"), group_description
             poll = result.scalar_one_or_none()
 
         if not poll:
-            return await inter.response.send_message(_("This message is not a poll."), ephemeral=True)
+            raise NonSpecificError(_("This message is not a poll."))
         if poll.author_id != inter.user.id:
-            return await inter.response.send_message(_("You can't edit this poll."), ephemeral=True)
+            raise NonSpecificError(_("You are not the author of this poll. You can't edit it."))
         await inter.response.send_message(
             **(await PollDisplay.build(poll, self.bot)),
             view=await EditPoll(self, poll, message).build(),
