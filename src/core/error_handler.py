@@ -4,8 +4,8 @@ import functools
 import logging
 from typing import TYPE_CHECKING, Literal, TypeVar
 
-from discord import ButtonStyle, ui
-from discord.app_commands.errors import CheckFailure, CommandNotFound, NoPrivateMessage
+from discord import ButtonStyle, Interaction, ui
+from discord.app_commands.errors import AppCommandError, CheckFailure, CommandNotFound, NoPrivateMessage
 from discord.ext import commands
 
 from . import ResponseType, response_constructor
@@ -22,9 +22,6 @@ from .i18n import i18n
 from .misc_command import MiscCommandContext
 
 if TYPE_CHECKING:
-    from discord import Interaction
-    from discord.app_commands import AppCommandError
-
     from core.errors import MiscCommandError
     from core.misc_command import MiscCommandContext
     from mybot import MyBot
@@ -40,12 +37,13 @@ class ErrorHandler:
         self.bot: MyBot = bot
 
     async def send_error(self, ctx: Interaction | MiscCommandContext[MyBot], error_message: str) -> None:
-        if isinstance(ctx, Interaction):
-            strategy = functools.partial(ctx.response.send_message, ephemeral=True)
-            if ctx.response.is_done():
-                strategy = functools.partial(ctx.followup.send, ephemeral=True)
-        else:
-            strategy = ctx.user.send
+        match ctx:
+            case Interaction():
+                strategy = functools.partial(ctx.response.send_message, ephemeral=True)
+                if ctx.response.is_done():
+                    strategy = functools.partial(ctx.followup.send, ephemeral=True)
+            case MiscCommandContext():
+                strategy = ctx.user.send
 
         view = ui.View()
         view.add_item(
