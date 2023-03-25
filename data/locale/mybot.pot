@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MyBot 1.0\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
-"POT-Creation-Date: 2023-03-24 23:29+0000\n"
+"POT-Creation-Date: 2023-03-25 14:45+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -331,76 +331,76 @@ msgstr ""
 msgid "Play tictactoe"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:32
+#: src/cogs/poll/__init__.py:33
 msgid "poll"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:32 src/cogs/poll/__init__.py:110
+#: src/cogs/poll/__init__.py:33 src/cogs/poll/__init__.py:111
 #: src/cogs/poll/edit.py:194
 msgid "Create a new poll"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:38
+#: src/cogs/poll/__init__.py:39
 msgid "Edit poll"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:40
+#: src/cogs/poll/__init__.py:41
 msgid "Use this to edit a poll even after creation."
 msgstr ""
 
-#: src/cogs/poll/__init__.py:73
+#: src/cogs/poll/__init__.py:74
 msgid "custom_choice"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:74
+#: src/cogs/poll/__init__.py:75
 msgid "A poll with customizable options."
 msgstr ""
 
-#: src/cogs/poll/__init__.py:82
+#: src/cogs/poll/__init__.py:83
 msgid "yesno"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:83
+#: src/cogs/poll/__init__.py:84
 msgid "A simple poll with \"Yes\" and \"No\" as options."
 msgstr ""
 
-#: src/cogs/poll/__init__.py:98
+#: src/cogs/poll/__init__.py:99
 msgid "This message is not a poll."
 msgstr ""
 
-#: src/cogs/poll/__init__.py:100
-msgid "You can't edit this poll."
+#: src/cogs/poll/__init__.py:101
+msgid "You are not the author of this poll. You can't edit it."
 msgstr ""
 
-#: src/cogs/poll/__init__.py:117 src/cogs/poll/edit.py:200
+#: src/cogs/poll/__init__.py:118 src/cogs/poll/edit.py:200
 msgid "Poll question"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:117 src/cogs/poll/edit.py:201
+#: src/cogs/poll/__init__.py:118 src/cogs/poll/edit.py:201
 msgid "Do you agree this bot is awesome?"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:121 src/cogs/poll/edit.py:208
+#: src/cogs/poll/__init__.py:122 src/cogs/poll/edit.py:208
 msgid "Poll description"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:122 src/cogs/poll/edit.py:210
+#: src/cogs/poll/__init__.py:123 src/cogs/poll/edit.py:210
 msgid "Tell more about your poll here."
 msgstr ""
 
-#: src/cogs/poll/__init__.py:144
+#: src/cogs/poll/__init__.py:145
 msgid "Choice 1"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:145
+#: src/cogs/poll/__init__.py:146
 msgid "Yes, totally!"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:149
+#: src/cogs/poll/__init__.py:150
 msgid "Choice 2"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:150
+#: src/cogs/poll/__init__.py:151
 msgid "Absolutely!"
 msgstr ""
 
@@ -662,19 +662,43 @@ msgstr ""
 msgid "Translate from {from_} to {to}"
 msgstr ""
 
-#: src/core/error_handler.py:36
+#: src/core/error_handler.py:50
 msgid "Support server"
 msgstr ""
 
-#: src/core/error_handler.py:53
+#: src/core/error_handler.py:64
 msgid ""
 "This command is already executed the max amount of times. (Max: "
 "{error.rate})"
 msgstr ""
 
-#: src/core/error_handler.py:56
+#: src/core/error_handler.py:67
+msgid "This command needs some conditions you don't meet."
+msgstr ""
+
+#: src/core/error_handler.py:70
+msgid "You provided a bad argument."
+msgstr ""
+
+#: src/core/error_handler.py:73
+msgid ""
+"The bot is missing some permissions.\n"
+"`{}`"
+msgstr ""
+
+#: src/core/error_handler.py:77
+msgid ""
+"It looks like the bot has been added incorrectly. Please ask an admin to "
+"re-add the bot."
+msgstr ""
+
+#: src/core/error_handler.py:80
+msgid "This command cannot be used in DMs."
+msgstr ""
+
+#: src/core/error_handler.py:83
 msgid ""
 "An unhandled error happened.\n"
-"{error}"
+"Please ask on the support server!"
 msgstr ""
 
