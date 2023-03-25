@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
-"POT-Creation-Date: 2023-03-19 19:48+0000\n"
-"PO-Revision-Date: 2023-03-19 22:06\n"
+"POT-Creation-Date: 2023-03-25 14:45+0000\n"
+"PO-Revision-Date: 2023-03-25 14:46\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -324,76 +324,76 @@ msgstr "morpion"
 msgid "Play tictactoe"
 msgstr "Jouer au morpion"
 
-#: src/cogs/poll/__init__.py:32
+#: src/cogs/poll/__init__.py:33
 msgid "poll"
 msgstr "sondage"
 
-#: src/cogs/poll/__init__.py:32 src/cogs/poll/__init__.py:110
+#: src/cogs/poll/__init__.py:33 src/cogs/poll/__init__.py:111
 #: src/cogs/poll/edit.py:194
 msgid "Create a new poll"
 msgstr "Créer un nouveau sondage"
 
-#: src/cogs/poll/__init__.py:38
+#: src/cogs/poll/__init__.py:39
 msgid "Edit poll"
 msgstr "Modifier un sondage"
 
-#: src/cogs/poll/__init__.py:40
+#: src/cogs/poll/__init__.py:41
 msgid "Use this to edit a poll even after creation."
 msgstr "Utilisez ceci pour modifier un sondage même après sa création."
 
-#: src/cogs/poll/__init__.py:73
+#: src/cogs/poll/__init__.py:74
 msgid "custom_choice"
 msgstr "choix_customisable"
 
-#: src/cogs/poll/__init__.py:74
+#: src/cogs/poll/__init__.py:75
 msgid "A poll with customizable options."
 msgstr "Un sondage avec des options personnalisables."
 
-#: src/cogs/poll/__init__.py:82
+#: src/cogs/poll/__init__.py:83
 msgid "yesno"
 msgstr "oui_non"
 
-#: src/cogs/poll/__init__.py:83
+#: src/cogs/poll/__init__.py:84
 msgid "A simple poll with \"Yes\" and \"No\" as options."
 msgstr "Un simple sondage avec \"Oui\" et \"Non\" comme options."
 
-#: src/cogs/poll/__init__.py:98
+#: src/cogs/poll/__init__.py:99
 msgid "This message is not a poll."
 msgstr "Ce message n'est pas un sondage."
 
-#: src/cogs/poll/__init__.py:100
-msgid "You can't edit this poll."
-msgstr "Vous ne pouvez pas modifier ce sondage."
+#: src/cogs/poll/__init__.py:101
+msgid "You are not the author of this poll. You can't edit it."
+msgstr ""
 
-#: src/cogs/poll/__init__.py:117 src/cogs/poll/edit.py:200
+#: src/cogs/poll/__init__.py:118 src/cogs/poll/edit.py:200
 msgid "Poll question"
 msgstr "Question du sondage"
 
-#: src/cogs/poll/__init__.py:117 src/cogs/poll/edit.py:201
+#: src/cogs/poll/__init__.py:118 src/cogs/poll/edit.py:201
 msgid "Do you agree this bot is awesome?"
 msgstr "Êtes-vous d'accord que ce bot est génial ?"
 
-#: src/cogs/poll/__init__.py:121 src/cogs/poll/edit.py:208
+#: src/cogs/poll/__init__.py:122 src/cogs/poll/edit.py:208
 msgid "Poll description"
 msgstr "Description du sondage"
 
-#: src/cogs/poll/__init__.py:122 src/cogs/poll/edit.py:210
+#: src/cogs/poll/__init__.py:123 src/cogs/poll/edit.py:210
 msgid "Tell more about your poll here."
 msgstr "Dites-en plus à propos de votre sondage ici."
 
-#: src/cogs/poll/__init__.py:144
+#: src/cogs/poll/__init__.py:145
 msgid "Choice 1"
 msgstr "Choix 1"
 
-#: src/cogs/poll/__init__.py:145
+#: src/cogs/poll/__init__.py:146
 msgid "Yes, totally!"
 msgstr "Oui, totalement !"
 
-#: src/cogs/poll/__init__.py:149
+#: src/cogs/poll/__init__.py:150
 msgid "Choice 2"
 msgstr "Choix 2"
 
-#: src/cogs/poll/__init__.py:150
+#: src/cogs/poll/__init__.py:151
 msgid "Absolutely!"
 msgstr "Absolument !"
 
@@ -651,17 +651,37 @@ msgstr "Vous avez atteint le nombre maximum de traduction par jour. Votez pour l
 msgid "Translate from {from_} to {to}"
 msgstr "Traduire depuis {from_} vers {to}"
 
-#: src/core/error_handler.py:36
+#: src/core/error_handler.py:50
 msgid "Support server"
 msgstr "Serveur support"
 
-#: src/core/error_handler.py:53
+#: src/core/error_handler.py:64
 msgid "This command is already executed the max amount of times. (Max: {error.rate})"
 msgstr "Cette commande est déjà exécutée le nombre maximal de fois. (Max : {error.rate})"
 
-#: src/core/error_handler.py:56
+#: src/core/error_handler.py:67
+msgid "This command needs some conditions you don't meet."
+msgstr ""
+
+#: src/core/error_handler.py:70
+msgid "You provided a bad argument."
+msgstr ""
+
+#: src/core/error_handler.py:73
+msgid "The bot is missing some permissions.\n"
+"`{}`"
+msgstr ""
+
+#: src/core/error_handler.py:77
+msgid "It looks like the bot has been added incorrectly. Please ask an admin to re-add the bot."
+msgstr ""
+
+#: src/core/error_handler.py:80
+msgid "This command cannot be used in DMs."
+msgstr ""
+
+#: src/core/error_handler.py:83
 msgid "An unhandled error happened.\n"
-"{error}"
-msgstr "Une erreur non gérée s'est produite.\n"
-"{error}"
+"Please ask on the support server!"
+msgstr ""
 
