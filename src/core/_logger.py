@@ -4,10 +4,12 @@ import asyncio
 import logging
 import os
 import sys
+import traceback
 from typing import Any, NamedTuple, cast
 
 import aiohttp
 import discord
+from discord.utils import MISSING
 
 from ._config import config
 
@@ -53,21 +55,22 @@ class DiscordLogHandler(logging.Handler):
             return None
 
     def send_to_discord(self, record: logging.LogRecord, wh_url: str):
-        async def make_post_request(url: str, data: Any):
-            async with aiohttp.ClientSession() as session:
-                async with session.post(url, json=data) as response:
-                    return await response.text()
-
         embed = discord.Embed()
-        embed.color = self.bind_colors.get(record.levelno, None)
+        embeds = [embed]
         embed.set_author(name=f"{record.levelname} : {record.name}")
         embed.description = (
             f"File : `{record.pathname}`\n" f"Line : `{record.lineno}`\n" f"Message : `{record.message}`"
         )
 
         if record.exc_info:
-            record.exc_info[0]
-            embed.add_field(name="Traceback", value=f"```{record.exc_text}```")
+            formatted_tb = traceback.format_exception(record.exc_info[1])
+            string_tb = "".join(formatted_tb)
+            if len(string_tb) > 4000:
+                string_tb = f"{string_tb[:2000]} \n\n ... \n\n {string_tb[-2000:]}"
+            tb_embed = discord.Embed()
+
+            tb_embed.description = f"```py\n{string_tb}```"
+            embeds.append(tb_embed)
 
         additional_context = getattr(record, "additional_context", None)
         if additional_context is not None:
@@ -86,19 +89,16 @@ class DiscordLogHandler(logging.Handler):
                 ),
             )
 
-        data = {"embeds": [embed.to_dict()]}
-        if config.BOT_NAME is not None:
-            data["username"] = config.BOT_NAME
+        for embed in embeds:
+            embed.color = self.bind_colors.get(record.levelno, None)
+
+        async def send_webhook(url: str, embeds: list[discord.Embed], username: str | None = None):
+            async with aiohttp.ClientSession() as session:
+                wh = discord.Webhook.from_url(url, session=session)
+                await wh.send(embeds=embeds, username=username or MISSING)
 
         if self.event_loop:
-            self.tasks.append(
-                self.event_loop.create_task(
-                    make_post_request(
-                        wh_url,
-                        data=data,
-                    )
-                )
-            )
+            self.tasks.append(self.event_loop.create_task(send_webhook(wh_url, embeds, config.BOT_NAME)))
 
     def emit(self, record: logging.LogRecord):
         if getattr(record, "ignore_discord", False):
