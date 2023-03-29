@@ -12,7 +12,7 @@ from discord.app_commands import Transform, locale_str as __
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from typing_extensions import Self
 
-from core import Menu, ResponseType, response_constructor
+from core import Menu, MessageDisplay, ResponseType, response_constructor
 from core.checkers import MaxConcurrency
 from core.errors import BadArgument, MaxConcurrencyReached, NonSpecificError, UnexpectedError
 from core.i18n import _
@@ -126,31 +126,77 @@ class Clear(Cog):
 
         # Because of @guild_only, we can assume that the channel is a guild channel
         # Also, the channel should not be able to be a ForumChannel or StageChannel or CategoryChannel
-        channel = cast("AllowPurgeChannel", inter.channel)
 
         available_filters: list[Filter | None] = [pinned, user, role, pattern]  # , has, length, before, after]
-        filters: list[Filter] = [f for f in available_filters if f is not None]
+        active_filters: list[Filter] = [f for f in available_filters if f is not None]
 
-        view = await CancelClearView(self.bot, inter.user.id).build()
+        job = ClearWorker(self.bot, inter, amount, active_filters)
+        await job.start()
+        await self.clear_max_concurrency.release(inter)
 
-        await inter.response.send_message(
-            **response_constructor(ResponseType.info, _("Clearing {amount} message(s)...", amount=amount)),
+    @clear.error
+    async def release_concurrency(self, inter: discord.Interaction, error: app_commands.AppCommandError):
+        if not isinstance(error, MaxConcurrencyReached):
+            await self.clear_max_concurrency.release(inter)
+
+
+class ClearWorker:
+    def __init__(
+        self,
+        bot: MyBot,
+        inter: discord.Interaction,
+        amount: int,
+        filters: list[Filter],
+    ):
+        self._deleted_messages: list[discord.Message] = []
+        self.analyzed_messages: int = 0
+        self.deletion_planned: int = 0
+        self.deletion_goal: int = amount
+        self.filters = filters
+        self.inter = inter
+        self.bot = bot
+        self.channel = cast("AllowPurgeChannel", inter.channel)
+
+    @property
+    def deleted_messages(self) -> int:
+        return len(self._deleted_messages)
+
+    def working_display(self) -> MessageDisplay:
+        display = response_constructor(
+            ResponseType.info,
+            _("Clearing {amount} message(s)...", amount=self.deletion_goal, _locale=self.inter.locale),
+        )
+        display.embed.description = _(
+            ("Analyzed: {analyzed}\n" "Deleted: {deleted}/{goal}\n" "Planned for deletion: {planned}"),
+            analyzed=self.analyzed_messages,
+            deleted=self.deleted_messages,
+            goal=self.deletion_goal,
+            planned=self.deletion_planned,
+            _locale=self.inter.locale,
+        )
+        return display
+
+    async def start(self):
+        view = await CancelClearView(self.bot, self.inter.user.id).build()
+
+        await self.inter.response.send_message(
+            **self.working_display(),
             ephemeral=True,
             view=view,
         )
 
-        deleted_messages: list[discord.Message] = []
         try:
             tasks = (
                 asyncio.create_task(view.wait()),
-                asyncio.create_task(self._clear(channel, amount, deleted_messages, filters)),
+                asyncio.create_task(self._clear()),
+                asyncio.create_task(self.periodic_display_update()),
             )
             done, pending = await asyncio.wait(
                 tasks,
                 return_when=asyncio.FIRST_COMPLETED,
             )
         except discord.HTTPException as e:
-            raise NonSpecificError(f"Could not delete messages in {channel.mention}.") from e
+            raise NonSpecificError(f"Could not delete messages in {self.channel.mention}.") from e
 
         for task in pending:
             task.cancel()
@@ -159,45 +205,39 @@ class Clear(Cog):
 
         if tasks[0] in done:
             text_response = (
-                _("Cannot clear more than 3 minutes. {} message(s) deleted.", len(deleted_messages)),
-                _("Clear cancelled. {} message(s) deleted.", len(deleted_messages)),
+                _("Cannot clear more than 3 minutes. {} message(s) deleted.", self.deleted_messages),
+                _("Clear cancelled. {} message(s) deleted.", self.deleted_messages),
             )
-            await inter.edit_original_response(
+            await self.inter.edit_original_response(
                 **response_constructor(ResponseType.warning, text_response[view.pressed]),
                 view=None,
             )
         else:
-            await inter.edit_original_response(
-                **response_constructor(ResponseType.success, _("{} message(s) deleted.", len(deleted_messages))),
+            await self.inter.edit_original_response(
+                **response_constructor(ResponseType.success, _("{} message(s) deleted.", self.deleted_messages)),
                 view=None,
             )
 
-        await self.clear_max_concurrency.release(inter)
-
-    @clear.error
-    async def release_concurrency(self, inter: discord.Interaction, error: app_commands.AppCommandError):
-        if not isinstance(error, MaxConcurrencyReached):
-            await self.clear_max_concurrency.release(inter)
+    async def periodic_display_update(self):
+        while True:
+            await asyncio.sleep(3)
+            await self.inter.edit_original_response(**self.working_display())
 
     async def _clear(
         self,
-        channel: AllowPurgeChannel,
-        amount: int,
-        deleted_messages: list[discord.Message],
-        filters: list[Filter],
     ) -> None:
-        iterator: AsyncGenerator[discord.Message, None] = self.filtered_history(channel, amount, filters)
+        iterator: AsyncGenerator[discord.Message, None] = self.filtered_history()
 
         async def _single_delete_strategy(messages: list[discord.Message]) -> None:
             """Delete message older than 14 days. Delete them one by one."""
             for m in messages:
                 await asyncio.sleep(2)
                 await m.delete()
-                deleted_messages.append(m)
+                self._deleted_messages.append(m)
 
         async def _bulk_delete_strategy(messages: list[discord.Message]) -> None:
-            await channel.delete_messages(messages)  # long process for some reason
-            deleted_messages.extend(messages)
+            await self.channel.delete_messages(messages)  # long process for some reason
+            self._deleted_messages.extend(messages)
 
         minimum_time: int = int((time.time() - 14 * 24 * 60 * 60) * 1000.0 - 1420070400000) << 22
         strategy: Callable[[list[discord.Message]], Awaitable[None]] = _bulk_delete_strategy
@@ -221,24 +261,22 @@ class Clear(Cog):
             if len(to_delete) >= 1:
                 await strategy(to_delete)
 
-                if strategy is channel.delete_messages:
-                    deleted_messages.extend(to_delete)
+                if strategy is self.channel.delete_messages:
+                    self._deleted_messages.extend(to_delete)
 
-    async def filtered_history(
-        self, channel: AllowPurgeChannel, amount: int, filters: list[Filter]
-    ) -> AsyncGenerator[discord.Message, None]:
-        limit = amount if not any(filters) else None
-        count = 0
+    async def filtered_history(self) -> AsyncGenerator[discord.Message, None]:
+        limit = self.deletion_goal if not any(self.filters) else None
 
-        async for msg in channel.history(limit=limit):
-            # if not all the filters are compliant, continue
-            if not await async_all(await filter.test(msg) for filter in filters):
+        async for msg in self.channel.history(limit=limit):
+            # if not all the filters tests are compliant, continue
+            if not await async_all(await filter.test(msg) for filter in self.filters):
+                self.analyzed_messages += 1
                 continue
 
-            count += 1
-
-            if count > amount:
+            if self.deletion_planned + 1 > self.deletion_goal:
                 break
+            self.deletion_planned += 1
+            self.analyzed_messages += 1
 
             yield msg
 
