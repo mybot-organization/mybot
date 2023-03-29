@@ -1,5 +1,5 @@
 from ._config import config as config
-from .caches import TemporaryCache as TemporaryCache
+from .caches import SizedMapping as SizedMapping, SizedSequence as SizedSequence, TemporaryCache as TemporaryCache
 from .cog_property import cog_property as cog_property
 from .constants import Emojis as Emojis
 from .misc_command import misc_command as misc_command
