@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from enum import Enum, auto
 from typing import TYPE_CHECKING, AsyncGenerator, Awaitable, Callable, cast
 
 import discord
@@ -18,8 +17,8 @@ from core.errors import BadArgument, MaxConcurrencyReached, NonSpecificError, Un
 from core.i18n import _
 from core.utils import async_all
 
-from .clear_transformers import PinnedTransformer, RegexTransformer, RoleTransformer, UserTransformer
-from .filters import Filter, PinnedFilter, RegexFilter, RoleFilter, UserFilter
+from .clear_transformers import HasTransformer, PinnedTransformer, RegexTransformer, RoleTransformer, UserTransformer
+from .filters import Filter, HasFilter, PinnedFilter, RegexFilter, RoleFilter, UserFilter
 
 if TYPE_CHECKING:
     from discord import TextChannel, Thread, VoiceChannel
@@ -30,19 +29,6 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
-
-
-class Has(Enum):
-    image = auto()
-    video = auto()
-    audio = auto()
-    stickers = auto()
-    files = auto()
-    any_attachment = auto()
-    embed = auto()
-    link = auto()
-    mention = auto()
-    discord_invite = auto()
 
 
 def channel_bucket(inter: discord.Interaction):
@@ -61,20 +47,6 @@ class Clear(Cog):
     )
     @app_commands.default_permissions(manage_messages=True)
     @app_commands.guild_only()
-    @app_commands.choices(
-        has=[
-            app_commands.Choice(name=__("image"), value=Has.image.value),
-            app_commands.Choice(name=__("video"), value=Has.video.value),
-            app_commands.Choice(name=__("audio"), value=Has.audio.value),
-            app_commands.Choice(name=__("stickers"), value=Has.stickers.value),
-            app_commands.Choice(name=__("files"), value=Has.files.value),
-            app_commands.Choice(name=__("any attachment"), value=Has.any_attachment.value),
-            app_commands.Choice(name=__("embed"), value=Has.embed.value),
-            app_commands.Choice(name=__("link (any URL)"), value=Has.link.value),
-            app_commands.Choice(name=__("mention"), value=Has.mention.value),
-            app_commands.Choice(name=__("discord invitation"), value=Has.discord_invite.value),
-        ],
-    )
     @app_commands.describe(
         amount=__("The amount of messages to delete."),
         user=__("Delete only messages from the specified user."),
@@ -110,7 +82,7 @@ class Clear(Cog):
         user: Transform[UserFilter, UserTransformer] | None = None,
         role: Transform[RoleFilter, RoleTransformer] | None = None,
         pattern: Transform[RegexFilter, RegexTransformer] | None = None,
-        has: Has | None = None,
+        has: Transform[HasFilter, HasTransformer] | None = None,
         length: str | None = None,
         before: str | None = None,
         after: str | None = None,
@@ -127,7 +99,7 @@ class Clear(Cog):
         # Because of @guild_only, we can assume that the channel is a guild channel
         # Also, the channel should not be able to be a ForumChannel or StageChannel or CategoryChannel
 
-        available_filters: list[Filter | None] = [pinned, user, role, pattern]  # , has, length, before, after]
+        available_filters: list[Filter | None] = [pinned, user, role, pattern, has]  # , length, before, after]
         active_filters: list[Filter] = [f for f in available_filters if f is not None]
 
         job = ClearWorker(self.bot, inter, amount, active_filters)
@@ -201,7 +173,9 @@ class ClearWorker:
         for task in pending:
             task.cancel()
         for task in done:
-            task.exception()
+            e = task.exception()
+            if e:
+                raise e
 
         if tasks[0] in done:
             text_response = (
@@ -269,16 +243,15 @@ class ClearWorker:
 
         async for msg in self.channel.history(limit=limit):
             # if not all the filters tests are compliant, continue
+            self.analyzed_messages += 1
             if not await async_all(await filter.test(msg) for filter in self.filters):
-                self.analyzed_messages += 1
                 continue
 
-            if self.deletion_planned + 1 > self.deletion_goal:
-                break
             self.deletion_planned += 1
-            self.analyzed_messages += 1
-
             yield msg
+
+            if self.deletion_planned >= self.deletion_goal:
+                break
 
 
 class CancelClearView(Menu):

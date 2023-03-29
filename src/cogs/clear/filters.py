@@ -5,11 +5,12 @@ from abc import ABC, abstractmethod
 from typing import cast
 
 import discord
+from aiohttp import ClientError, ClientSession, ClientTimeout
 from discord.utils import get
 
 from core import SizedMapping
 
-from .enums import Pinned
+from .enums import Has, Pinned
 
 
 class Filter(ABC):
@@ -84,3 +85,45 @@ class PinnedFilter(Filter):
                 return not message.pinned
             case Pinned.only:
                 return message.pinned
+
+
+class HasFilter(Filter):
+    image_content_type = re.compile(r"^image\/.*")
+    has_link = re.compile(
+        (
+            r"(?i)\b(?:(?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\((?:[^\s()<>]+|"
+            r"(?:\([^\s()<>]+\)))*\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+        )
+    )
+
+    def __init__(self, has: Has):
+        self.has = has
+
+    async def get_link(self, link: str) -> str | None:
+        session_timeout = ClientTimeout(total=None, sock_connect=1, sock_read=1)
+        async with ClientSession(timeout=session_timeout) as session:
+            async with session.head(link) as response:
+                return response.headers.get("Content-Type", None)
+
+    async def test(self, message: discord.Message) -> bool:
+        attachments = message.attachments
+        match self.has:
+            case Has.image:
+                if not (result := self.has_link.findall(message.content)) and not attachments:
+                    return False
+                for attachment in attachments:
+                    if attachment.content_type is None:
+                        continue
+                    if self.image_content_type.match(attachment.content_type):
+                        return True
+                for match in result:
+                    try:
+                        content_type = await self.get_link(match)
+                    except ClientError:
+                        continue
+
+                    if content_type is None:
+                        continue
+                    if self.image_content_type.match(content_type):
+                        return True
+                return False
