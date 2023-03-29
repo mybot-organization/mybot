@@ -7,6 +7,8 @@ from typing import cast
 import discord
 from discord.utils import get
 
+from core import SizedMapping
+
 from .enums import Pinned
 
 
@@ -44,6 +46,8 @@ class UserFilter(Filter):
 
 
 class RoleFilter(Filter):
+    members_cache = SizedMapping[str, discord.Member](max_size=100)
+
     def __init__(self, role_id: int):
         self.role_id = role_id
 
@@ -53,10 +57,13 @@ class RoleFilter(Filter):
 
     async def test(self, message: discord.Message) -> bool:
         guild = cast(discord.Guild, message.guild)  # at this point, we know the guild is not None
-        try:
-            member = guild.get_member(message.author.id) or await guild.fetch_member(message.author.id)
-        except discord.HTTPException:
-            return False
+        member = guild.get_member(message.author.id) or self.members_cache.get(f"{guild.id}.{message.author.id}")
+        if member is None:
+            try:
+                member = await guild.fetch_member(message.author.id)
+            except discord.HTTPException:
+                return False
+            self.members_cache[f"{guild.id}.{message.author.id}"] = member
 
         return get(member.roles, id=self.role_id) is not None
 
