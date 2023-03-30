@@ -120,7 +120,7 @@ class ClearWorker:
         amount: int,
         filters: list[Filter],
     ):
-        self._deleted_messages: list[discord.Message] = []
+        self.deleted_messages: int = 0
         self.analyzed_messages: int = 0
         self.deletion_planned: int = 0
         self.deletion_goal: int = amount
@@ -128,10 +128,6 @@ class ClearWorker:
         self.inter = inter
         self.bot = bot
         self.channel = cast("AllowPurgeChannel", inter.channel)
-
-    @property
-    def deleted_messages(self) -> int:
-        return len(self._deleted_messages)
 
     def working_display(self) -> MessageDisplay:
         display = response_constructor(
@@ -207,11 +203,11 @@ class ClearWorker:
             for m in messages:
                 await asyncio.sleep(2)
                 await m.delete()
-                self._deleted_messages.append(m)
+                self.deleted_messages += 1
 
         async def _bulk_delete_strategy(messages: list[discord.Message]) -> None:
             await self.channel.delete_messages(messages)  # long process for some reason
-            self._deleted_messages.extend(messages)
+            self.deleted_messages += len(messages)
 
         minimum_time: int = int((time.time() - 14 * 24 * 60 * 60) * 1000.0 - 1420070400000) << 22
         strategy: Callable[[list[discord.Message]], Awaitable[None]] = _bulk_delete_strategy
@@ -236,7 +232,7 @@ class ClearWorker:
                 await strategy(to_delete)
 
                 if strategy is self.channel.delete_messages:
-                    self._deleted_messages.extend(to_delete)
+                    self.deleted_messages += len(to_delete)
 
     async def filtered_history(self) -> AsyncGenerator[discord.Message, None]:
         limit = self.deletion_goal if not any(self.filters) else None
