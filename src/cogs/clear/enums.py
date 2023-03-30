@@ -13,7 +13,6 @@ class Has(Enum):
     audio = 3
     stickers = 4
     files = 5
-    any_attachment = 6
     embed = 7
     link = 8
     mention = 9
