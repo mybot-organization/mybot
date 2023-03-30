@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import re
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Callable, cast
@@ -146,3 +147,12 @@ class LengthFilter(Filter):
 
     async def test(self, message: discord.Message) -> bool:
         return self.length_test(len(message.content), self.length)
+
+
+class DateFilter(Filter):
+    def __init__(self, date_test: Callable[[datetime.datetime, datetime.datetime], bool], date: datetime.datetime):
+        self.date_test = date_test
+        self.date = date
+
+    async def test(self, message: discord.Message) -> bool:
+        return self.date_test(message.created_at, self.date)

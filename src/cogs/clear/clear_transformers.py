@@ -1,16 +1,17 @@
 from __future__ import annotations
 
 import re
+from operator import eq, ge, gt, le, lt
 from typing import Callable
 
 from discord import AppCommandOptionType, Interaction
 from discord.app_commands import Choice, Transformer, locale_str as __
 
 from core.errors import NonSpecificError
-from core.transformers import SimpleTransformer
+from core.transformers import DateTransformer, SimpleTransformer
 
 from .enums import Pinned
-from .filters import Has, HasFilter, LengthFilter, PinnedFilter, RegexFilter, RoleFilter, UserFilter
+from .filters import DateFilter, Has, HasFilter, LengthFilter, PinnedFilter, RegexFilter, RoleFilter, UserFilter
 
 RegexTransformer = SimpleTransformer(RegexFilter.from_string)
 UserTransformer = SimpleTransformer(UserFilter.from_user, AppCommandOptionType.user)
@@ -61,12 +62,12 @@ class HasTransformer(Transformer):
 
 class LengthTransformer(Transformer):
     identifiers: dict[str, Callable[[int, int], bool]] = {
-        "<": lambda a, b: a < b,
-        "<=": lambda a, b: a <= b,
-        ">": lambda a, b: a > b,
-        ">=": lambda a, b: a >= b,
-        "=": lambda a, b: a == b,
-        "": lambda a, b: a == b,
+        "<": lt,
+        "<=": le,
+        ">": gt,
+        ">=": ge,
+        "=": eq,
+        "": eq,
     }
     regex = re.compile(r"^(<|>|<=|>=|=|)(\d+)$")
 
@@ -89,3 +90,23 @@ class LengthTransformer(Transformer):
 
         test = self.identifiers[result.group(1)]
         return LengthFilter(test, length)
+
+
+class BeforeTransformer(Transformer):
+    @property
+    def type(self) -> AppCommandOptionType:
+        return AppCommandOptionType.string
+
+    async def transform(self, inter: Interaction, value: str) -> DateFilter:
+        inner_transformer = DateTransformer()
+        return DateFilter(lt, await inner_transformer.transform(inter, value))
+
+
+class AfterTransformer(Transformer):
+    @property
+    def type(self) -> AppCommandOptionType:
+        return AppCommandOptionType.string
+
+    async def transform(self, inter: Interaction, value: str) -> DateFilter:
+        inner_transformer = DateTransformer()
+        return DateFilter(gt, await inner_transformer.transform(inter, value))

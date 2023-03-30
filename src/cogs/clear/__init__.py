@@ -18,6 +18,8 @@ from core.i18n import _
 from core.utils import async_all
 
 from .clear_transformers import (
+    AfterTransformer,
+    BeforeTransformer,
     HasTransformer,
     LengthTransformer,
     PinnedTransformer,
@@ -25,7 +27,7 @@ from .clear_transformers import (
     RoleTransformer,
     UserTransformer,
 )
-from .filters import Filter, HasFilter, LengthFilter, PinnedFilter, RegexFilter, RoleFilter, UserFilter
+from .filters import DateFilter, Filter, HasFilter, LengthFilter, PinnedFilter, RegexFilter, RoleFilter, UserFilter
 
 if TYPE_CHECKING:
     from discord import TextChannel, Thread, VoiceChannel
@@ -91,8 +93,8 @@ class Clear(Cog):
         pattern: Transform[RegexFilter, RegexTransformer] | None = None,
         has: Transform[HasFilter, HasTransformer] | None = None,
         length: Transform[LengthFilter, LengthTransformer] | None = None,
-        before: str | None = None,
-        after: str | None = None,
+        before: Transform[DateFilter, BeforeTransformer] | None = None,
+        after: Transform[DateFilter, AfterTransformer] | None = None,
         pinned: Transform[PinnedFilter, PinnedTransformer] = PinnedFilter.default(),
     ):
         await self.clear_max_concurrency.acquire(inter)
