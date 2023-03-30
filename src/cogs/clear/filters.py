@@ -2,15 +2,17 @@ from __future__ import annotations
 
 import re
 from abc import ABC, abstractmethod
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import discord
-from aiohttp import ClientError, ClientSession, ClientTimeout
 from discord.utils import get
 
 from core import SizedMapping
 
 from .enums import Has, Pinned
+
+if TYPE_CHECKING:
+    from discord.types.embed import EmbedType
 
 
 class Filter(ABC):
@@ -88,42 +90,50 @@ class PinnedFilter(Filter):
 
 
 class HasFilter(Filter):
-    image_content_type = re.compile(r"^image\/.*")
-    has_link = re.compile(
+    image_content_type_re = re.compile(r"^image\/.*")
+    video_content_type_re = re.compile(r"^video\/.*")
+    audio_content_type_re = re.compile(r"^audio\/.*")
+    has_link_re = re.compile(
         (
             r"(?i)\b(?:(?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\((?:[^\s()<>]+|"
             r"(?:\([^\s()<>]+\)))*\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
         )
     )
+    has_discord_invite_re = re.compile(r"discord(?:app)?\.(?:gg|com/invite)\/([a-zA-Z0-9]+)")
 
     def __init__(self, has: Has):
         self.has = has
 
-    async def get_link(self, link: str) -> str | None:
-        session_timeout = ClientTimeout(total=None, sock_connect=1, sock_read=1)
-        async with ClientSession(timeout=session_timeout) as session:
-            async with session.head(link) as response:
-                return response.headers.get("Content-Type", None)
+    async def check_types(
+        self, message: discord.Message, content_type_re: re.Pattern[str], embed_types: tuple[EmbedType, ...]
+    ) -> bool:
+        for attachment in message.attachments:
+            if attachment.content_type is None:
+                continue
+            if content_type_re.match(attachment.content_type):
+                return True
+        for embed in message.embeds:
+            if any(embed.type == t for t in embed_types):
+                return True
+        return False
 
     async def test(self, message: discord.Message) -> bool:
-        attachments = message.attachments
         match self.has:
             case Has.image:
-                if not (result := self.has_link.findall(message.content)) and not attachments:
-                    return False
-                for attachment in attachments:
-                    if attachment.content_type is None:
-                        continue
-                    if self.image_content_type.match(attachment.content_type):
-                        return True
-                for match in result:
-                    try:
-                        content_type = await self.get_link(match)
-                    except ClientError:
-                        continue
-
-                    if content_type is None:
-                        continue
-                    if self.image_content_type.match(content_type):
-                        return True
-                return False
+                return await self.check_types(message, self.image_content_type_re, ("image", "gifv"))
+            case Has.video:
+                return await self.check_types(message, self.video_content_type_re, ("video",))
+            case Has.audio:
+                return await self.check_types(message, self.audio_content_type_re, ())
+            case Has.stickers:
+                return bool(message.stickers)
+            case Has.files:
+                return bool(message.attachments)
+            case Has.embed:
+                return bool(message.embeds)
+            case Has.link:
+                return bool(self.has_link_re.search(message.content))
+            case Has.mention:
+                return bool(message.mentions or message.role_mentions)
+            case Has.discord_invite:
+                return bool(self.has_discord_invite_re.search(message.content))
