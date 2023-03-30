@@ -87,7 +87,7 @@ class MyBot(AutoShardedBot):
             "admin",
             # "api",
             # "calculator",
-            # "clear",
+            "clear",
             "config",
             # "game",
             "help",
