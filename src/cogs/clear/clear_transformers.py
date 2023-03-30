@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+import re
+from typing import Callable
+
 from discord import AppCommandOptionType, Interaction
 from discord.app_commands import Choice, Transformer, locale_str as __
 
+from core.errors import NonSpecificError
 from core.transformers import SimpleTransformer
 
 from .enums import Pinned
-from .filters import Has, HasFilter, PinnedFilter, RegexFilter, RoleFilter, UserFilter
+from .filters import Has, HasFilter, LengthFilter, PinnedFilter, RegexFilter, RoleFilter, UserFilter
 
 RegexTransformer = SimpleTransformer(RegexFilter.from_string)
 UserTransformer = SimpleTransformer(UserFilter.from_user, AppCommandOptionType.user)
@@ -53,3 +57,35 @@ class HasTransformer(Transformer):
     async def transform(self, inter: Interaction, value: int) -> HasFilter:
         del inter  # unused
         return HasFilter(Has(value))
+
+
+class LengthTransformer(Transformer):
+    identifiers: dict[str, Callable[[int, int], bool]] = {
+        "<": lambda a, b: a < b,
+        "<=": lambda a, b: a <= b,
+        ">": lambda a, b: a > b,
+        ">=": lambda a, b: a >= b,
+        "=": lambda a, b: a == b,
+        "": lambda a, b: a == b,
+    }
+    regex = re.compile(r"^(<|>|<=|>=|=|)(\d+)$")
+
+    @property
+    def type(self) -> AppCommandOptionType:
+        return AppCommandOptionType.string
+
+    async def transform(self, inter: Interaction, value: str) -> LengthFilter:
+        del inter  # unused
+
+        result = self.regex.match(value)
+
+        if not result:
+            raise NonSpecificError("Invalid length filter")
+
+        length = int(result.group(2))
+
+        if not (0 <= length <= 4000):
+            raise NonSpecificError("A length filter must be between 0 and 4000 characters")
+
+        test = self.identifiers[result.group(1)]
+        return LengthFilter(test, length)

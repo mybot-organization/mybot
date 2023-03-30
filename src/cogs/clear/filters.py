@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Callable, cast
 
 import discord
 from discord.utils import get
@@ -137,3 +137,12 @@ class HasFilter(Filter):
                 return bool(message.mentions or message.role_mentions)
             case Has.discord_invite:
                 return bool(self.has_discord_invite_re.search(message.content))
+
+
+class LengthFilter(Filter):
+    def __init__(self, length_test: Callable[[int, int], bool], length: int):
+        self.length_test = length_test
+        self.length = length
+
+    async def test(self, message: discord.Message) -> bool:
+        return self.length_test(len(message.content), self.length)

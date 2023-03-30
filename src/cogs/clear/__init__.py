@@ -17,8 +17,15 @@ from core.errors import BadArgument, MaxConcurrencyReached, NonSpecificError, Un
 from core.i18n import _
 from core.utils import async_all
 
-from .clear_transformers import HasTransformer, PinnedTransformer, RegexTransformer, RoleTransformer, UserTransformer
-from .filters import Filter, HasFilter, PinnedFilter, RegexFilter, RoleFilter, UserFilter
+from .clear_transformers import (
+    HasTransformer,
+    LengthTransformer,
+    PinnedTransformer,
+    RegexTransformer,
+    RoleTransformer,
+    UserTransformer,
+)
+from .filters import Filter, HasFilter, LengthFilter, PinnedFilter, RegexFilter, RoleFilter, UserFilter
 
 if TYPE_CHECKING:
     from discord import TextChannel, Thread, VoiceChannel
@@ -83,7 +90,7 @@ class Clear(Cog):
         role: Transform[RoleFilter, RoleTransformer] | None = None,
         pattern: Transform[RegexFilter, RegexTransformer] | None = None,
         has: Transform[HasFilter, HasTransformer] | None = None,
-        length: str | None = None,
+        length: Transform[LengthFilter, LengthTransformer] | None = None,
         before: str | None = None,
         after: str | None = None,
         pinned: Transform[PinnedFilter, PinnedTransformer] = PinnedFilter.default(),
@@ -99,7 +106,7 @@ class Clear(Cog):
         # Because of @guild_only, we can assume that the channel is a guild channel
         # Also, the channel should not be able to be a ForumChannel or StageChannel or CategoryChannel
 
-        available_filters: list[Filter | None] = [pinned, user, role, pattern, has]  # , length, before, after]
+        available_filters: list[Filter | None] = [pinned, user, role, pattern, has, length, before, after]
         active_filters: list[Filter] = [f for f in available_filters if f is not None]
 
         job = ClearWorker(self.bot, inter, amount, active_filters)
@@ -221,18 +228,15 @@ class ClearWorker:
 
             # older than 14 days old
             if msg.id < minimum_time and strategy is not _single_delete_strategy:
-                if len(to_delete) >= 1:
+                if len(to_delete) >= 1:  # if there are messages to delete, bulk delete them
                     await strategy(to_delete)
                     to_delete = []
-                strategy = _single_delete_strategy
+                strategy = _single_delete_strategy  # set the new strategy
 
             to_delete.append(msg)
-        else:
-            if len(to_delete) >= 1:
-                await strategy(to_delete)
 
-                if strategy is self.channel.delete_messages:
-                    self.deleted_messages += len(to_delete)
+        if len(to_delete) >= 1:
+            await strategy(to_delete)
 
     async def filtered_history(self) -> AsyncGenerator[discord.Message, None]:
         limit = self.deletion_goal if not any(self.filters) else None
