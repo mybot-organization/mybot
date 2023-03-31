@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
 "POT-Creation-Date: 2023-03-31 18:42+0000\n"
-"PO-Revision-Date: 2023-03-31 18:44\n"
+"PO-Revision-Date: 2023-03-31 20:03\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -223,7 +223,7 @@ msgstr "autocollants"
 
 #: src/cogs/clear/clear_transformers.py:51
 msgid "file"
-msgstr ""
+msgstr "fichier"
 
 #: src/cogs/clear/clear_transformers.py:52
 msgid "embed"
@@ -658,27 +658,29 @@ msgstr "Cette commande est déjà exécutée le nombre maximal de fois. (Max : 
 
 #: src/core/error_handler.py:67
 msgid "This command needs some conditions you don't meet."
-msgstr ""
+msgstr "Cette commande nécessite certaines conditions que vous ne remplissez pas."
 
 #: src/core/error_handler.py:70
 msgid "You provided a bad argument."
-msgstr ""
+msgstr "Vous avez fourni un mauvais argument."
 
 #: src/core/error_handler.py:73
 msgid "The bot is missing some permissions.\n"
 "`{}`"
-msgstr ""
+msgstr "Il manque des permissions au bot.\n"
+"`{}`"
 
 #: src/core/error_handler.py:77
 msgid "It looks like the bot has been added incorrectly. Please ask an admin to re-add the bot."
-msgstr ""
+msgstr "Il semblerait que le bot ait été ajouté de manière incorrecte. Veuillez demander à un administrateur de ré-ajouter le bot."
 
 #: src/core/error_handler.py:80
 msgid "This command cannot be used in DMs."
-msgstr ""
+msgstr "Cette commande ne peut être utilisé en message privé."
 
 #: src/core/error_handler.py:83
 msgid "An unhandled error happened.\n"
 "Please ask on the support server!"
-msgstr ""
+msgstr "Une erreur inattendue est survenue.\n"
+"Demandez de l'aide sur le serveur de support !"
 
