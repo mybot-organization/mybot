@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MyBot 1.0\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
-"POT-Creation-Date: 2023-03-25 14:45+0000\n"
+"POT-Creation-Date: 2023-03-31 18:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,168 +23,6 @@ msgstr ""
 
 #: src/cogs/calculator.py:27
 msgid "Show a calculator you can use."
-msgstr ""
-
-#: src/cogs/clear.py:77
-msgid "Delete multiple messages with some filters."
-msgstr ""
-
-#: src/cogs/clear.py:84
-msgid "image"
-msgstr ""
-
-#: src/cogs/clear.py:85
-msgid "video"
-msgstr ""
-
-#: src/cogs/clear.py:86
-msgid "audio"
-msgstr ""
-
-#: src/cogs/clear.py:87
-msgid "stickers"
-msgstr ""
-
-#: src/cogs/clear.py:88
-msgid "files"
-msgstr ""
-
-#: src/cogs/clear.py:89
-msgid "any attachment"
-msgstr ""
-
-#: src/cogs/clear.py:90
-msgid "embed"
-msgstr ""
-
-#: src/cogs/clear.py:91
-msgid "link (any URL)"
-msgstr ""
-
-#: src/cogs/clear.py:92
-msgid "mention"
-msgstr ""
-
-#: src/cogs/clear.py:93
-msgid "discord invitation"
-msgstr ""
-
-#: src/cogs/clear.py:96
-msgid "include"
-msgstr ""
-
-#: src/cogs/clear.py:97
-msgid "exclude"
-msgstr ""
-
-#: src/cogs/clear.py:98
-msgid "only"
-msgstr ""
-
-#: src/cogs/clear.py:102
-msgid "The amount of messages to delete."
-msgstr ""
-
-#: src/cogs/clear.py:103
-msgid "Delete only messages from the specified user."
-msgstr ""
-
-#: src/cogs/clear.py:104
-msgid "Delete only messages whose user has the specified role."
-msgstr ""
-
-#: src/cogs/clear.py:105
-msgid "Delete only messages that match the specified search (can be regex)."
-msgstr ""
-
-#: src/cogs/clear.py:108
-msgid "Delete only messages that contains the selected entry. #TODO"
-msgstr ""
-
-#: src/cogs/clear.py:111
-msgid ""
-"Delete only messages where length match the specified entry. (e.g. "
-"'<=100', '5', '>10') #TODO"
-msgstr ""
-
-#: src/cogs/clear.py:112
-msgid ""
-"Delete only messages sent before the specified message or date. (yyyy-mm-"
-"dd) #TODO"
-msgstr ""
-
-#: src/cogs/clear.py:113
-msgid ""
-"Delete only messages sent after the specified message or date. (yyyy-mm-"
-"dd) #TODO"
-msgstr ""
-
-#: src/cogs/clear.py:114
-msgid ""
-"Include/exclude pinned messages in deletion, or deletes \"only\" pinned "
-"messages. (default to exclude)"
-msgstr ""
-
-#: src/cogs/clear.py:119
-msgid "amount"
-msgstr ""
-
-#: src/cogs/clear.py:120
-msgid "user"
-msgstr ""
-
-#: src/cogs/clear.py:121
-msgid "role"
-msgstr ""
-
-#: src/cogs/clear.py:122
-msgid "search"
-msgstr ""
-
-#: src/cogs/clear.py:123
-msgid "has"
-msgstr ""
-
-#: src/cogs/clear.py:124
-msgid "length"
-msgstr ""
-
-#: src/cogs/clear.py:125
-msgid "before"
-msgstr ""
-
-#: src/cogs/clear.py:126
-msgid "after"
-msgstr ""
-
-#: src/cogs/clear.py:127
-msgid "pinned"
-msgstr ""
-
-#: src/cogs/clear.py:153
-msgid "You must supply a number between 1 and 250. (0 < {amount} < 251)"
-msgstr ""
-
-#: src/cogs/clear.py:187 src/cogs/poll/edit.py:237 src/cogs/poll/edit.py:335
-#: src/cogs/poll/edit.py:397 src/cogs/poll/edit.py:438
-#: src/cogs/poll/edit.py:477 src/cogs/poll/edit.py:516
-msgid "Cancel"
-msgstr ""
-
-#: src/cogs/clear.py:196
-msgid "Clearing {amount} message(s)..."
-msgstr ""
-
-#: src/cogs/clear.py:221
-msgid "Cannot clear more than 3 minutes. {} message(s) deleted."
-msgstr ""
-
-#: src/cogs/clear.py:222
-msgid "Clear cancelled. {} message(s) deleted."
-msgstr ""
-
-#: src/cogs/clear.py:230
-msgid "{} message(s) deleted."
 msgstr ""
 
 #: src/cogs/help.py:29
@@ -249,6 +87,165 @@ msgstr ""
 
 #: src/cogs/stats.py:41
 msgid "Get some stats about the bot."
+msgstr ""
+
+#: src/cogs/clear/__init__.py:54
+msgid "Delete multiple messages with some filters."
+msgstr ""
+
+#: src/cogs/clear/__init__.py:60
+msgid "The amount of messages to delete."
+msgstr ""
+
+#: src/cogs/clear/__init__.py:61
+msgid "Delete only messages from the specified user."
+msgstr ""
+
+#: src/cogs/clear/__init__.py:62
+msgid "Delete only messages whose user has the specified role."
+msgstr ""
+
+#: src/cogs/clear/__init__.py:63
+msgid "Delete only messages that match the specified search (can be regex)."
+msgstr ""
+
+#: src/cogs/clear/__init__.py:66
+msgid "Delete only messages that contains the selected entry. #TODO"
+msgstr ""
+
+#: src/cogs/clear/__init__.py:69
+msgid ""
+"Delete only messages where length match the specified entry. (e.g. "
+"'<=100', '5', '>10') #TODO"
+msgstr ""
+
+#: src/cogs/clear/__init__.py:70
+msgid ""
+"Delete only messages sent before the specified message or date. (yyyy-mm-"
+"dd) #TODO"
+msgstr ""
+
+#: src/cogs/clear/__init__.py:71
+msgid ""
+"Delete only messages sent after the specified message or date. (yyyy-mm-"
+"dd) #TODO"
+msgstr ""
+
+#: src/cogs/clear/__init__.py:72
+msgid ""
+"Include/exclude pinned messages in deletion, or deletes \"only\" pinned "
+"messages. (default to exclude)"
+msgstr ""
+
+#: src/cogs/clear/__init__.py:77
+msgid "amount"
+msgstr ""
+
+#: src/cogs/clear/__init__.py:78
+msgid "user"
+msgstr ""
+
+#: src/cogs/clear/__init__.py:79
+msgid "role"
+msgstr ""
+
+#: src/cogs/clear/__init__.py:80
+msgid "search"
+msgstr ""
+
+#: src/cogs/clear/__init__.py:81
+msgid "has"
+msgstr ""
+
+#: src/cogs/clear/__init__.py:82
+msgid "length"
+msgstr ""
+
+#: src/cogs/clear/__init__.py:83
+msgid "before"
+msgstr ""
+
+#: src/cogs/clear/__init__.py:84
+msgid "after"
+msgstr ""
+
+#: src/cogs/clear/__init__.py:85
+msgid "pinned"
+msgstr ""
+
+#: src/cogs/clear/__init__.py:106
+msgid "You must supply a number between 1 and 250. (0 < {amount} < 251)"
+msgstr ""
+
+#: src/cogs/clear/__init__.py:144
+msgid "Clearing {amount} message(s)..."
+msgstr ""
+
+#: src/cogs/clear/__init__.py:187
+msgid "Cannot clear more than 3 minutes. {} message(s) deleted."
+msgstr ""
+
+#: src/cogs/clear/__init__.py:188
+msgid "Clear cancelled. {} message(s) deleted."
+msgstr ""
+
+#: src/cogs/clear/__init__.py:196
+msgid "{} message(s) deleted."
+msgstr ""
+
+#: src/cogs/clear/__init__.py:266 src/cogs/poll/edit.py:237
+#: src/cogs/poll/edit.py:335 src/cogs/poll/edit.py:397
+#: src/cogs/poll/edit.py:438 src/cogs/poll/edit.py:477
+#: src/cogs/poll/edit.py:516
+msgid "Cancel"
+msgstr ""
+
+#: src/cogs/clear/clear_transformers.py:29
+msgid "include"
+msgstr ""
+
+#: src/cogs/clear/clear_transformers.py:30
+msgid "exclude"
+msgstr ""
+
+#: src/cogs/clear/clear_transformers.py:31
+msgid "only"
+msgstr ""
+
+#: src/cogs/clear/clear_transformers.py:47
+msgid "image"
+msgstr ""
+
+#: src/cogs/clear/clear_transformers.py:48
+msgid "video"
+msgstr ""
+
+#: src/cogs/clear/clear_transformers.py:49
+msgid "audio"
+msgstr ""
+
+#: src/cogs/clear/clear_transformers.py:50
+msgid "stickers"
+msgstr ""
+
+#: src/cogs/clear/clear_transformers.py:51
+msgid "file"
+msgstr ""
+
+#: src/cogs/clear/clear_transformers.py:52
+msgid "embed"
+msgstr ""
+
+#: src/cogs/clear/clear_transformers.py:53
+msgid "link (any URL)"
+msgstr ""
+
+#: src/cogs/clear/clear_transformers.py:54
+msgid "mention"
+msgstr ""
+
+#: src/cogs/clear/clear_transformers.py:55
+msgid "discord invitation"
 msgstr ""
 
 #: src/cogs/config/__init__.py:31
