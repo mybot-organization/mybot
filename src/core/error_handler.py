@@ -66,7 +66,7 @@ class ErrorHandler:
             case CheckFailure() | MiscCheckFailure():
                 return await self.send_error(ctx, _("This command needs some conditions you don't meet."))
             case BadArgument():  # Interactions only
-                # TODO : improve this ?
+                # TODO(airo.pi_): improve this ?
                 return await self.send_error(ctx, _("You provided a bad argument."))
             case BotMissingPermissions():
                 return await self.send_error(

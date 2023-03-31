@@ -217,11 +217,11 @@ def app_command_bot_required_permissions(**perms: bool) -> Callable[[T], T]:
 
 async def is_user_authorized(context: MiscCommandContext[MyBot]) -> bool:
     del context  # unused
-    # TODO: check using the database if the user is authorized
+    # TODO(airo.pi_): check using the database if the user is authorized
     return True
 
 
 async def is_activated(context: MiscCommandContext[MyBot]) -> bool:
     del context  # unused
-    # TODO: check using the database if the misc command is activated
+    # TODO(airo.pi_): check using the database if the misc command is activated
     return True

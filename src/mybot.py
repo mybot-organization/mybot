@@ -199,8 +199,8 @@ class MyBot(AutoShardedBot):
             embed.add_field(
                 name="🇫🇷 Salut, moi c'est Toby !",
                 value=(
-                    "Saches que dorénavant, MyBot fonctionne uniquement avec des **slash commands**. C'est le petit menu "
-                    "qui apparaît quand on faire `/` dans un salon.\n"
+                    "Saches que dorénavant, MyBot fonctionne uniquement avec des **slash commands**. "
+                    "C'est le petit menu qui apparaît quand on faire `/` dans un salon.\n"
                     "Si tu ne vois pas les commandes de MyBot apparaître, essayes de réinviter le bot avec ce lien"
                     " ci-dessous !\n"
                     "Si tu rencontres un problème, n'hésite pas à rejoindre le serveur de support.\n\n"
@@ -246,7 +246,7 @@ class MyBot(AutoShardedBot):
                 label="Invite link",
                 style=discord.ButtonStyle.url,
                 emoji="🔗",
-                url=f"https://discord.com/api/oauth2/authorize?client_id={config.BOT_ID}&scope=bot%20applications.commands",  # noqa: E501
+                url=f"https://discord.com/api/oauth2/authorize?client_id={config.BOT_ID}&scope=bot%20applications.commands",  # NOSONAR noqa: E501
             )
         )
         view.add_item(

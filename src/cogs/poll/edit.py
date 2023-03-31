@@ -40,7 +40,7 @@ class EditPollMenus(ui.Select["EditPoll"]):
                 description=_(menu.select_description),
             )
 
-    # TODO : inspect the type issue present here.
+    # TODO(airo.pi_) : inspect the type issue present here.
     async def callback(self, inter: Interaction[MyBot]) -> None:  # pyright: ignore [reportIncompatibleMethodOverride]
         view = cast(EditPoll, self.view)
         await view.set_menu(inter, await self.menus[int(self.values[0])](view).build())
@@ -58,13 +58,6 @@ class EditPoll(Menu["MyBot"]):
         self.add_item(EditPollMenus(self.poll))
         self.reset_votes.label = _("Reset")
         self.save.label = _("Save")
-
-        # if self.poll.type == db.PollType.CHOICE:
-        #     self.edit_choices.disabled = False
-        #     self.set_max_choices.disabled = False
-        # else:
-        #     self.edit_choices.disabled = True
-        #     self.set_max_choices.disabled = True
 
         await self.update()
 
@@ -477,15 +470,6 @@ class EditAllowedRoles(EditSubmenu):
         self.cancel.label = _("Cancel")
         self.back.label = _("Back")
         self.allowed_roles.placeholder = _("Select the roles that can vote.")
-
-        # discord limitation ?
-        # def get_role(role_id: int) -> discord.Role | None:
-        #     guild: discord.Guild = cast(discord.Guild, self.bot.get_guild(self.parent.poll.guild_id))
-        #     return guild.get_role(role_id)
-
-        # self.allowed_roles._values = [  # pyright: ignore [reportPrivateUsage]
-        #     role for role_id in self.parent.poll.allowed_roles if (role := get_role(role_id))
-        # ]
 
         await self.update()
 

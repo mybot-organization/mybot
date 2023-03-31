@@ -21,6 +21,7 @@ logging.getLogger("discord").setLevel(logging.INFO)
 
 @click.group()
 def cli():
+    # The base command group. Will not be called directly.
     pass
 
 

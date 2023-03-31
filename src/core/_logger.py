@@ -13,6 +13,8 @@ from discord.utils import MISSING
 
 from ._config import config
 
+dt_fmt = "%Y-%m-%d %H:%M:%S"
+
 
 def stream_supports_color(stream: Any) -> bool:
     is_a_tty = hasattr(stream, "isatty") and stream.isatty()
@@ -58,9 +60,7 @@ class DiscordLogHandler(logging.Handler):
         embed = discord.Embed()
         embeds = [embed]
         embed.set_author(name=f"{record.levelname} : {record.name}")
-        embed.description = (
-            f"File : `{record.pathname}`\n" f"Line : `{record.lineno}`\n" f"Message : `{record.message}`"
-        )
+        embed.description = f"File : `{record.pathname}`\nLine : `{record.lineno}`\nMessage : `{record.message}`"
 
         if record.exc_info:
             formatted_tb = traceback.format_exception(record.exc_info[1])
@@ -84,7 +84,8 @@ class DiscordLogHandler(logging.Handler):
             embed.add_field(
                 name="Additional Context",
                 value=(
-                    f"User : `{additional_context.user.name}#{additional_context.user.discriminator}` ({additional_context.user.id})\n"
+                    f"User : `{additional_context.user.name}#{additional_context.user.discriminator}`"
+                    f" ({additional_context.user.id})\n"
                     f"Guild : {format_guild(additional_context.guild)}\n"
                 ),
             )
@@ -131,7 +132,7 @@ class _ColorFormatter(logging.Formatter):
     FORMATS = {
         level: logging.Formatter(
             f"\x1b[30;1m%(asctime)s\x1b[0m {colour}%(levelname)-8s\x1b[0m \x1b[35m%(name)s\x1b[0m %(message)s",
-            "%Y-%m-%d %H:%M:%S",
+            dt_fmt,
         )
         for level, colour in LEVEL_COLOURS
     }
@@ -161,7 +162,6 @@ def create_logger(name: str | None = None, log_file: str | None = None, level: i
     if stream_supports_color(stream_handler.stream):
         stream_handler.setFormatter(_ColorFormatter())
     else:
-        dt_fmt = "%Y-%m-%d %H:%M:%S"
         stream_handler.setFormatter(
             logging.Formatter("[{asctime}] [{levelname:<8}] {name}: {message}", dt_fmt, style="{")
         )
@@ -173,7 +173,6 @@ def create_logger(name: str | None = None, log_file: str | None = None, level: i
 
     if log_file is not None:
         log_handler = logging.FileHandler(log_file)
-        dt_fmt = "%Y-%m-%d %H:%M:%S"
         formatter = logging.Formatter("[{asctime}] [{levelname:<8}] {name}: {message}", dt_fmt, style="{")
         log_handler.setFormatter(formatter)
         logger.addHandler(log_handler)
