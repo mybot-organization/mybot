@@ -103,23 +103,20 @@ class Help(Cog):
                     if not feature.sub_commands:
                         description[feature.type].insert(
                             0,
-                            f"{Emojis.slash_command} </{feature.name}:{app_command.id}> {set_tags(feature)}\n{_(feature.description)}",
+                            f"{Emojis.slash_command} </{feature.name}:{app_command.id}> {set_tags(feature)}\n"
+                            f"{_(feature.description)}",
                         )
                     else:
                         description[feature.type].append(
                             f"{Emojis.slash_command} `{feature.name}` {set_tags(feature)}\n{_(feature.description)}"
                         )
                 case ContextCommand():
-                    adapters = {
-                        FeatureType.CONTEXT_MESSAGE: discord.AppCommandType.message,
-                        FeatureType.CONTEXT_USER: discord.AppCommandType.user,
-                    }
                     prefix = {
                         FeatureType.CONTEXT_MESSAGE: Emojis.message_context,
                     }
-                    app_command = get(self.bot.app_commands, name=feature.name, type=adapters[feature.type])
                     description[FeatureType.CONTEXT_MESSAGE].append(
-                        f"{prefix[feature.type]} `{_(feature.name).lower()}` {set_tags(feature)}\n{_(feature.description)}"
+                        f"{prefix[feature.type]} `{_(feature.name).lower()}` {set_tags(feature)}\n"
+                        f"{_(feature.description)}"
                     )
 
                 case Misc():
@@ -129,7 +126,8 @@ class Help(Cog):
                     }
 
                     description[feature.type].append(
-                        f"[{prefix[feature.misc_type]}](https://google.com) `{_(feature.name).lower()}` {set_tags(feature)}\n{_(feature.description)}"
+                        f"[{prefix[feature.misc_type]}](https://google.com) `{_(feature.name).lower()}` "
+                        f"{set_tags(feature)}\n{_(feature.description)}"
                     )
                 case _:
                     pass  # should never happen
@@ -150,15 +148,6 @@ class Help(Cog):
             ResponseType.info, message=_("Help about {} [{}]", feature.name, _(friendly_commands_types[feature.type]))
         )["embed"]
         embed.description = _(feature.description)
-
-        if isinstance(feature, SlashCommand):
-            pass
-            # field_value = "" if feature.parameters else _("No parameters")
-
-            # for parameter in feature.parameters:
-            #     field_value += f"`{parameter.name}: {parameter.type}channel` ({_('required') if parameter.required else ('optional')})\n{_(parameter.description)}\n"
-
-            # embed.add_field(name=_("Command parameters"), value=field_value)
 
         return embed
 

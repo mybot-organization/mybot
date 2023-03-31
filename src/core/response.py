@@ -87,7 +87,7 @@ def response_constructor(
 def response_constructor(
     response_type: ResponseType, message: str, embedded: bool = True, author_url: str | None = None
 ) -> MessageDisplay:
-    del embedded  # TODO
+    del embedded  # TODO(airo.pi_)
     embed = discord.Embed(
         color=_embed_colors[response_type],
     )

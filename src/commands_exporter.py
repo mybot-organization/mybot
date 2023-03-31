@@ -176,7 +176,7 @@ def extract_features(mybot: MyBot) -> list[Feature]:
 async def export(mybot: MyBot, filename: str = "features.json") -> None:
     features: list[Feature] = extract_features(mybot)
 
-    # TODO : fix features export to json.
+    # TODO(airo.pi_): fix features export to json.
 
     with open(filename, "w", encoding="utf-8") as file:
         json.dump(features, file, indent=4)

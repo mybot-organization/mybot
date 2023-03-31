@@ -144,7 +144,7 @@ class ClearWorker:
             _("Clearing {amount} message(s)...", amount=self.deletion_goal, _locale=self.inter.locale),
         )
         display.embed.description = _(
-            ("Analyzed: {analyzed}\n" "Deleted: {deleted}/{goal}\n" "Planned for deletion: {planned}"),
+            "Analyzed: {analyzed}\nDeleted: {deleted}/{goal}\nPlanned for deletion: {planned}",
             analyzed=self.analyzed_messages,
             deleted=self.deleted_messages,
             goal=self.deletion_goal,

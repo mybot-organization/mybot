@@ -70,7 +70,7 @@ class MiscCommand(Generic[CogT, P, T]):
         self.nsfw = nsfw
 
         self.guild_only = getattr(callback, "__misc_commands_guild_only__", False)
-        self.default_permissions = 0  # TODO
+        self.default_permissions = 0  # TODO(airo.pi_)
 
         self.extras = extras | getattr(callback, "__misc_commands_extras__", {})
 

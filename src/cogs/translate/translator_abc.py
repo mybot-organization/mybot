@@ -6,6 +6,9 @@ from .languages import Language, Languages
 
 class TranslatorAdapter(ABC):
     async def close(self):
+        """
+        The method is called if the Cog is closed.
+        """
         pass
 
     @abstractmethod

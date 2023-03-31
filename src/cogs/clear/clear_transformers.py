@@ -85,7 +85,7 @@ class LengthTransformer(Transformer):
 
         length = int(result.group(2))
 
-        if not (0 <= length <= 4000):
+        if not 0 <= length <= 4000:
             raise NonSpecificError("A length filter must be between 0 and 4000 characters")
 
         test = self.identifiers[result.group(1)]
