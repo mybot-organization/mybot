@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
 "POT-Creation-Date: 2023-03-31 18:42+0000\n"
-"PO-Revision-Date: 2023-03-31 20:03\n"
+"PO-Revision-Date: 2023-03-31 21:15\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -676,7 +676,7 @@ msgstr "Il semblerait que le bot ait été ajouté de manière incorrecte. Veuil
 
 #: src/core/error_handler.py:80
 msgid "This command cannot be used in DMs."
-msgstr "Cette commande ne peut être utilisé en message privé."
+msgstr "Cette commande ne peut pas être utilisée en message privé."
 
 #: src/core/error_handler.py:83
 msgid "An unhandled error happened.\n"
