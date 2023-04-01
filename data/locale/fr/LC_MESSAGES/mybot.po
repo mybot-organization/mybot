@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
 "POT-Creation-Date: 2023-03-31 21:41+0000\n"
-"PO-Revision-Date: 2023-03-31 22:28\n"
+"PO-Revision-Date: 2023-04-01 11:45\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -178,7 +178,9 @@ msgstr "Suppression de {amount} message(s)..."
 msgid "Analyzed: {analyzed}\n"
 "Deleted: {deleted}/{goal}\n"
 "Planned for deletion: {planned}"
-msgstr ""
+msgstr "Analysés : {analyzed}\n"
+"Supprimés : {deleted}/{goal}\n"
+"Prévu pour la suppression : {planned}"
 
 #: src/cogs/clear/__init__.py:187
 msgid "Cannot clear more than 3 minutes. {} message(s) deleted."
@@ -418,11 +420,11 @@ msgstr "Le sondage se termine <t:{}:R>\n"
 
 #: src/cogs/poll/display.py:112
 msgid "Yes!"
-msgstr ""
+msgstr "Oui !"
 
 #: src/cogs/poll/display.py:112
 msgid "No!"
-msgstr ""
+msgstr "Non !"
 
 #: src/cogs/poll/edit.py:25
 msgid "Select what you want to edit."
