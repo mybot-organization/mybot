@@ -200,8 +200,8 @@ msgstr ""
 msgid "{} message(s) deleted."
 msgstr ""
 
-#: src/cogs/clear/__init__.py:266 src/cogs/poll/edit.py:230
-#: src/cogs/poll/edit.py:328 src/cogs/poll/edit.py:390
+#: src/cogs/clear/__init__.py:266 src/cogs/poll/edit.py:229
+#: src/cogs/poll/edit.py:327 src/cogs/poll/edit.py:389
 #: src/cogs/poll/edit.py:431 src/cogs/poll/edit.py:470
 #: src/cogs/poll/edit.py:500
 msgid "Cancel"
@@ -335,84 +335,84 @@ msgstr ""
 msgid "Play tictactoe"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:33
+#: src/cogs/poll/__init__.py:35
 msgid "poll"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:33 src/cogs/poll/__init__.py:111
-#: src/cogs/poll/edit.py:187
+#: src/cogs/poll/__init__.py:35 src/cogs/poll/__init__.py:113
+#: src/cogs/poll/edit.py:186
 msgid "Create a new poll"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:39
+#: src/cogs/poll/__init__.py:41
 msgid "Edit poll"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:41
+#: src/cogs/poll/__init__.py:43
 msgid "Use this to edit a poll even after creation."
 msgstr ""
 
-#: src/cogs/poll/__init__.py:74
+#: src/cogs/poll/__init__.py:76
 msgid "custom_choice"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:75
+#: src/cogs/poll/__init__.py:77
 msgid "A poll with customizable options."
 msgstr ""
 
-#: src/cogs/poll/__init__.py:83
+#: src/cogs/poll/__init__.py:85
 msgid "yesno"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:84
+#: src/cogs/poll/__init__.py:86
 msgid "A simple poll with \"Yes\" and \"No\" as options."
 msgstr ""
 
-#: src/cogs/poll/__init__.py:99
+#: src/cogs/poll/__init__.py:101
 msgid "This message is not a poll."
 msgstr ""
 
-#: src/cogs/poll/__init__.py:101
+#: src/cogs/poll/__init__.py:103
 msgid "You are not the author of this poll. You can't edit it."
 msgstr ""
 
-#: src/cogs/poll/__init__.py:118 src/cogs/poll/edit.py:193
+#: src/cogs/poll/__init__.py:120 src/cogs/poll/edit.py:192
 msgid "Poll question"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:118 src/cogs/poll/edit.py:194
+#: src/cogs/poll/__init__.py:120 src/cogs/poll/edit.py:193
 msgid "Do you agree this bot is awesome?"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:122 src/cogs/poll/edit.py:201
+#: src/cogs/poll/__init__.py:124 src/cogs/poll/edit.py:200
 msgid "Poll description"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:123 src/cogs/poll/edit.py:203
+#: src/cogs/poll/__init__.py:125 src/cogs/poll/edit.py:202
 msgid "Tell more about your poll here."
 msgstr ""
 
-#: src/cogs/poll/__init__.py:145
+#: src/cogs/poll/__init__.py:147
 msgid "Choice 1"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:146
+#: src/cogs/poll/__init__.py:148
 msgid "Yes, totally!"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:150
+#: src/cogs/poll/__init__.py:152
 msgid "Choice 2"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:151
+#: src/cogs/poll/__init__.py:153
 msgid "Absolutely!"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:155
+#: src/cogs/poll/__init__.py:157
 msgid "Choice 3"
 msgstr ""
 
-#: src/cogs/poll/__init__.py:156
+#: src/cogs/poll/__init__.py:158
 msgid "Of course!"
 msgstr ""
 
@@ -444,121 +444,121 @@ msgstr ""
 msgid "Select what you want to edit."
 msgstr ""
 
-#: src/cogs/poll/edit.py:59 src/cogs/poll/edit.py:499
+#: src/cogs/poll/edit.py:58 src/cogs/poll/edit.py:499
 msgid "Reset"
 msgstr ""
 
-#: src/cogs/poll/edit.py:60
+#: src/cogs/poll/edit.py:59
 msgid "Save"
 msgstr ""
 
-#: src/cogs/poll/edit.py:67
+#: src/cogs/poll/edit.py:66
 msgid "The results are {}."
 msgstr ""
 
-#: src/cogs/poll/edit.py:67
+#: src/cogs/poll/edit.py:66
 msgid "public"
 msgstr ""
 
-#: src/cogs/poll/edit.py:67
+#: src/cogs/poll/edit.py:66
 msgid "private"
 msgstr ""
 
-#: src/cogs/poll/edit.py:70
+#: src/cogs/poll/edit.py:69
 msgid "Users {} change their answer once voted."
 msgstr ""
 
-#: src/cogs/poll/edit.py:71
+#: src/cogs/poll/edit.py:70
 msgid "can"
 msgstr ""
 
-#: src/cogs/poll/edit.py:71
+#: src/cogs/poll/edit.py:70
 msgid "can't"
 msgstr ""
 
-#: src/cogs/poll/edit.py:84
+#: src/cogs/poll/edit.py:83
 msgid "Reopen poll"
 msgstr ""
 
-#: src/cogs/poll/edit.py:87
+#: src/cogs/poll/edit.py:86
 msgid "Close poll"
 msgstr ""
 
-#: src/cogs/poll/edit.py:159
+#: src/cogs/poll/edit.py:158
 msgid "The poll has been updated while you were voting."
 msgstr ""
 
-#: src/cogs/poll/edit.py:183
+#: src/cogs/poll/edit.py:182
 msgid "Edit title and description"
 msgstr ""
 
-#: src/cogs/poll/edit.py:219
+#: src/cogs/poll/edit.py:218
 msgid "Edit ending time"
 msgstr ""
 
-#: src/cogs/poll/edit.py:220
+#: src/cogs/poll/edit.py:219
 msgid "Set a poll duration, it will be closed automatically."
 msgstr ""
 
-#: src/cogs/poll/edit.py:227
+#: src/cogs/poll/edit.py:226
 msgid "Select the number of days."
 msgstr ""
 
-#: src/cogs/poll/edit.py:228
+#: src/cogs/poll/edit.py:227
 msgid "Select the number of hours."
 msgstr ""
 
-#: src/cogs/poll/edit.py:229
+#: src/cogs/poll/edit.py:228
 msgid "Select the number of minutes."
 msgstr ""
 
-#: src/cogs/poll/edit.py:231 src/cogs/poll/edit.py:327
-#: src/cogs/poll/edit.py:389 src/cogs/poll/edit.py:432
+#: src/cogs/poll/edit.py:230 src/cogs/poll/edit.py:326
+#: src/cogs/poll/edit.py:388 src/cogs/poll/edit.py:432
 #: src/cogs/poll/edit.py:471
 msgid "Back"
 msgstr ""
 
-#: src/cogs/poll/edit.py:233
+#: src/cogs/poll/edit.py:232
 msgid "{} day(s)"
 msgstr ""
 
-#: src/cogs/poll/edit.py:234
+#: src/cogs/poll/edit.py:233
 msgid "{} hour(s)"
 msgstr ""
 
-#: src/cogs/poll/edit.py:236
+#: src/cogs/poll/edit.py:235
 msgid "{} minute(s)"
 msgstr ""
 
-#: src/cogs/poll/edit.py:317
+#: src/cogs/poll/edit.py:316
 msgid "Edit choices"
 msgstr ""
 
-#: src/cogs/poll/edit.py:318
+#: src/cogs/poll/edit.py:317
 msgid "Add and removes choices for multiple choices polls."
 msgstr ""
 
-#: src/cogs/poll/edit.py:325
+#: src/cogs/poll/edit.py:324
 msgid "Add a choice"
 msgstr ""
 
-#: src/cogs/poll/edit.py:326
+#: src/cogs/poll/edit.py:325
 msgid "Remove a choice"
 msgstr ""
 
-#: src/cogs/poll/edit.py:361
+#: src/cogs/poll/edit.py:360
 msgid "Add a new choice"
 msgstr ""
 
-#: src/cogs/poll/edit.py:366
+#: src/cogs/poll/edit.py:365
 msgid "Choice"
 msgstr ""
 
-#: src/cogs/poll/edit.py:367
+#: src/cogs/poll/edit.py:366
 msgid "Enter a new choice here."
 msgstr ""
 
-#: src/cogs/poll/edit.py:391
+#: src/cogs/poll/edit.py:390
 msgid "Select the choices you want to remove."
 msgstr ""
 
