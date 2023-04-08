@@ -151,15 +151,24 @@ class ChoicesPollModal(PollModal):
             placeholder=_("Absolutely!"),
             max_length=512,
         )
+        self.choice3 = ui.TextInput[Self](
+            label=_("Choice 3"),
+            placeholder=_("Of course!"),
+            max_length=512,
+            required=False,
+        )
 
         self.add_item(self.choice1)
         self.add_item(self.choice2)
+        self.add_item(self.choice3)
 
     async def on_submit(self, inter: discord.Interaction):
         self.poll.title = self.question.value
         self.poll.description = self.description.value
         self.poll.choices.append(db.PollChoice(poll_id=self.poll.id, label=self.choice1.value))
         self.poll.choices.append(db.PollChoice(poll_id=self.poll.id, label=self.choice2.value))
+        if self.choice3.value:
+            self.poll.choices.append(db.PollChoice(poll_id=self.poll.id, label=self.choice3.value))
 
         await inter.response.send_message(
             **(await PollDisplay.build(self.poll, self.bot)),
