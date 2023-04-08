@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MyBot 1.0\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
-"POT-Creation-Date: 2023-03-31 21:41+0000\n"
+"POT-Creation-Date: 2023-04-08 23:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -406,6 +406,14 @@ msgstr ""
 
 #: src/cogs/poll/__init__.py:151
 msgid "Absolutely!"
+msgstr ""
+
+#: src/cogs/poll/__init__.py:155
+msgid "Choice 3"
+msgstr ""
+
+#: src/cogs/poll/__init__.py:156
+msgid "Of course!"
 msgstr ""
 
 #: src/cogs/poll/display.py:78
