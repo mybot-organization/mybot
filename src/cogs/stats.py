@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class Stats(Cog):  # TODO(airo.pi_): add checkers
+class Stats(Cog):
     def __init__(self, bot: MyBot):
         self.bot: MyBot = bot
 

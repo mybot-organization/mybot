@@ -1,4 +1,6 @@
-# IDEA add rank polls (with average note etc...)
+# IDEA: add rank polls (with average note etc...)
+# IDEA: add opinion polls
+# IDEA: add entry polls
 
 from __future__ import annotations
 

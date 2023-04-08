@@ -117,9 +117,9 @@ class PollDisplay:
 
                 return "\n".join((format_legend_boolean(True), format_legend_boolean(False)))
             case db.PollType.OPINION:
-                return ""  # TODO(airo.pi_): OPINION
+                return ""
             case db.PollType.ENTRY:
-                return ""  # TODO(airo.pi_): ENTRY
+                return ""
 
     def build_graph(self) -> str:
         if self.votes is None:  # self.votes is None if the poll is not public
@@ -163,7 +163,7 @@ class PollDisplay:
                 graph.insert(0, f"{Emojis.thumb_up} ")
                 graph.append(f" {Emojis.thumb_down}")
             case _:
-                pass  # TODO(airo.pi_): ENTRY, OPINION
+                pass
 
         return "".join(graph)
 
