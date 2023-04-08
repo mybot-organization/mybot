@@ -176,7 +176,7 @@ class HelpView(ui.View):
             else:
                 option.default = False
 
-    @ui.select()  # type: ignore  # TODO : check for fix
+    @ui.select()
     async def select_feature(self, inter: Interaction, select: ui.Select[Self]):
         feature_identifier = select.values[0]
         feature = cast("Feature", self.cog.retrieve_feature_from_identifier(feature_identifier))

@@ -260,9 +260,7 @@ class BooleanPollVote(VoteMenu):
 
 class OpinionPollVote(VoteMenu):
     pass
-    # TODO(airo.pi_): OPINION
 
 
 class EntryPollVote(VoteMenu):
     pass
-    # TODO(airo.pi_): ENTRY

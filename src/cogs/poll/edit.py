@@ -40,7 +40,6 @@ class EditPollMenus(ui.Select["EditPoll"]):
                 description=_(menu.select_description),
             )
 
-    # TODO(airo.pi_) : inspect the type issue present here.
     async def callback(self, inter: Interaction[MyBot]) -> None:  # pyright: ignore [reportIncompatibleMethodOverride]
         view = cast(EditPoll, self.view)
         await view.set_menu(inter, await self.menus[int(self.values[0])](view).build())
@@ -401,6 +400,7 @@ class RemoveChoices(Menu["MyBot"]):
 
     @ui.select()
     async def choices_to_remove(self, inter: Interaction, select: ui.Select[Self]):
+        # warning: corresponding answers are not removed from the database
         self.parent.poll.choices = [
             choice for choice in self.old_value if str(self.linked_choice[choice]) not in select.values
         ]
