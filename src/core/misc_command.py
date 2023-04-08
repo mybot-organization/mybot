@@ -31,8 +31,13 @@ if TYPE_CHECKING:
 
     from ._types import CoroT, UnresolvedContext, UnresolvedContextT
 
-    ConditionCallback = Callable[Concatenate["CogT", UnresolvedContextT, "P"], CoroT[bool] | bool]
-    Callback = Callable[Concatenate["CogT", UnresolvedContextT, "P"], CoroT["T"]]
+    # functions used as condition for a misc command
+    CallbackCondition = Callable[Concatenate["CogT", UnresolvedContextT, "P"], CoroT[bool] | bool]
+    # type for callback with a resolved context attribute (used as input)
+    CallbackInput = Callable[Concatenate["CogT", "MiscCommandContext[Any]", UnresolvedContextT, "P"], CoroT["T"]]
+    # type for callback without the resolved context attribute (as for the default events)
+    CallbackOutput = Callable[Concatenate["CogT", UnresolvedContextT, "P"], CoroT["T"]]
+
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -57,7 +62,7 @@ class MiscCommand(Generic[CogT, P, T]):
     def __init__(
         self,
         name: str,
-        callback: Callback[CogT, UnresolvedContextT, P, T],
+        callback: CallbackInput[CogT, UnresolvedContextT, P, T],
         description: str,
         nsfw: bool,
         type: MiscCommandsType,
@@ -89,6 +94,8 @@ class MiscCommand(Generic[CogT, P, T]):
             if not trigger_condition:
                 return  # type: ignore
         resolved_context = await MiscCommandContext.resolve(self.bot, context, self)
+        if resolved_context.user.bot:
+            return  # type: ignore
         try:
             for checker in self.checks:
                 if not await maybe_coroutine(checker, resolved_context):
@@ -97,12 +104,12 @@ class MiscCommand(Generic[CogT, P, T]):
             self.bot.dispatch("misc_command_error", resolved_context, e)
             return  # type: ignore
 
-        return await self._callback(cog, context, *args, **kwargs)  # type: ignore
+        return await self._callback(cog, resolved_context, context, *args, **kwargs)  # type: ignore
 
     def add_check(self, predicate: Callable[[MiscCommandContext[Any]], CoroT[bool] | bool]) -> None:
         self.checks.append(predicate)
 
-    async def condition(self, func: ConditionCallback[CogT, UnresolvedContextT, P]) -> None:
+    async def condition(self, func: CallbackCondition[CogT, UnresolvedContextT, P]) -> None:
         self.trigger_condition = func
 
 
@@ -113,8 +120,8 @@ def misc_command(
     nsfw: bool = False,
     listener_name: LiteralNames | None = None,
     extras: dict[Any, Any] | None = None,
-    trigger_condition: ConditionCallback[CogT, UnresolvedContextT, P] | None = None,
-) -> Callable[[Callback[CogT, UnresolvedContextT, P, T]], Callback[CogT, UnresolvedContextT, P, T]]:
+    trigger_condition: CallbackCondition[CogT, UnresolvedContextT, P] | None = None,
+) -> Callable[[CallbackInput[CogT, UnresolvedContextT, P, T]], CallbackOutput[CogT, UnresolvedContextT, P, T]]:
     """Register an event listener as a "command" that can be retrieved from the feature exporter.
     Checkers will be called within the second argument of the function (right after the Cog (self))
 
@@ -133,7 +140,7 @@ def misc_command(
         A wrapped function, bound with a MiscCommand.
     """
 
-    def inner(func: Callback[CogT, UnresolvedContextT, P, T]) -> Callback[CogT, UnresolvedContextT, P, T]:
+    def inner(func: CallbackInput[CogT, UnresolvedContextT, P, T]) -> CallbackOutput[CogT, UnresolvedContextT, P, T]:
         true_listener_name = "on_" + listener_name if listener_name else func.__name__
 
         misc_command = MiscCommand[CogT, P, T](
@@ -147,7 +154,7 @@ def misc_command(
         )
 
         @wraps(func)
-        async def inner(cog: CogT, context: UnresolvedContext, *args: P.args, **kwargs: P.kwargs) -> T:
+        async def wrapper(cog: CogT, context: UnresolvedContext, *args: P.args, **kwargs: P.kwargs) -> T:
             return await misc_command.do_call(cog, context, *args, **kwargs)
 
         setattr(inner, "__listener_as_command__", misc_command)
@@ -155,7 +162,7 @@ def misc_command(
         add_listener = Cog.listener(true_listener_name)
         add_listener(inner)
 
-        return inner
+        return wrapper
 
     return inner
 

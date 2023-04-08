@@ -11,7 +11,7 @@ import discord
 from discord import Embed, Message, app_commands, ui
 from discord.app_commands import locale_str as __
 
-from core import ResponseType, SpecialCog, TemporaryCache, misc_command, response_constructor
+from core import MiscCommandContext, ResponseType, SpecialCog, TemporaryCache, misc_command, response_constructor
 from core.checkers import is_activated, is_user_authorized, misc_check, misc_cmd_bot_required_permissions
 from core.errors import BadArgument, NonSpecificError
 from core.i18n import _
@@ -237,11 +237,7 @@ class Translate(SpecialCog["MyBot"]):
     @misc_cmd_bot_required_permissions(send_messages=True, embed_links=True)
     @misc_check(is_activated)
     @misc_check(is_user_authorized)
-    async def translate_misc_command(self, payload: RawReactionActionEvent):
-        user = await self.bot.getch_user(payload.user_id)
-        if not user or user.bot:  # TODO(airo.pi_): automatically ignore bots
-            return
-
+    async def translate_misc_command(self, ctx: MiscCommandContext[MyBot], payload: RawReactionActionEvent):
         channel = await self.bot.getch_channel(payload.channel_id)
         if channel is None:
             return
@@ -259,12 +255,12 @@ class Translate(SpecialCog["MyBot"]):
             await channel.typing()
 
         async def private_pre_strategy():
-            await user.typing()
+            await ctx.user.typing()
 
         if await self.public_translations(payload.guild_id):
             strategies = Strategies(pre=public_pre_strategy, send=partial(channel.send, reference=message))
         else:
-            strategies = Strategies(pre=private_pre_strategy, send=user.send)
+            strategies = Strategies(pre=private_pre_strategy, send=ctx.user.send)
 
         await self.process(
             payload.user_id,

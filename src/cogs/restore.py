@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from core import SpecialCog, misc_command
+from core import MiscCommandContext, SpecialCog, misc_command
 from core.checkers import is_activated, is_user_authorized, misc_check, misc_cmd_bot_required_permissions
 
 if TYPE_CHECKING:
@@ -20,7 +20,7 @@ class Restore(SpecialCog["MyBot"]):
     @misc_cmd_bot_required_permissions(manage_webhooks=True)
     @misc_check(is_activated)
     @misc_check(is_user_authorized)
-    async def on_message(self, message: Message) -> None:
+    async def on_message(self, ctx: MiscCommandContext[MyBot], message: Message) -> None:
         raise NotImplementedError("Restore is not implemented.")
 
 
