@@ -285,17 +285,17 @@ class EditEndingTime(EditSubmenu):
         await self.update()
         await self.update_poll_display(inter)
 
-    @ui.select(min_values=0, max_values=1)
+    @ui.select(cls=ui.Select[Self], min_values=0, max_values=1)
     async def select_days(self, inter: discord.Interaction, select: ui.Select[Self]):
         del select  # unused
         await self.callback(inter)
 
-    @ui.select(min_values=0, max_values=1)
+    @ui.select(cls=ui.Select[Self], min_values=0, max_values=1)
     async def select_hours(self, inter: discord.Interaction, select: ui.Select[Self]):
         del select  # unused
         await self.callback(inter)
 
-    @ui.select(min_values=0, max_values=1)
+    @ui.select(cls=ui.Select[Self], min_values=0, max_values=1)
     async def select_minutes(self, inter: discord.Interaction, select: ui.Select[Self]):
         del select  # unused
         await self.callback(inter)
@@ -398,7 +398,7 @@ class RemoveChoices(Menu["MyBot"]):
         for option in self.choices_to_remove.options:
             option.default = option.value in self.choices_to_remove.values
 
-    @ui.select()
+    @ui.select(cls=ui.Select[Self])
     async def choices_to_remove(self, inter: Interaction, select: ui.Select[Self]):
         # warning: corresponding answers are not removed from the database
         self.parent.poll.choices = [
@@ -441,7 +441,7 @@ class EditMaxChoices(EditSubmenu):
 
         return self
 
-    @ui.select()
+    @ui.select(cls=ui.Select[Self])
     async def max_choices(self, inter: Interaction, select: ui.Select[Self]):
         self.parent.poll.max_answers = int(select.values[0])
         await self.message_refresh(inter)
