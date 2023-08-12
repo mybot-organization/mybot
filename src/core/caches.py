@@ -12,7 +12,9 @@ from typing import (
     NamedTuple,
     ParamSpec,
     Sequence,
+    SupportsIndex,
     TypeVar,
+    overload,
 )
 
 _K = TypeVar("_K")  # Type for Keys
@@ -148,7 +150,15 @@ class SizedSequence(Sequence[T]):
         else:
             self._internal = list(init)
 
-    def __getitem__(self, i: int):
+    @overload
+    def __getitem__(self, i: SupportsIndex) -> T:
+        ...
+
+    @overload
+    def __getitem__(self, i: slice) -> Sequence[T]:
+        ...
+
+    def __getitem__(self, i: SupportsIndex | slice) -> T | Sequence[T]:
         return self._internal.__getitem__(i)
 
     def __setitem__(self, index: int, value: T):
