@@ -176,7 +176,7 @@ class ChoicePollVote(VoteMenu):
         await super().update()
         self.remove_vote.disabled = len(self.choice.values) == 0
 
-    @ui.select()
+    @ui.select(cls=ui.Select[Self])
     async def choice(self, inter: Interaction, select: ui.Select[Self]):
         del select  # unused
         await self.message_refresh(inter, False)
