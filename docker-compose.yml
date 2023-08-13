@@ -24,7 +24,7 @@ services:
       - 8080
 
   database:
-    image: postgres:14.4-alpine
+    image: timescale/timescaledb:latest-pg14
     env_file:
       - .env
     restart: always
@@ -41,3 +41,16 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  grafana:
+    image: grafana/grafana:latest
+    env_file:
+      - .env
+    restart: always
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      database:
+        condition: service_healthy
