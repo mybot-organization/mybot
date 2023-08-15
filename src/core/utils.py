@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import AsyncIterable, Iterator, Sequence, TypeVar
+from typing import AsyncIterable, Iterator, Literal, Sequence, TypeVar
 
 T = TypeVar("T")
 
@@ -30,3 +30,12 @@ async def async_all(iterable: AsyncIterable[bool]) -> bool:
         if not element:
             return False
     return True
+
+
+def size_text(string: str, size: int, mode: Literal["end", "middle"] = "end") -> str:
+    if len(string) < size:
+        return string
+    if mode == "end":
+        return f"{string[:size - 1]}…"
+    elif mode == "middle":
+        return f"{string[: size // 2 - 10]}\n… {len(string) - size} more …{string[-size // 2 :]}"
