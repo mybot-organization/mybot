@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import asyncio
 import linecache
 import logging
 import re
@@ -102,34 +103,56 @@ class EvalForm(ui.Modal):
         else:
             strategy = partial(inter.response.send_message, ephemeral=self.ephemeral)
 
-        await strategy(embeds=embeds, view=EvalView(self.bot, code))
-        result, errored = await code_evaluation(str(self.code), inter, self.bot)
-        embeds[1].description = f"```py\n{size_text(result, 4000, 'middle')}\n```"
-        if errored:
-            set_embeds_color(Color.red())
-        else:
-            set_embeds_color(Color.green())
+        task = asyncio.create_task(code_evaluation(str(self.code), inter, self.bot))
+        view = EvalView(self.bot, code, task)
+        await strategy(embeds=embeds, view=view)
 
-        await inter.edit_original_response(embeds=embeds)
+        try:
+            await task
+        except asyncio.CancelledError:
+            embeds[1].description = "```Evaluation cancelled.```"
+            set_embeds_color(Color.orange())
+        else:
+            result, errored = await code_evaluation(str(self.code), inter, self.bot)
+            embeds[1].description = f"```py\n{size_text(result, 4000, 'middle')}\n```"
+            if errored:
+                set_embeds_color(Color.red())
+            else:
+                set_embeds_color(Color.green())
+
+        view.switch()
+        await inter.edit_original_response(embeds=embeds, view=view)
 
 
 class EvalView(ui.View):
-    def __init__(self, bot: MyBot, cached_code: str) -> None:
+    def __init__(self, bot: MyBot, cached_code: str, task: asyncio.Task[Any]) -> None:
         super().__init__(timeout=None)
 
         self.cached_code = cached_code
         self.bot = bot
+        self.task = task
 
-    @ui.button(label="Edit", style=ButtonStyle.blurple)
+    def switch(self):
+        self.edit.disabled = False
+        self.delete.disabled = False
+        self.cancel.disabled = True
+
+    @ui.button(label="Edit", style=ButtonStyle.blurple, disabled=True)
     async def edit(self, inter: Interaction, button: ui.Button[Self]) -> None:
         del button  # unused
         await inter.response.send_modal(EvalForm(self.bot, default=self.cached_code, message=inter.message))
 
-    @ui.button(label="Delete", style=ButtonStyle.red)
+    @ui.button(label="Delete", style=ButtonStyle.red, disabled=True)
     async def delete(self, inter: Interaction, button: ui.Button[Self]) -> None:
         del button  # unused
         await inter.response.defer()
         await inter.delete_original_response()
+
+    @ui.button(label="Cancel", style=ButtonStyle.red)
+    async def cancel(self, inter: Interaction, button: ui.Button[Self]) -> None:
+        del button  # unused
+        self.task.cancel()
+        await inter.response.defer()  # message edition managed in EvalForm.on_submit
 
 
 def clean_code(code: str) -> str:
