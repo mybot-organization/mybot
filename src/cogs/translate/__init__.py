@@ -12,7 +12,7 @@ from discord import Embed, Message, app_commands, ui
 from discord.app_commands import locale_str as __
 
 from core import ResponseType, SpecialCog, TemporaryCache, misc_command, response_constructor
-from core.checkers import is_activated, is_user_authorized, misc_check, misc_cmd_bot_required_permissions
+from core.checkers.misc import bot_required_permissions, is_activated, is_user_authorized, misc_check
 from core.errors import BadArgument, NonSpecificError
 from core.i18n import _
 
@@ -234,7 +234,7 @@ class Translate(SpecialCog["MyBot"]):
         extras={"beta": True},
         trigger_condition=translate_misc_condition,
     )
-    @misc_cmd_bot_required_permissions(send_messages=True, embed_links=True)
+    @bot_required_permissions(send_messages=True, embed_links=True)
     @misc_check(is_activated)
     @misc_check(is_user_authorized)
     async def translate_misc_command(self, payload: RawReactionActionEvent):

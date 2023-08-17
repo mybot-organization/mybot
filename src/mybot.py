@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, cast
 import discord
 import topgg as topggpy
 from discord.ext import tasks
-from discord.ext.commands import AutoShardedBot, errors  # pyright: ignore[reportMissingTypeStubs]
+from discord.ext.commands import AutoShardedBot, errors, when_mentioned  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import get
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
@@ -73,7 +73,7 @@ class MyBot(AutoShardedBot):
         logger.debug("Intents : %s", ", ".join(flag[0] for flag in intents if flag[1]))
 
         super().__init__(
-            command_prefix="!",  # Maybe consider use of IntegrationBot instead of AutoShardedBot
+            command_prefix=when_mentioned,
             tree_cls=CustomCommandTree,
             member_cache_flags=discord.MemberCacheFlags.none(),
             chunk_guilds_at_startup=False,
@@ -95,6 +95,7 @@ class MyBot(AutoShardedBot):
             # "ping",
             # "restore",
             # "stats",
+            "eval",
             "translate",
         ]
         self.config = config
@@ -179,8 +180,9 @@ class MyBot(AutoShardedBot):
         if self.user is None:
             return
 
-        bot_mentioned_regex = re.compile(f"<@!?{self.user.id}>")
-        if not bot_mentioned_regex.match(message.content):
+        bot_mentioned_regex = re.compile(f"^<@!?{self.user.id}>$")
+        if not bot_mentioned_regex.match(message.content.strip()):
+            await self.invoke(await self.get_context(message))
             return
 
         if message.guild is None:

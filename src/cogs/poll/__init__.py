@@ -13,7 +13,7 @@ from discord.app_commands import locale_str as __
 from sqlalchemy.orm import selectinload
 
 from core import SpecialGroupCog, db
-from core.checkers import app_command_bot_required_permissions
+from core.checkers.app import bot_required_permissions
 from core.errors import NonSpecificError
 from core.i18n import _
 
@@ -71,7 +71,7 @@ class PollCog(SpecialGroupCog["MyBot"], group_name=__("poll"), group_description
         poll_menu = poll_menu_from_type[db.PollType(poll_type.value)](self, poll)
         await inter.response.send_modal(poll_menu)
 
-    @app_command_bot_required_permissions(send_messages=True, embed_links=True, external_emojis=True)
+    @bot_required_permissions(send_messages=True, embed_links=True, external_emojis=True)
     @app_commands.command(
         name=__("custom_choice"),
         description=__("A poll with customizable options."),
@@ -80,7 +80,7 @@ class PollCog(SpecialGroupCog["MyBot"], group_name=__("poll"), group_description
     async def custom_choice(self, inter: Interaction) -> None:
         await self.callback(inter, db.PollType.CHOICE)
 
-    @app_command_bot_required_permissions(send_messages=True, embed_links=True, external_emojis=True)
+    @bot_required_permissions(send_messages=True, embed_links=True, external_emojis=True)
     @app_commands.command(
         name=__("yesno"),
         description=__('A simple poll with "Yes" and "No" as options.'),
