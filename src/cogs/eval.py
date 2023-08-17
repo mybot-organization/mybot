@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import linecache
 import logging
 import re
 import traceback
@@ -182,9 +183,20 @@ async def code_evaluation(code: str, inter: Interaction, bot: MyBot) -> tuple[st
 
         exec(compile(parsed, "<ast>", "exec"), env)
         output: Any = await eval("_eval()", env)
-    except Exception as error:
+    except Exception as _:
+        lines = [line + "\n" for line in str_body.splitlines()]
+
+        linecache.cache["<ast>"] = (
+            len(code),  # Source length
+            None,  # Time modified (None bypasses expunge)
+            lines,  # Line list
+            "<ast>",  # 'True' filename
+        )
         error = traceback.format_exc()
         return error, True
+
+    if isinstance(output, discord.Message):
+        return f"<Message <{output.jump_url}>>", False
 
     stdout_buffer.seek(0)
     std_output = stdout_buffer.read()
