@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import enum
 from datetime import datetime
-from typing import Iterable, Sequence, TypedDict, TypeVar, Unpack
+from typing import Any, Iterable, Sequence, TypedDict, TypeVar, Unpack
 
-from sqlalchemy import ARRAY, BigInteger, Boolean, DateTime, Enum, ForeignKey, SmallInteger, String
+from sqlalchemy import ARRAY, TIMESTAMP, BigInteger, Boolean, DateTime, Enum, ForeignKey, SmallInteger, String
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.sql import functions
 from sqlalchemy.sql.schema import ColumnDefault
 
 T = TypeVar("T")
@@ -44,10 +46,6 @@ class PollType(enum.Enum):
     BOOLEAN = 2  # A poll with only "yes" and "no"
     OPINION = 3  # A poll with nuanced opinions
     ENTRY = 4  # A poll where users can enter their own choices
-
-
-class UsageType(enum.Enum):
-    SLASHCOMMAND = 1
 
 
 class PremiumType(enum.Enum):
@@ -148,11 +146,35 @@ class PollAnswer(Base):
     anonymous: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
 
-class Usage(Base):
-    __tablename__ = "usage"
+class TSGuildCount(Base):
+    __tablename__ = "ts_guild_count"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    type: Mapped[UsageType] = mapped_column(Enum(UsageType))
-    details: Mapped[str] = mapped_column(String)
-    user_id: Mapped[UserDB] = mapped_column(ForeignKey(UserDB.user_id))
-    guild_id: Mapped[GuildDB] = mapped_column(ForeignKey(GuildDB.guild_id))
+    ts: Mapped[datetime] = mapped_column(TIMESTAMP, primary_key=True, server_default=functions.now(), nullable=False)
+    value: Mapped[int] = mapped_column(nullable=False)
+
+
+class TSUsage(Base):
+    __tablename__ = "ts_command_usage"
+
+    ts: Mapped[datetime] = mapped_column(TIMESTAMP, primary_key=True, server_default=functions.now(), nullable=False)
+    user_id: Mapped[BigInteger] = mapped_column(BigInteger, nullable=False)  # ForeignKey(UserDB.user_id))
+    guild: Mapped[GuildDB] = mapped_column(ForeignKey(GuildDB.guild_id), nullable=False)
+    data: Mapped[dict[str, Any]] = mapped_column(JSONB, default={}, nullable=False)
+
+
+class TSPollModification(Base):
+    __tablename__ = "ts_poll_modification"
+
+    ts: Mapped[datetime] = mapped_column(TIMESTAMP, primary_key=True, server_default=functions.now(), nullable=False)
+    user_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    poll_id: Mapped[int] = mapped_column(ForeignKey(Poll.id), nullable=False)
+    data: Mapped[dict[str, Any]] = mapped_column(JSONB, default={}, nullable=False)
+
+
+class TSSettingUpdate(Base):
+    __tablename__ = "ts_setting_update"
+
+    ts: Mapped[datetime] = mapped_column(TIMESTAMP, primary_key=True, server_default=functions.now(), nullable=False)
+    guild_id: Mapped[int] = mapped_column(ForeignKey(GuildDB.guild_id), nullable=False)
+    user_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    data: Mapped[dict[str, Any]] = mapped_column(JSONB, default={}, nullable=False)
