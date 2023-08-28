@@ -1,4 +1,4 @@
-wheel==0.41.1
+wheel==0.41.2
 asyncpg==0.28.0
 sqlalchemy[asyncio]==2.0.19
 typing_extensions==4.7.1
