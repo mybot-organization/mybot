@@ -21,6 +21,7 @@ logging.getLogger("discord").setLevel(logging.INFO)
 
 @click.group()
 def cli():
+    # The base command group. Will not be called directly.
     pass
 
 
@@ -41,7 +42,14 @@ def bot(
     sync_only: bool,
 ):
     required_env_var = {"POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB", "MYBOT_TOKEN"}
-    optionnal_env_var = {"TOPGG_TOKEN", "TOPGG_AUTH", "MS_TRANSLATE_KEY", "MS_TRANSLATE_REGION", "TRANSLATOR_SERVICES"}
+    optional_env_var = {
+        "TOPGG_TOKEN",
+        "TOPGG_AUTH",
+        "MS_TRANSLATE_KEY",
+        "MS_TRANSLATE_REGION",
+        "TRANSLATOR_SERVICES",
+        "LOG_WEBHOOK_URL",
+    }
     kwargs: dict[str, Any] = {}
 
     if missing_env_var := required_env_var - set(os.environ):
@@ -52,7 +60,7 @@ def bot(
     if len({"TOPGG_TOKEN", "TOPGG_AUTH"} & set(os.environ)) == 1:
         raise RuntimeError("TOPGG_TOKEN and TOPGG_AUTH should be either both defined or both undefined.")
 
-    present_env_var = set(os.environ) & (required_env_var | optionnal_env_var) - {"MYBOT_TOKEN"}
+    present_env_var = set(os.environ) & (required_env_var | optional_env_var) - {"MYBOT_TOKEN"}
     for env_var in present_env_var:
         kwargs[env_var] = os.environ[env_var]
 

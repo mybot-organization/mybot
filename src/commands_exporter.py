@@ -23,10 +23,10 @@ FeatureCodebaseTypes = (
 
 
 class FeatureType(Enum):
-    chat_input = "chat_input"
-    context_user = "context_user"
-    context_message = "context_message"
-    misc = "misc"
+    CHAT_INPUT = "chat_input"
+    CONTEXT_USER = "context_user"
+    CONTEXT_MESSAGE = "context_message"
+    MISC = "misc"
 
 
 @dataclass(kw_only=True)
@@ -43,7 +43,7 @@ class Feature:
 
 @dataclass(kw_only=True)
 class SlashCommand(Feature):
-    type: FeatureType = FeatureType.chat_input
+    type: FeatureType = FeatureType.CHAT_INPUT
     parameters: list[SlashCommandParameter]
     sub_commands: list[SlashCommand] = field(default_factory=list)
     parent: SlashCommand | None = None
@@ -64,7 +64,7 @@ class ContextCommand(Feature):
 
 @dataclass(kw_only=True)
 class Misc(Feature):
-    type: FeatureType = FeatureType.misc
+    type: FeatureType = FeatureType.MISC
     misc_type: MiscCommandsType
 
 
@@ -133,8 +133,8 @@ def fill_features(
                 fill_features(sub_command, feature.sub_commands, feature)
         case app_commands.ContextMenu():
             equiv = {
-                discord.AppCommandType.user: FeatureType.context_user,
-                discord.AppCommandType.message: FeatureType.context_message,
+                discord.AppCommandType.user: FeatureType.CONTEXT_USER,
+                discord.AppCommandType.message: FeatureType.CONTEXT_MESSAGE,
             }
             feature = ContextCommand(
                 type=equiv[child.type],
@@ -176,9 +176,9 @@ def extract_features(mybot: MyBot) -> list[Feature]:
 async def export(mybot: MyBot, filename: str = "features.json") -> None:
     features: list[Feature] = extract_features(mybot)
 
-    # TODO : fix features export to json.
+    # TODO(airo.pi_): fix features export to json.
 
-    with open(filename, "w") as file:
+    with open(filename, "w", encoding="utf-8") as file:
         json.dump(features, file, indent=4)
 
 

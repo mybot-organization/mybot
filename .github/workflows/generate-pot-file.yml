@@ -1,6 +1,7 @@
 name: Generate pot file
 
 on:
+  workflow_dispatch:
   push:
     branches: [master]
     paths:
@@ -13,7 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          ref: master
+          path: master/
 
       - uses: actions/setup-python@v4
         with:
@@ -22,10 +24,25 @@ jobs:
 
       - name: babel extract (pot file generation)
         run: |
+          cd master
           pip install babel
           sh ./bin/pot-generation.sh
 
-      - uses: EndBug/add-and-commit@v9
+      - uses: actions/checkout@v3
         with:
-          new_branch: auto/translations-source
-          message: "POT file generated."
+          ref: auto/translations-source
+          path: translations/
+
+      - name: setup git
+        run: |
+          cd translations
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+
+      - name: commit
+        run: |
+          mv -f master/resources/locale/mybot.pot translations/resources/locale/mybot.pot
+          cd translations
+          git add ./resources/locale/mybot.pot
+          git commit -m "POT file generated"
+          git push origin auto/translations-source

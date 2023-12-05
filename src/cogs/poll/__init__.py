@@ -1,4 +1,6 @@
-# IDEA add rank polls (with average note etc...)
+# IDEA: add rank polls (with average note etc...)
+# IDEA: add opinion polls
+# IDEA: add entry polls
 
 from __future__ import annotations
 
@@ -11,7 +13,8 @@ from discord.app_commands import locale_str as __
 from sqlalchemy.orm import selectinload
 
 from core import SpecialGroupCog, db
-from core.checkers import app_command_bot_required_permissions
+from core.checkers.app import bot_required_permissions
+from core.errors import NonSpecificError
 from core.i18n import _
 
 from .display import PollDisplay
@@ -68,7 +71,7 @@ class PollCog(SpecialGroupCog["MyBot"], group_name=__("poll"), group_description
         poll_menu = poll_menu_from_type[db.PollType(poll_type.value)](self, poll)
         await inter.response.send_modal(poll_menu)
 
-    @app_command_bot_required_permissions(send_messages=True, embed_links=True, external_emojis=True)
+    @bot_required_permissions(send_messages=True, embed_links=True, external_emojis=True)
     @app_commands.command(
         name=__("custom_choice"),
         description=__("A poll with customizable options."),
@@ -77,7 +80,7 @@ class PollCog(SpecialGroupCog["MyBot"], group_name=__("poll"), group_description
     async def custom_choice(self, inter: Interaction) -> None:
         await self.callback(inter, db.PollType.CHOICE)
 
-    @app_command_bot_required_permissions(send_messages=True, embed_links=True, external_emojis=True)
+    @bot_required_permissions(send_messages=True, embed_links=True, external_emojis=True)
     @app_commands.command(
         name=__("yesno"),
         description=__('A simple poll with "Yes" and "No" as options.'),
@@ -95,9 +98,9 @@ class PollCog(SpecialGroupCog["MyBot"], group_name=__("poll"), group_description
             poll = result.scalar_one_or_none()
 
         if not poll:
-            return await inter.response.send_message(_("This message is not a poll."), ephemeral=True)
+            raise NonSpecificError(_("This message is not a poll."))
         if poll.author_id != inter.user.id:
-            return await inter.response.send_message(_("You can't edit this poll."), ephemeral=True)
+            raise NonSpecificError(_("You are not the author of this poll. You can't edit it."))
         await inter.response.send_message(
             **(await PollDisplay.build(poll, self.bot)),
             view=await EditPoll(self, poll, message).build(),
@@ -150,15 +153,24 @@ class ChoicesPollModal(PollModal):
             placeholder=_("Absolutely!"),
             max_length=512,
         )
+        self.choice3 = ui.TextInput[Self](
+            label=_("Choice 3"),
+            placeholder=_("Of course!"),
+            max_length=512,
+            required=False,
+        )
 
         self.add_item(self.choice1)
         self.add_item(self.choice2)
+        self.add_item(self.choice3)
 
     async def on_submit(self, inter: discord.Interaction):
         self.poll.title = self.question.value
         self.poll.description = self.description.value
         self.poll.choices.append(db.PollChoice(poll_id=self.poll.id, label=self.choice1.value))
         self.poll.choices.append(db.PollChoice(poll_id=self.poll.id, label=self.choice2.value))
+        if self.choice3.value:
+            self.poll.choices.append(db.PollChoice(poll_id=self.poll.id, label=self.choice3.value))
 
         await inter.response.send_message(
             **(await PollDisplay.build(self.poll, self.bot)),

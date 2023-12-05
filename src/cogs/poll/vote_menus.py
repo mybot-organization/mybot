@@ -1,4 +1,4 @@
-# TODO : implement anonymous votes
+# TODO(airo.pi_): implement anonymous votes
 
 from __future__ import annotations
 
@@ -32,24 +32,16 @@ class PollPublicMenu(Menu["MyBot"]):
         self.cog = cog
         self.poll = poll
 
-        # self.result_url = ui.Button[Self](
-        #     style=discord.ButtonStyle.link,
-        #     url="https://google.com/soon",
-        # )
-        # self.add_item(self.result_url)
-
     def get_current_votes(self, poll: db.Poll) -> dict[int, tuple[Interaction, ui.View]]:
         return self.cog.current_votes.setdefault(poll.id, {})
 
     async def build(self) -> Self:
-        # if self.poll:
-        #     self.result_url.disabled = not self.poll.public_results
-        # self.result_url.label = _("Results")
         self.vote.label = _("Vote")
         return self
 
     @ui.button(style=discord.ButtonStyle.blurple, custom_id="poll_vote_button")
     async def vote(self, inter: discord.Interaction, button: ui.Button[Self]):
+        del button  # unused
         message_id: int = inter.message.id  # type: ignore (interaction is a button, so it has a message)
         async with self.bot.async_session.begin() as session:
             stmt = db.select(db.Poll).where(db.Poll.message_id == message_id).options(selectinload(db.Poll.choices))
@@ -184,12 +176,14 @@ class ChoicePollVote(VoteMenu):
         await super().update()
         self.remove_vote.disabled = len(self.choice.values) == 0
 
-    @ui.select()
+    @ui.select(cls=ui.Select[Self])
     async def choice(self, inter: Interaction, select: ui.Select[Self]):
+        del select  # unused
         await self.message_refresh(inter, False)
 
     @ui.button(style=discord.ButtonStyle.red)
     async def remove_vote(self, inter: Interaction, button: ui.Button[Self]):
+        del button  # unused
         async with self.parent.bot.async_session.begin() as session:
             for answer in self.user_votes:
                 await session.delete(answer)
@@ -202,12 +196,13 @@ class ChoicePollVote(VoteMenu):
 
     @ui.button(style=discord.ButtonStyle.green)
     async def validate(self, inter: Interaction, button: ui.Button[Self]):
-        new_answers = {value for value in self.choice.values}
+        del button  # unused
+        new_answers = set(self.choice.values)
         old_answers = {answer.value for answer in self.user_votes}
 
         async with self.parent.bot.async_session.begin() as session:
-            for remove_anwser in old_answers - new_answers:
-                poll_answer = cast(db.PollAnswer, get(self.user_votes, value=remove_anwser))
+            for remove_answer in old_answers - new_answers:
+                poll_answer = cast(db.PollAnswer, get(self.user_votes, value=remove_answer))
                 await session.delete(poll_answer)
 
             for add_answer in new_answers - old_answers:
@@ -237,10 +232,12 @@ class BooleanPollVote(VoteMenu):
 
     @ui.button(emoji=Emojis.thumb_up)
     async def yes(self, inter: discord.Interaction, button: ui.Button[Self]):
+        del button  # unused
         await self.callback(inter, "1")
 
     @ui.button(emoji=Emojis.thumb_down)
     async def no(self, inter: discord.Interaction, button: ui.Button[Self]):
+        del button  # unused
         await self.callback(inter, "0")
 
     async def callback(self, inter: Interaction, value: str):
@@ -263,9 +260,7 @@ class BooleanPollVote(VoteMenu):
 
 class OpinionPollVote(VoteMenu):
     pass
-    # TODO OPINION
 
 
 class EntryPollVote(VoteMenu):
     pass
-    # TODO ENTRY

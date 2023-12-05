@@ -30,6 +30,7 @@ class Menu(ui.View, Generic[BotT]):
         While building the view needs to be async, you shouldn't use __init__ to create a new Menu.
         Instead, always use the `new` method.
         """
+        del kwargs  # unused
         if parent is None and bot is None:
             raise ValueError("You must provide a parent or the bot.")
 
@@ -40,7 +41,7 @@ class Menu(ui.View, Generic[BotT]):
 
     async def set_back(self, inter: Interaction) -> None:
         if not self.parent:
-            raise Exception(f"This menu has no parent. Menu : {self}")
+            raise ValueError(f"This menu has no parent. Menu : {self}")
         await inter.response.edit_message(**(await self.parent.message_display()), view=self.parent)
 
     async def set_menu(self, inter: Interaction, menu: Menu[BotT]) -> None:
@@ -94,7 +95,6 @@ class Menu(ui.View, Generic[BotT]):
         return os.urandom(16).hex()
 
 
-# TODO : unused ?
 class ModalMenu(Menu[BotT], ui.Modal):
     def __init__(
         self,
@@ -104,8 +104,7 @@ class ModalMenu(Menu[BotT], ui.Modal):
         **kwargs: Any,
     ):
         self.custom_id: str = self.generate_custom_id()
-        # TODO : investigate why there is a type issue here
-        Menu.__init__(  # pyright: ignore[reportUnknownMemberType]
+        Menu[BotT].__init__(
             self,
             bot=bot,
             parent=parent,

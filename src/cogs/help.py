@@ -26,10 +26,10 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 friendly_commands_types = {
-    FeatureType.chat_input: _("slash command", _locale=None),  # Allow xgettext to retrieve this strings
-    FeatureType.context_message: _("message context", _locale=None),
-    FeatureType.context_user: _("user context", _locale=None),
-    FeatureType.misc: _("miscellaneous", _locale=None),
+    FeatureType.CHAT_INPUT: _("slash command", _locale=None),
+    FeatureType.CONTEXT_MESSAGE: _("message context", _locale=None),
+    FeatureType.CONTEXT_USER: _("user context", _locale=None),
+    FeatureType.MISC: _("miscellaneous", _locale=None),
 }
 
 
@@ -73,9 +73,9 @@ class Help(Cog):
 
         feature_types_ui = OrderedDict(
             (
-                (FeatureType.chat_input, _("Slash commands")),
-                (FeatureType.context_message, _("Context commands")),
-                (FeatureType.misc, _("Miscellaneous features")),
+                (FeatureType.CHAT_INPUT, _("Slash commands")),
+                (FeatureType.CONTEXT_MESSAGE, _("Context commands")),
+                (FeatureType.MISC, _("Miscellaneous features")),
             )
         )
         description: dict[FeatureType, list[str]] = {key: [] for key in feature_types_ui}
@@ -98,28 +98,25 @@ class Help(Cog):
                 case SlashCommand():
                     app_command = get(self.bot.app_commands, name=feature.name, type=discord.AppCommandType.chat_input)
                     if app_command is None:
-                        logger.warning(f"Feature {feature.name} didn't get its app_command for some reason.")
+                        logger.warning("Feature %s didn't get its app_command for some reason.", feature.name)
                         continue
                     if not feature.sub_commands:
                         description[feature.type].insert(
                             0,
-                            f"{Emojis.slash_command} </{feature.name}:{app_command.id}> {set_tags(feature)}\n{_(feature.description)}",
+                            f"{Emojis.slash_command} </{feature.name}:{app_command.id}> {set_tags(feature)}\n"
+                            f"{_(feature.description)}",
                         )
                     else:
                         description[feature.type].append(
                             f"{Emojis.slash_command} `{feature.name}` {set_tags(feature)}\n{_(feature.description)}"
                         )
                 case ContextCommand():
-                    adapters = {
-                        FeatureType.context_message: discord.AppCommandType.message,
-                        FeatureType.context_user: discord.AppCommandType.user,
-                    }
                     prefix = {
-                        FeatureType.context_message: Emojis.message_context,
+                        FeatureType.CONTEXT_MESSAGE: Emojis.message_context,
                     }
-                    app_command = get(self.bot.app_commands, name=feature.name, type=adapters[feature.type])
-                    description[FeatureType.context_message].append(
-                        f"{prefix[feature.type]} `{_(feature.name).lower()}` {set_tags(feature)}\n{_(feature.description)}"
+                    description[FeatureType.CONTEXT_MESSAGE].append(
+                        f"{prefix[feature.type]} `{_(feature.name).lower()}` {set_tags(feature)}\n"
+                        f"{_(feature.description)}"
                     )
 
                 case Misc():
@@ -129,7 +126,8 @@ class Help(Cog):
                     }
 
                     description[feature.type].append(
-                        f"[{prefix[feature.misc_type]}](https://google.com) `{_(feature.name).lower()}` {set_tags(feature)}\n{_(feature.description)}"
+                        f"[{prefix[feature.misc_type]}](https://google.com) `{_(feature.name).lower()}` "
+                        f"{set_tags(feature)}\n{_(feature.description)}"
                     )
                 case _:
                     pass  # should never happen
@@ -150,15 +148,6 @@ class Help(Cog):
             ResponseType.info, message=_("Help about {} [{}]", feature.name, _(friendly_commands_types[feature.type]))
         )["embed"]
         embed.description = _(feature.description)
-
-        if isinstance(feature, SlashCommand):
-            pass
-            # field_value = "" if feature.parameters else _("No parameters")
-
-            # for parameter in feature.parameters:
-            #     field_value += f"`{parameter.name}: {parameter.type}channel` ({_('required') if parameter.required else ('optional')})\n{_(parameter.description)}\n"
-
-            # embed.add_field(name=_("Command parameters"), value=field_value)
 
         return embed
 
@@ -187,7 +176,7 @@ class HelpView(ui.View):
             else:
                 option.default = False
 
-    @ui.select()  # type: ignore  # TODO : check for fix
+    @ui.select(cls=ui.Select[Self])
     async def select_feature(self, inter: Interaction, select: ui.Select[Self]):
         feature_identifier = select.values[0]
         feature = cast("Feature", self.cog.retrieve_feature_from_identifier(feature_identifier))

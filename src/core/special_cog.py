@@ -33,10 +33,10 @@ class SpecialCog(commands.Cog, Generic[_BotType]):
 
     def get_misc_commands(self) -> list[MiscCommand[Any, ..., Any]]:
         """Return all the misc commands in this cog."""
-        return [m for m in self.__cog_misc_commands__]
+        return list(self.__cog_misc_commands__)
 
     async def _inject(self, bot: BotBase, override: bool, guild: Snowflake | None, guilds: Sequence[Snowflake]) -> Self:
-        self = await super()._inject(bot, override, guild, guilds)
+        await super()._inject(bot, override, guild, guilds)
 
         # bind the bot to the misc commands
         # used to dispatch error for error handling

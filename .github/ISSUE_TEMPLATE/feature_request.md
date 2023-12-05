@@ -2,19 +2,24 @@
 name: Feature request
 about: Suggest an idea for this project
 title: ''
-labels: ''
-assignees: ''
+labels: feature request
+assignees: AiroPi
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+<!-- Feature requests can be filled in French or in English -->
+<!-- Les suggestions de fonctionnalités peuvent être faites en Français ou en Anglais -->
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+[ ] My idea is a whole new feature.
+[ ] My suggestion is an enhancement of an existing feature.
+[ ] My idea isn't related to the bot.
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+**Describe your idea.**
+A clear and concise description of what the problem is. Describe all the details you have in mind.
+
+**Alternatives**
+Tell if you know alternatives / other bots that already do this. Explain why you don't use them, what is not great.
+You can omit this question if you didn't find any other solution.
 
 **Additional context**
 Add any other context or screenshots about the feature request here.

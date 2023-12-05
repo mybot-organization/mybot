@@ -11,6 +11,7 @@ from typing import (
     Literal,
     ParamSpec,
     Protocol,
+    Self,
     cast,
     runtime_checkable,
 )
@@ -21,24 +22,22 @@ from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import maybe_coroutine
 from typing_extensions import TypeVar
 
-from .errors import CheckFail, MiscCommandException, NoPrivateMessage
+from ._types import BotT, CogT
+from .errors import MiscCheckFailure, MiscCommandError, MiscNoPrivateMessage
 
 if TYPE_CHECKING:
     from discord.abc import MessageableChannel
     from discord.ext.commands.bot import AutoShardedBot, Bot  # pyright: ignore[reportMissingTypeStubs]
 
     from ._types import CoroT, UnresolvedContext, UnresolvedContextT
-    from .special_cog import SpecialCog
 
     ConditionCallback = Callable[Concatenate["CogT", UnresolvedContextT, "P"], CoroT[bool] | bool]
     Callback = Callable[Concatenate["CogT", UnresolvedContextT, "P"], CoroT["T"]]
 
 P = ParamSpec("P")
 T = TypeVar("T")
-CogT = TypeVar("CogT", bound="SpecialCog[Any]")
 
-
-LiteralNames = Literal["raw_reaction_add"]
+LiteralNames = Literal["raw_reaction_add", "message"]
 
 
 class MiscCommandsType(Enum):
@@ -71,33 +70,36 @@ class MiscCommand(Generic[CogT, P, T]):
         self.nsfw = nsfw
 
         self.guild_only = getattr(callback, "__misc_commands_guild_only__", False)
-        self.default_permissions = 0  # TODO
+        self.default_permissions = 0  # TODO(airo.pi_)
 
         self.extras = extras | getattr(callback, "__misc_commands_extras__", {})
 
         self.trigger_condition = trigger_condition
 
-        self.checks: list[Callable[[MiscCommandContext], CoroT[bool] | bool]] = getattr(
+        self.checks: list[Callable[[MiscCommandContext[Any]], CoroT[bool] | bool]] = getattr(
             callback, "__misc_commands_checks__", []
         )
         self._callback = callback
 
     async def do_call(self, cog: CogT, context: UnresolvedContext, *args: P.args, **kwargs: P.kwargs) -> T:
         if self.trigger_condition:
-            if not await discord.utils.maybe_coroutine(self.trigger_condition, cog, context, *args, **kwargs):  # type: ignore
+            trigger_condition = await discord.utils.maybe_coroutine(
+                self.trigger_condition, cog, context, *args, **kwargs  # type: ignore
+            )
+            if not trigger_condition:
                 return  # type: ignore
         resolved_context = await MiscCommandContext.resolve(self.bot, context, self)
         try:
             for checker in self.checks:
                 if not await maybe_coroutine(checker, resolved_context):
-                    raise CheckFail()
-        except MiscCommandException as e:
+                    raise MiscCheckFailure()
+        except MiscCommandError as e:
             self.bot.dispatch("misc_command_error", resolved_context, e)
             return  # type: ignore
 
         return await self._callback(cog, context, *args, **kwargs)  # type: ignore
 
-    def add_check(self, predicate: Callable[[MiscCommandContext], CoroT[bool] | bool]) -> None:
+    def add_check(self, predicate: Callable[[MiscCommandContext[Any]], CoroT[bool] | bool]) -> None:
         self.checks.append(predicate)
 
     async def condition(self, func: ConditionCallback[CogT, UnresolvedContextT, P]) -> None:
@@ -117,16 +119,18 @@ def misc_command(
     Checkers will be called within the second argument of the function (right after the Cog (self))
 
     Args:
-        name (str): name of the "command"
+        name: name of the "command"
         description (str, optional): Description of the command. Defaults to "...".
-        guild_only (bool, optional): If feature is only on guild or not. DO NOT DO ANY CHECK. Defaults to False.
-        nsfw (bool, optional): If the feature contains NSFW content. DO NOT DO ANY CHECK. Defaults to False.
-        default_permissions (int | None, optional): Default permissions needed to use the feature. DO NOT DO ANY CHECK. Defaults to None.
-        listener_name (LiteralNames | None, optional): If the function has a specific name, set the event name here. Defaults to None.
-        extras (dict[Any, Any] | None, optional): Some extras informations. Defaults to None.
+        guild_only: If feature is only on guild or not. DO NOT DO ANY CHECK. Defaults to False.
+        nsfw: If the feature contains NSFW content. DO NOT DO ANY CHECK. Defaults to False.
+        default_permissions:
+            Default permissions needed to use the feature. DO NOT DO ANY CHECK. Defaults to None.
+        listener_name :
+            If the function has a specific name, set the event name here. Defaults to None.
+        extras: Some extras informations. Defaults to None.
 
     Returns:
-        Callable[..., Any]: A wrapped function, bound with a MiscCommand.
+        A wrapped function, bound with a MiscCommand.
     """
 
     def inner(func: Callback[CogT, UnresolvedContextT, P, T]) -> Callback[CogT, UnresolvedContextT, P, T]:
@@ -168,23 +172,21 @@ class MiscCommandContextFilled(Protocol):
     user: discord.User
 
 
-class MiscCommandContext:  # TODO: use Generic for bot
+class MiscCommandContext(Generic[BotT]):
     def __init__(
         self,
-        bot: Bot | AutoShardedBot,
+        bot: BotT,
         channel: MessageableChannel,
         user: User | Member,
         command: MiscCommand[Any, ..., Any],
     ) -> None:
         self.channel: MessageableChannel = channel
         self.user: User | Member = user
-        self.bot: Bot | AutoShardedBot = bot
+        self.bot: BotT = bot
         self.command: MiscCommand[Any, ..., Any] = command
 
     @classmethod
-    async def resolve(
-        cls, bot: Bot | AutoShardedBot, context: UnresolvedContext, command: MiscCommand[Any, ..., Any]
-    ) -> MiscCommandContext:
+    async def resolve(cls, bot: BotT, context: UnresolvedContext, command: MiscCommand[Any, ..., Any]) -> Self:
         channel: MessageableChannel
         user: User | Member
 
@@ -221,9 +223,9 @@ class MiscCommandContext:  # TODO: use Generic for bot
 
 
 def misc_guild_only() -> Callable[[T], T]:
-    def predicate(ctx: MiscCommandContext) -> bool:
+    def predicate(ctx: MiscCommandContext[Any]) -> bool:
         if ctx.channel.guild is None:
-            raise NoPrivateMessage()
+            raise MiscNoPrivateMessage()
         return True
 
     def decorator(func: T) -> T:
@@ -243,7 +245,7 @@ def misc_guild_only() -> Callable[[T], T]:
     return decorator
 
 
-def misc_check(predicate: Callable[[MiscCommandContext], CoroT[bool] | bool]) -> Callable[[T], T]:
+def misc_check(predicate: Callable[[MiscCommandContext[Any]], CoroT[bool] | bool]) -> Callable[[T], T]:
     def decorator(func: T) -> T:
         if hasattr(func, "__listener_as_command__"):
             misc_command: MiscCommand[Any, ..., Any] = getattr(func, "__listener_as_command__")

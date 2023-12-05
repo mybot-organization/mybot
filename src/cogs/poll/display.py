@@ -38,7 +38,7 @@ class PollDisplay:
         embed = discord.Embed(title=poll.title)
 
         votes: dict[str, int] | None
-        if poll.public_results == True:
+        if poll.public_results is True:
             async with bot.async_session.begin() as session:
                 stmt = (
                     db.select(db.PollAnswer.value, func.count())
@@ -100,7 +100,7 @@ class PollDisplay:
             case db.PollType.CHOICE:
 
                 def format_legend_choice(index: int, choice: db.PollChoice) -> str:
-                    if self.poll.public_results == False:
+                    if self.poll.public_results is False:
                         return f"{LEGEND_EMOJIS[index]} {choice.label}"
                     percent = self.calculate_proportion(str(choice.id)) * 100
                     return f"{LEGEND_EMOJIS[index]} `{percent:6.2f}%` {choice.label}"
@@ -109,15 +109,17 @@ class PollDisplay:
             case db.PollType.BOOLEAN:
 
                 def format_legend_boolean(boolean_value: bool) -> str:
-                    if self.poll.public_results == False:
-                        return f"{LEGEND_EMOJIS[BOOLEAN_INDEXES[boolean_value]]} {_('Yes!') if boolean_value else _('No!')}"
-                    return f"{LEGEND_EMOJIS[BOOLEAN_INDEXES[boolean_value]]} `{self.calculate_proportion('1' if boolean_value else '0') * 100:6.2f}%` {_('Yes!') if boolean_value else _('No!')}"
+                    bool_text = _("Yes!") if boolean_value else _("No!")
+                    if self.poll.public_results is False:
+                        return f"{LEGEND_EMOJIS[BOOLEAN_INDEXES[boolean_value]]} {bool_text}"
+                    percent = self.calculate_proportion("1" if boolean_value else "0") * 100
+                    return f"{LEGEND_EMOJIS[BOOLEAN_INDEXES[boolean_value]]} `{percent:6.2f}%` {bool_text}"
 
                 return "\n".join((format_legend_boolean(True), format_legend_boolean(False)))
             case db.PollType.OPINION:
-                return ""  # TODO OPINION
+                return ""
             case db.PollType.ENTRY:
-                return ""  # TODO ENTRY
+                return ""
 
     def build_graph(self) -> str:
         if self.votes is None:  # self.votes is None if the poll is not public
@@ -142,7 +144,10 @@ class PollDisplay:
                 graph[-1] = RIGHT_CORNER_EMOJIS[GRAPH_EMOJIS.index(graph[-1])]
             case db.PollType.BOOLEAN:
                 if self.total_votes == 0:
-                    return f"{Emojis.thumb_down}{Emojis.white_left}{Emojis.white_mid * 8}{Emojis.white_right}{Emojis.thumb_up}"
+                    return (
+                        f"{Emojis.thumb_down}{Emojis.white_left}{Emojis.white_mid * 8}"
+                        f"{Emojis.white_right}{Emojis.thumb_up}"
+                    )
 
                 for i, choice in enumerate(("1", "0")):
                     proportion = self.calculate_proportion(choice)
@@ -158,7 +163,7 @@ class PollDisplay:
                 graph.insert(0, f"{Emojis.thumb_up} ")
                 graph.append(f" {Emojis.thumb_down}")
             case _:
-                pass  # TODO ENTRY, OPINION
+                pass
 
         return "".join(graph)
 
