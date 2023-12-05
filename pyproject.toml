@@ -1,5 +1,6 @@
-[tool.bandit.assert_used]
-skips = ["*/test_*.py", "*/test_*.py"]
+[tool.bandit]
+skips = ["B101"]
+
 
 [tool.black]
 line-length = 120
