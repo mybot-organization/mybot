@@ -7,6 +7,11 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: prod
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app
     env_file:
       - .env
     tty: true
@@ -15,8 +20,7 @@ services:
       database:
         condition: service_healthy
     volumes:
-      - ./data/locale:/app/locale
-      - ./alembic:/app/alembic
+      - ./resources/locale:/app/locale
       - ./config.toml:/app/config.toml
     ports:
       - 666:8081
