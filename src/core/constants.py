@@ -10,7 +10,6 @@ class Emoji(str):
     def __new__(cls, id: Snowflake) -> Self:
         return super().__new__(cls, f"<:_:{id}>")
 
-
     def __init__(self, id: Snowflake) -> None:
         self._id = id
         super().__init__()
@@ -21,6 +20,9 @@ class Emoji(str):
 
 
 class Emojis:
+    beta_1 = Emoji(1012449366449078384)
+    beta_2 = Emoji(1012449349424390265)
+
     two048_2 = Emoji(1068989299808292956)
     two048_4 = Emoji(1068989301888663604)
     two048_8 = Emoji(1068989303243415672)

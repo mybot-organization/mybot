@@ -87,6 +87,7 @@ class MinesweeperView(ui.View):
             self.play.disabled = False
 
     @ui.select(
+        cls=ui.Select,
         placeholder="Select the row",
         options=[],
     )
@@ -97,6 +98,7 @@ class MinesweeperView(ui.View):
         await inter.response.edit_message(view=self)
 
     @ui.select(
+        cls=ui.Select,
         placeholder="Select the column",
         options=[],
     )

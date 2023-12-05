@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, TypedDict
 
 import discord
 from discord import ui
@@ -21,6 +21,11 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
+
+
+class ResponseT(TypedDict):
+    view: Two048View
+    content: str
 
 
 tile_value_to_emoji = {
@@ -53,7 +58,7 @@ class Two048View(ui.View):
         self.user = user
 
     @classmethod
-    def init_game(cls, user: discord.User | discord.Member) -> dict[str, Two048View | str]:
+    def init_game(cls, user: discord.User | discord.Member) -> ResponseT:
         view = cls(Two048(), user)
 
         content = cls.str_board(view.game.board)

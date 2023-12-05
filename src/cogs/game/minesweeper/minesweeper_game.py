@@ -5,7 +5,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum, auto
 from itertools import chain, permutations
-from typing import TypeAlias
+from typing import TypeAlias, cast
 
 height: TypeAlias = int
 width: TypeAlias = int
@@ -37,7 +37,7 @@ class PlayType(Enum):
 @dataclass
 class Play:
     type: PlayType
-    positions: tuple[tuple[row, column]]
+    positions: tuple[tuple[row, column], ...]
 
 
 class Minesweeper:
@@ -104,7 +104,7 @@ class Minesweeper:
             self.revealed.append((x, y))
             return Play(PlayType.NUMBERED_SPOT, ((x, y),))
 
-    def diffuse_empty_places(self, x: int, y: int, is_corner: bool = False) -> tuple[tuple[row, column]]:
+    def diffuse_empty_places(self, x: int, y: int, is_corner: bool = False) -> tuple[tuple[row, column], ...]:
         """Diffuse the empty place at the given position. This function is recursive."""
         if (x, y) in self.revealed or not self.is_inside(x, y):
             return tuple()
@@ -112,7 +112,9 @@ class Minesweeper:
         self.revealed.append((x, y))
 
         if self._board[x][y] == 0:
-            gen: Iterable[tuple[int, int]] = chain(permutations(range(-1, 2, 1), 2), ((1, 1), (-1, -1)))
+            gen: Iterable[tuple[int, int]] = cast(
+                Iterable[tuple[int, int]], chain(permutations(range(-1, 2, 1), 2), ((1, 1), (-1, -1)))
+            )
             return ((x, y),) + tuple(
                 cpl for dx, dy in gen for cpl in self.diffuse_empty_places(x + dx, y + dy, dx != 0 and dy != 0)
             )
@@ -125,13 +127,16 @@ class Minesweeper:
 
         def increment_around(x: int, y: int):
             """Increment the value of the cells around the given position."""
+
             # I think this can be done in a more elegant way
             def incr(x: int, y: int):
                 if 0 <= x < self.size[0] and 0 <= y < self.size[1]:
                     if board[x][y] != -1:
                         board[x][y] += 1
 
-            relative_positions: Iterable[tuple[int, int]] = chain(permutations(range(-1, 2, 1), 2), ((1, 1), (-1, -1)))
+            relative_positions: Iterable[tuple[int, int]] = cast(
+                Iterable[tuple[int, int]], chain(permutations(range(-1, 2, 1), 2), ((1, 1), (-1, -1)))
+            )
             for dx, dy in relative_positions:
                 incr(x + dx, y + dy)
 
@@ -156,18 +161,3 @@ class Minesweeper:
                 *(special_repr.get(case, case) if (x, y) in self.revealed else "■" for y, case in enumerate(row)),
                 sep=" ",
             )
-
-
-if __name__ == "__main__":
-    config = MinesweeperConfig(10, 10, 5)
-
-    def get_play() -> tuple[int, int]:
-        return tuple(int(nb) for nb in input("Enter the position to play: ").split(","))
-
-    config.initial_play = get_play()
-
-    game = Minesweeper.from_config(config)
-
-    while not game.game_over:
-        game.display()
-        game.play(*get_play())
