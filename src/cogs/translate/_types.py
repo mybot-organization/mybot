@@ -7,7 +7,7 @@ from discord.utils import MISSING
 
 
 class SendStrategy(Protocol):
-    async def __call__(self, *, content: str = Any, embeds: Sequence[Embed] = Any, view: ui.View = MISSING) -> Any:
+    async def __call__(self, *, content: str = ..., embeds: Sequence[Embed] = ..., view: ui.View = MISSING) -> Any:
         ...
 
 
