@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
-from core.errors import NonSpecificError
+from .errors import NonSpecificError
 
 if TYPE_CHECKING:
     from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
