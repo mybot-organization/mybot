@@ -7,7 +7,6 @@ from discord import app_commands
 from discord.app_commands import locale_str as __
 
 from core import SpecialGroupCog, cog_property
-from core.i18n import _
 
 from .connect4 import GameConnect4
 from .game_2084 import Two048Cog
@@ -24,12 +23,17 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-# Subcommands cannot be seperated in multiple files.
+# Subcommands cannot be separated in multiple files.
 # https://github.com/Rapptz/discord.py/discussions/8069
 # So all commands are defined here, and their implementation are in other files.
 
 
-class Game(SpecialGroupCog["MyBot"], group_name=__("game"), group_description=__("Play some games.")):
+class Game(
+    SpecialGroupCog["MyBot"],
+    group_name=__("game"),
+    group_description=__("Play some games."),
+    group_extras={"soon": True},
+):
     @cog_property("game_connect4")
     def connect4_cog(self) -> GameConnect4:
         ...
@@ -60,7 +64,7 @@ class Game(SpecialGroupCog["MyBot"], group_name=__("game"), group_description=__
 
     @app_commands.command(
         name=__("rpc"),
-        description=__("Play rock paper cisors"),
+        description=__("Play rock paper scissors"),
         extras={"soon": True},
     )
     async def rpc(self, inter: Interaction) -> None:

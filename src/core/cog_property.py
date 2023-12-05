@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
+from core.errors import NonSpecificError
+
 if TYPE_CHECKING:
     from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 
@@ -20,7 +22,7 @@ def cog_property(cog_name: str):
         def cog_getter(self: Any) -> C:  # self is a cog within the .bot attribute (because every Cog should have it)
             cog: C | None = self.bot.get_cog(cog_name)
             if cog is None:
-                raise Exception(f"Cog named {cog_name} is not loaded.")
+                raise NonSpecificError(f"Cog named {cog_name} is not loaded.")
             return cog
 
         return cog_getter  # type: ignore
