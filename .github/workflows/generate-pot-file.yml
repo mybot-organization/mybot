@@ -41,8 +41,8 @@ jobs:
 
       - name: commit
         run: |
-          mv -f master/data/locale/mybot.pot translations/data/locale/mybot.pot
+          mv -f master/resources/locale/mybot.pot translations/resources/locale/mybot.pot
           cd translations
-          git add ./data/locale/mybot.pot
+          git add ./resources/locale/mybot.pot
           git commit -m "POT file generated"
           git push origin auto/translations-source
