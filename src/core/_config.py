@@ -29,7 +29,7 @@ class Config:
     TRANSLATOR_SERVICES: str = "libretranslate"
     LOG_WEBHOOK_URL: str | None = None
 
-    _instance: ClassVar[Config] | None = None
+    _instance: ClassVar[Self] | None = None
     _defined: ClassVar[bool] = False
 
     def __new__(cls, *args: Any, **kwargs: Any) -> Self:
