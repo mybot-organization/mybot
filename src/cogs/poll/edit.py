@@ -358,7 +358,7 @@ class AddChoice(Menu["MyBot"], ui.Modal):
 
     def __init__(self, parent: EditChoices) -> None:
         ui.Modal.__init__(self, title=_("Add a new choice"))
-        Menu.__init__(self, parent=parent)  # pyright: ignore [reportUnknownMemberType]
+        Menu.__init__(self, parent=parent)  # type: ignore  # TODO
 
     async def build(self) -> Self:
         self.choice = ui.TextInput[Self](
