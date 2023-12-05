@@ -1,11 +1,13 @@
-wheel==0.40.0
-asyncpg==0.27.0
-sqlalchemy[asyncio]==2.0.7
-typing_extensions==4.5.0
-discord.py==2.2.2
-click==8.1.3
-psutil==5.9.4
-alembic==1.10.2
+wheel
+asyncpg
+sqlalchemy[asyncio]
+typing_extensions
+discord.py
+click
+psutil
+alembic
+two048  # a personal library
 topggpy==2.0.0a0
-lingua-language-detector==1.3.2
-aiohttp==3.8.4
+lingua-language-detector
+aiohttp
+python-dateutil

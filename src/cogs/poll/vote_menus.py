@@ -1,4 +1,4 @@
-# TODO : implement anonymous votes
+# TODO(airo.pi_): implement anonymous votes
 
 from __future__ import annotations
 
@@ -32,19 +32,10 @@ class PollPublicMenu(Menu["MyBot"]):
         self.cog = cog
         self.poll = poll
 
-        # self.result_url = ui.Button[Self](
-        #     style=discord.ButtonStyle.link,
-        #     url="https://google.com/soon",
-        # )
-        # self.add_item(self.result_url)
-
     def get_current_votes(self, poll: db.Poll) -> dict[int, tuple[Interaction, ui.View]]:
         return self.cog.current_votes.setdefault(poll.id, {})
 
     async def build(self) -> Self:
-        # if self.poll:
-        #     self.result_url.disabled = not self.poll.public_results
-        # self.result_url.label = _("Results")
         self.vote.label = _("Vote")
         return self
 
@@ -185,7 +176,7 @@ class ChoicePollVote(VoteMenu):
         await super().update()
         self.remove_vote.disabled = len(self.choice.values) == 0
 
-    @ui.select()
+    @ui.select(cls=ui.Select[Self])
     async def choice(self, inter: Interaction, select: ui.Select[Self]):
         del select  # unused
         await self.message_refresh(inter, False)
@@ -210,8 +201,8 @@ class ChoicePollVote(VoteMenu):
         old_answers = {answer.value for answer in self.user_votes}
 
         async with self.parent.bot.async_session.begin() as session:
-            for remove_anwser in old_answers - new_answers:
-                poll_answer = cast(db.PollAnswer, get(self.user_votes, value=remove_anwser))
+            for remove_answer in old_answers - new_answers:
+                poll_answer = cast(db.PollAnswer, get(self.user_votes, value=remove_answer))
                 await session.delete(poll_answer)
 
             for add_answer in new_answers - old_answers:
@@ -269,9 +260,7 @@ class BooleanPollVote(VoteMenu):
 
 class OpinionPollVote(VoteMenu):
     pass
-    # TODO OPINION
 
 
 class EntryPollVote(VoteMenu):
     pass
-    # TODO ENTRY

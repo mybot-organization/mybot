@@ -40,7 +40,6 @@ class EditPollMenus(ui.Select["EditPoll"]):
                 description=_(menu.select_description),
             )
 
-    # TODO : inspect the type issue present here.
     async def callback(self, inter: Interaction[MyBot]) -> None:  # pyright: ignore [reportIncompatibleMethodOverride]
         view = cast(EditPoll, self.view)
         await view.set_menu(inter, await self.menus[int(self.values[0])](view).build())
@@ -58,13 +57,6 @@ class EditPoll(Menu["MyBot"]):
         self.add_item(EditPollMenus(self.poll))
         self.reset_votes.label = _("Reset")
         self.save.label = _("Save")
-
-        # if self.poll.type == db.PollType.CHOICE:
-        #     self.edit_choices.disabled = False
-        #     self.set_max_choices.disabled = False
-        # else:
-        #     self.edit_choices.disabled = True
-        #     self.set_max_choices.disabled = True
 
         await self.update()
 
@@ -293,17 +285,17 @@ class EditEndingTime(EditSubmenu):
         await self.update()
         await self.update_poll_display(inter)
 
-    @ui.select(min_values=0, max_values=1)
+    @ui.select(cls=ui.Select[Self], min_values=0, max_values=1)
     async def select_days(self, inter: discord.Interaction, select: ui.Select[Self]):
         del select  # unused
         await self.callback(inter)
 
-    @ui.select(min_values=0, max_values=1)
+    @ui.select(cls=ui.Select[Self], min_values=0, max_values=1)
     async def select_hours(self, inter: discord.Interaction, select: ui.Select[Self]):
         del select  # unused
         await self.callback(inter)
 
-    @ui.select(min_values=0, max_values=1)
+    @ui.select(cls=ui.Select[Self], min_values=0, max_values=1)
     async def select_minutes(self, inter: discord.Interaction, select: ui.Select[Self]):
         del select  # unused
         await self.callback(inter)
@@ -366,7 +358,7 @@ class AddChoice(Menu["MyBot"], ui.Modal):
 
     def __init__(self, parent: EditChoices) -> None:
         ui.Modal.__init__(self, title=_("Add a new choice"))
-        Menu.__init__(self, parent=parent)  # pyright: ignore [reportUnknownMemberType]
+        Menu.__init__(self, parent=parent)  # type: ignore  # TODO
 
     async def build(self) -> Self:
         self.choice = ui.TextInput[Self](
@@ -406,8 +398,9 @@ class RemoveChoices(Menu["MyBot"]):
         for option in self.choices_to_remove.options:
             option.default = option.value in self.choices_to_remove.values
 
-    @ui.select()
+    @ui.select(cls=ui.Select[Self])
     async def choices_to_remove(self, inter: Interaction, select: ui.Select[Self]):
+        # warning: corresponding answers are not removed from the database
         self.parent.poll.choices = [
             choice for choice in self.old_value if str(self.linked_choice[choice]) not in select.values
         ]
@@ -448,7 +441,7 @@ class EditMaxChoices(EditSubmenu):
 
         return self
 
-    @ui.select()
+    @ui.select(cls=ui.Select[Self])
     async def max_choices(self, inter: Interaction, select: ui.Select[Self]):
         self.parent.poll.max_answers = int(select.values[0])
         await self.message_refresh(inter)
@@ -477,15 +470,6 @@ class EditAllowedRoles(EditSubmenu):
         self.cancel.label = _("Cancel")
         self.back.label = _("Back")
         self.allowed_roles.placeholder = _("Select the roles that can vote.")
-
-        # discord limitation ?
-        # def get_role(role_id: int) -> discord.Role | None:
-        #     guild: discord.Guild = cast(discord.Guild, self.bot.get_guild(self.parent.poll.guild_id))
-        #     return guild.get_role(role_id)
-
-        # self.allowed_roles._values = [  # pyright: ignore [reportPrivateUsage]
-        #     role for role_id in self.parent.poll.allowed_roles if (role := get_role(role_id))
-        # ]
 
         await self.update()
 

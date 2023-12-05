@@ -22,7 +22,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 try:
     from core.db import Base
-except ModuleNotFoundError:  # in debug mode, sources are in a src folder.  # TODO : use src in any cases ?
+except ModuleNotFoundError:  # in debug mode, sources are in a src folder.
     from src.core.db import Base
 
 target_metadata = Base.metadata

@@ -53,7 +53,7 @@ class Translator(app_commands.Translator):
         return new_string
 
 
-def i18n(string: str, /, *args: Any, _locale: Locale | None = MISSING, **kwargs: Any) -> str:
+def i18n(string: str, /, *args: Any, _locale: Locale | None = MISSING, _silent: bool = False, **kwargs: Any) -> str:
     if _locale is MISSING:
         frame: FrameType | None = inspect.currentframe()
 
@@ -67,7 +67,8 @@ def i18n(string: str, /, *args: Any, _locale: Locale | None = MISSING, **kwargs:
             inter = None
 
         if inter is None:
-            logger.warning("i18n function cannot retrieve an interaction for this string.\nstring=%s", string)
+            if not _silent:
+                logger.warning("i18n function cannot retrieve an interaction for this string.\nstring=%s", string)
             return string
 
         _locale = inter.locale

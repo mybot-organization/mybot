@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from functools import partial
 from os import getpid
-from typing import TYPE_CHECKING, Awaitable, Callable, Concatenate, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Awaitable, Callable, Concatenate, ParamSpec, TypeVar, cast
 
 from aiohttp import hdrs, web
 from psutil import Process
@@ -58,7 +58,8 @@ class API(SpecialCog["MyBot"]):
 
     @route(hdrs.METH_GET, "/memory")
     async def test(self, request: web.Request):
-        return web.Response(text=f"{round(Process(getpid()).memory_info().rss/1024/1024, 2)} MB")
+        rss = cast(int, Process(getpid()).memory_info().rss)  # pyright: ignore[reportUnknownMemberType]
+        return web.Response(text=f"{round(rss/1024/1024, 2)} MB")
 
 
 async def setup(bot: MyBot):

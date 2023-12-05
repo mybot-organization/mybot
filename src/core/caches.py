@@ -2,14 +2,28 @@ from collections import OrderedDict
 from collections.abc import Mapping
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Any, Callable, Concatenate, Generic, Iterator, NamedTuple, ParamSpec, TypeVar
+from typing import (
+    Any,
+    Callable,
+    Concatenate,
+    Generic,
+    Iterator,
+    MutableMapping,
+    NamedTuple,
+    ParamSpec,
+    Sequence,
+    SupportsIndex,
+    TypeVar,
+    overload,
+)
 
 _K = TypeVar("_K")  # Type for Keys
 _V = TypeVar("_V")  # Type for Values
-_D = TypeVar("_D")  # Type for Defaults values
 _RT = TypeVar("_RT")  # Type for Return Type
 _ST = TypeVar("_ST", bound="TemporaryCache[Any, Any]")  # Type for Self
 _P = ParamSpec("_P")  # Type for Args
+
+T = TypeVar("T")  # Type for Generic
 
 
 class TemporaryCache(Mapping[_K, _V]):
@@ -40,7 +54,7 @@ class TemporaryCache(Mapping[_K, _V]):
             expire (timedelta | int): The time after which the cache will be cleaned.
             max_size (int | None, optional): The maximum size of the cache (in number of elements). Defaults to None.
         """
-        self._cache: OrderedDict[_K, CachedValue[_V]] = OrderedDict()
+        self._cache: OrderedDict[_K, _CachedValue[_V]] = OrderedDict()
         self._expire: timedelta = expire if isinstance(expire, timedelta) else timedelta(seconds=expire)
         self._max_size: int | None = max_size
 
@@ -100,7 +114,7 @@ class TemporaryCache(Mapping[_K, _V]):
             key (_K): The key of the item to set.
             value (_V): The value of the item to set.
         """
-        cached_value = CachedValue(date=datetime.now() + self._expire, value=value)
+        cached_value = _CachedValue(date=datetime.now() + self._expire, value=value)
         if self._max_size and len(self) >= self._max_size:
             self._cache.popitem(last=False)
         self._cache[key] = cached_value
@@ -120,6 +134,78 @@ class TemporaryCache(Mapping[_K, _V]):
         self._set(key, value)
 
 
-class CachedValue(NamedTuple, Generic[_V]):
+class _CachedValue(NamedTuple, Generic[_V]):
     date: datetime
     value: _V
+
+
+class SizedSequence(Sequence[T]):
+    def __init__(self, max_size: int, init: Sequence[T] | None = None) -> None:
+        self._max_size: int = max_size
+
+        if init is None:
+            self._internal: list[T] = []
+        elif len(init) > max_size:
+            raise ValueError("The initial sequence is too long.")
+        else:
+            self._internal = list(init)
+
+    @overload
+    def __getitem__(self, i: SupportsIndex) -> T:
+        ...
+
+    @overload
+    def __getitem__(self, i: slice) -> Sequence[T]:
+        ...
+
+    def __getitem__(self, i: SupportsIndex | slice) -> T | Sequence[T]:
+        return self._internal.__getitem__(i)
+
+    def __setitem__(self, index: int, value: T):
+        return self._internal.__setitem__(index, value)
+
+    def __delitem__(self, index: int):
+        return self._internal.__delitem__(index)
+
+    def __len__(self):
+        return self._internal.__len__()
+
+    def append(self, value: T):
+        if len(self) >= self._max_size:
+            self._internal.pop(0)
+        return self._internal.append(value)
+
+    def __repr__(self) -> str:
+        return self._internal.__repr__()
+
+
+class SizedMapping(MutableMapping[_K, _V]):
+    def __init__(self, max_size: int) -> None:
+        self._max_size: int = max_size
+        self._internal = OrderedDict[_K, _V]()
+
+    def __getitem__(self, key: _K):
+        return self._internal[key]
+
+    def __setitem__(self, key: _K, value: _V) -> None:
+        self.append(key, value)
+
+    def __delitem__(self, key: _K) -> None:
+        del self._internal[key]
+
+    def __len__(self):
+        return len(self._internal)
+
+    def __iter__(self):
+        return iter(self._internal)
+
+    def append(self, key: _K, value: _V) -> None:
+        if key in self:
+            self._internal.move_to_end(key)
+            return
+        if len(self) >= self._max_size:
+            self._internal.popitem(last=False)
+        self._internal[key] = value
+
+    def __repr__(self) -> str:
+        return self._internal.__repr__()

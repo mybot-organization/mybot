@@ -8,14 +8,16 @@ from discord.app_commands import locale_str as __
 
 from core import SpecialGroupCog, cog_property
 
+from .connect4 import GameConnect4
+from .game_2084 import Two048Cog
+from .minesweeper import MinesweeperCog
+from .rpc import GameRPC
+from .tictactoe import GameTictactoe
+
 if TYPE_CHECKING:
     from discord import Interaction
 
     from mybot import MyBot
-
-    from .connect4 import GameConnect4
-    from .rpc import GameRPC
-    from .tictactoe import GameTictactoe
 
 
 logger = logging.getLogger(__name__)
@@ -44,6 +46,14 @@ class Game(
     def tictactoe_cog(self) -> GameTictactoe:
         ...
 
+    @cog_property("minesweeper")
+    def minesweeper_cog(self) -> MinesweeperCog:
+        ...
+
+    @cog_property("game_2048")
+    def two048_cog(self) -> Two048Cog:
+        ...
+
     @app_commands.command(
         name=__("connect4"),
         description=__("Play connect 4"),
@@ -68,14 +78,28 @@ class Game(
     async def tictactoe(self, inter: Interaction) -> None:
         await self.tictactoe_cog.tictactoe(inter)
 
+    @app_commands.command(
+        name=__("minesweeper"),
+        description=__("Play minesweeper"),
+        extras={"soon": True},
+    )
+    async def minesweeper(self, inter: Interaction) -> None:
+        await self.minesweeper_cog.minesweeper(inter)
+
+    @app_commands.command(
+        name=__("2048"),
+        description=__("Play 2048"),
+        extras={"beta": True},
+    )
+    async def _2048(self, inter: Interaction) -> None:
+        await self.two048_cog.two048(inter)
+
 
 async def setup(bot: MyBot) -> None:
-    from .connect4 import GameConnect4
-    from .rpc import GameRPC
-    from .tictactoe import GameTictactoe
-
     await bot.add_cog(GameTictactoe(bot))
     await bot.add_cog(GameRPC(bot))
     await bot.add_cog(GameConnect4(bot))
+    await bot.add_cog(MinesweeperCog(bot))
+    await bot.add_cog(Two048Cog(bot))
 
     await bot.add_cog(Game(bot))
