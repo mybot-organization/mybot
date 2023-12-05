@@ -6,6 +6,7 @@ discord.py
 click
 psutil
 alembic
+two048  # a personal library
 topggpy==2.0.0a0
 lingua-language-detector
 aiohttp
