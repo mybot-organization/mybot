@@ -1,77 +1,91 @@
 from __future__ import annotations
 
+import functools
 import logging
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, Literal, TypeVar
 
-from discord import ButtonStyle, ui
-from discord.app_commands import CommandNotFound
+from discord import ButtonStyle, Interaction, ui
+from discord.app_commands.errors import AppCommandError, CheckFailure, CommandNotFound, NoPrivateMessage
 from discord.ext import commands
-from discord.utils import get
 
 from . import ResponseType, response_constructor
-from .errors import BaseError, MaxConcurrencyReached
-from .i18n import _
+from .errors import (
+    BadArgument,
+    BotMissingPermissions,
+    BotUserNotPresent,
+    MaxConcurrencyReached,
+    MiscCheckFailure,
+    MiscNoPrivateMessage,
+    NonSpecificError,
+)
+from .i18n import i18n
+from .misc_command import MiscCommandContext
 
 if TYPE_CHECKING:
-    from discord import Interaction, Invite
-    from discord.app_commands import AppCommandError
-
-    from core.errors import MiscCommandException
+    from core.errors import MiscCommandError
     from core.misc_command import MiscCommandContext
     from mybot import MyBot
 
 logger = logging.getLogger(__name__)
-
+_ = functools.partial(i18n, _silent=True)
 
 BotT = TypeVar("BotT", bound="commands.Bot | commands.AutoShardedBot")
 
 
 class ErrorHandler:
     def __init__(self, bot: MyBot):
-        self._invite: Invite | None = None
-
         self.bot: MyBot = bot
 
-    @property
-    async def _support_invite(self) -> Invite:
-        if self._invite is None:
-            self._invite = get(await self.bot.support.invites(), max_age=0, max_uses=0, inviter=self.bot.user)
+    async def send_error(self, ctx: Interaction | MiscCommandContext[MyBot], error_message: str) -> None:
+        match ctx:
+            case Interaction():
+                strategy = functools.partial(ctx.response.send_message, ephemeral=True)
+                if ctx.response.is_done():
+                    strategy = functools.partial(ctx.followup.send, ephemeral=True)
+            case MiscCommandContext():
+                strategy = ctx.user.send
 
-        if self._invite is None:  # If invite is STILL None
-            if tmp := self.bot.support.rules_channel:
-                channel = tmp
-            else:
-                channel = self.bot.support.channels[0]
-
-            self._invite = await channel.create_invite(reason="Support guild invite.")
-
-        return self._invite
-
-    async def send_error(self, inter: Interaction, error_message: str) -> None:
-        """A function to send an error message."""
         view = ui.View()
-        view.add_item(ui.Button(style=ButtonStyle.url, label=_("Support server"), url=(await self._support_invite).url))
+        view.add_item(
+            ui.Button(style=ButtonStyle.url, label=_("Support server"), url=(await self.bot.support_invite).url)
+        )
 
-        strategy = inter.response.send_message
-        if inter.response.is_done():
-            strategy = inter.followup.send
-        await strategy(**response_constructor(ResponseType.error, error_message), ephemeral=True, view=view)
+        await strategy(**response_constructor(ResponseType.error, error_message), view=view)
 
-    async def handle_app_command_error(self, inter: Interaction, error: AppCommandError) -> None:
+    async def handle(self, ctx: Interaction | MiscCommandContext[MyBot], error: Exception) -> None | Literal[False]:
         match error:
-            case CommandNotFound():
+            case CommandNotFound():  # Interactions only
                 return
-            case BaseError():
-                return await self.send_error(inter, str(error))
-            case MaxConcurrencyReached():
+            case NonSpecificError():
+                return await self.send_error(ctx, str(error))
+            case MaxConcurrencyReached():  # Interactions only (atm)
                 return await self.send_error(
-                    inter,
+                    ctx,
                     _("This command is already executed the max amount of times. (Max: {error.rate})", error=error),
                 )
+            case CheckFailure() | MiscCheckFailure():
+                return await self.send_error(ctx, _("This command needs some conditions you don't meet."))
+            case BadArgument():  # Interactions only
+                # TODO(airo.pi_): improve this ?
+                return await self.send_error(ctx, _("You provided a bad argument."))
+            case BotMissingPermissions():
+                return await self.send_error(
+                    ctx, _("The bot is missing some permissions.\n`{}`", "`, `".join(error.missing_perms))
+                )
+            case BotUserNotPresent():
+                return await self.send_error(
+                    ctx, _("It looks like the bot has been added incorrectly. Please ask an admin to re-add the bot.")
+                )
+            case MiscNoPrivateMessage() | NoPrivateMessage():
+                return await self.send_error(ctx, _("This command cannot be used in DMs."))
             case _:
-                await self.send_error(inter, _("An unhandled error happened.\n{error}", error=error))
+                await self.send_error(
+                    ctx, _("An unhandled error happened.\nPlease ask on the support server!", error=error)
+                )
+                logger.error("An unhandled error happened : %s (%s)", error, type(error))
 
-        logger.error(f"An unhandled error happened : {error} ({type(error)})")
+    async def handle_app_command_error(self, inter: Interaction, error: AppCommandError) -> None:
+        await self.handle(inter, error)
 
-    async def handle_misc_command_error(self, context: MiscCommandContext, error: MiscCommandException) -> None:
-        logger.debug(f"An error happened : {error} ({type(error)})")
+    async def handle_misc_command_error(self, context: MiscCommandContext[MyBot], error: MiscCommandError) -> None:
+        await self.handle(context, error)

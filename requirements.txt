@@ -1,9 +1,13 @@
 wheel
 asyncpg
-sqlalchemy[asyncio]==2.0.0b4
+sqlalchemy[asyncio]
 typing_extensions
 discord.py
 click
-langdetect
 psutil
 alembic
+two048  # a personal library
+topggpy==2.0.0a0
+lingua-language-detector
+aiohttp
+python-dateutil

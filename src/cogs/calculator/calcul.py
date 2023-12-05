@@ -84,7 +84,8 @@ class Calcul:
             return y.start(2)
 
         results: list[re.Match[str]]
-        while results := sorted((x for pattern in patterns if (x := pattern.search(calcul))), key=sort_key):
+        iterable = (x for pattern in patterns if (x := pattern.search(calcul)))
+        while results := sorted(iterable, key=sort_key):
             result = results[0]
 
             operator_method = operator_methods[patterns.index(result.re)]

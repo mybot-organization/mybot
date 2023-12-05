@@ -1,5 +1,5 @@
-# TODO: use TemporaryCache
-# TODO: add an easter egg
+# TODO(airo.pi_): use TemporaryCache
+# TODO(airo.pi_): add an Easter egg
 
 
 from __future__ import annotations
@@ -10,8 +10,6 @@ from typing import TYPE_CHECKING
 from discord import app_commands
 from discord.app_commands import locale_str as __
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
-
-from core.i18n import _
 
 if TYPE_CHECKING:
     from discord import Interaction

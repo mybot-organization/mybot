@@ -3,9 +3,10 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
+import discord
 from discord.app_commands import CommandTree
 
-from .i18n import _
+from core.errors import BotUserNotPresent
 
 if TYPE_CHECKING:
     from discord import Interaction
@@ -28,3 +29,10 @@ class CustomCommandTree(CommandTree["MyBot"]):
     async def on_error(self, interaction: Interaction, error: AppCommandError) -> None:
         """Function called when a command raise an error."""
         await self.client.error_handler.handle_app_command_error(interaction, error)
+
+    async def interaction_check(self, inter: Interaction[MyBot], /) -> bool:
+        if inter.channel is None:
+            return False
+        if not inter.guild and inter.channel.type is not discord.ChannelType.private:
+            raise BotUserNotPresent
+        return True

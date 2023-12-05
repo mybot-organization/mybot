@@ -1,15 +1,11 @@
-name: Generate po template file
+name: Generate pot file
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ dev ]
+    branches: [master]
     paths:
-      - '**.py'
-#   pull_request:
-#     branches: [ dev ]
-#     paths: 
-#       - '**.py'
-
+      - "**.py"
 
 jobs:
   build:
@@ -18,18 +14,35 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.head_ref }}
-          token: ${{ secrets.GH_TOKEN }}
+          ref: master
+          path: master/
 
-      - name: install xgettext
-        run: |
-          sudo apt-get update
-          sudo apt-get install gettext
-
-      - name: Execute xgettext
-        run: xgettext -d mybot -p ./data/locale -o mybot.pot -L python -k__ --from-code UTF-8 ./src/**/*.py
-
-      - uses: EndBug/add-and-commit@v9
+      - uses: actions/setup-python@v4
         with:
-          push: --force
-          message: 'POT file generated.'
+          python-version: "3.11"
+          cache: pip
+
+      - name: babel extract (pot file generation)
+        run: |
+          cd master
+          pip install babel
+          sh ./bin/pot-generation.sh
+
+      - uses: actions/checkout@v3
+        with:
+          ref: auto/translations-source
+          path: translations/
+
+      - name: setup git
+        run: |
+          cd translations
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+
+      - name: commit
+        run: |
+          mv -f master/data/locale/mybot.pot translations/data/locale/mybot.pot
+          cd translations
+          git add ./data/locale/mybot.pot
+          git commit -m "POT file generated"
+          git push origin auto/translations-source

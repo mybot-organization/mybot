@@ -10,3 +10,14 @@ Then, apply eventual migrations :
 
 And finally, create a migration script :
 `alembic revision --autogenerate -m "your message"`
+
+
+Commands :
+```bash
+docker-compose down
+docker-compose build
+docker-compose up -d database
+docker-compose run --rm -it --entrypoint=/bin/bash mybot -i
+alembic upgrade head
+alembic revision --autogenerate -m "your message"
+```

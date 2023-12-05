@@ -2,6 +2,7 @@ version: '3'
 
 services:
   mybot:
+    image: airopi/mybot:stable
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -16,8 +17,11 @@ services:
     volumes:
       - ./data/locale:/app/locale
       - ./alembic:/app/alembic
+      - ./config.toml:/app/config.toml
     ports:
-      - 8080:8080
+      - 666:8081
+    expose:
+      - 8080
 
   database:
     image: postgres:14.4-alpine

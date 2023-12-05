@@ -1,16 +1,13 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import discord
 from discord import app_commands
-from discord.app_commands import AppCommand, locale_str as __
+from discord.app_commands import locale_str as __
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import get
-
-from core import ResponseType, response_constructor
-from core.i18n import _
 
 if TYPE_CHECKING:
     from discord import Interaction
@@ -21,7 +18,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class Stats(Cog):  # TODO: add checkers
+class Stats(Cog):
     def __init__(self, bot: MyBot):
         self.bot: MyBot = bot
 
@@ -41,16 +38,11 @@ class Stats(Cog):  # TODO: add checkers
 
     @app_commands.command(
         name=__("stats"),
-        description=__("Get somes stats about the bot."),
+        description=__("Get some stats about the bot."),
         extras={"soon": True},
     )
     async def stats(self, inter: Interaction) -> None:
         raise NotImplementedError()
-        embed = response_constructor(ResponseType.info, _("Quelques statistiques sur MyBot")).embed
-        for c_id, v in self.temp_store.items():
-            cmd = cast(AppCommand, get(self.bot.app_commands, id=c_id))
-            embed.add_field(name=cmd.name, value=str(v))
-        await inter.response.send_message(embed=embed)
 
 
 async def setup(bot: MyBot):
