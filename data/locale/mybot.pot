@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MyBot 1.0\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
-"POT-Creation-Date: 2023-12-05 13:23+0000\n"
+"POT-Creation-Date: 2023-12-05 13:40+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,14 +16,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.13.1\n"
-
-#: src/cogs/calculator.py:26
-msgid "calculator"
-msgstr ""
-
-#: src/cogs/calculator.py:27
-msgid "Show a calculator you can use."
-msgstr ""
 
 #: src/cogs/help.py:29
 msgid "slash command"
@@ -87,6 +79,18 @@ msgstr ""
 
 #: src/cogs/stats.py:41
 msgid "Get some stats about the bot."
+msgstr ""
+
+#: src/cogs/calculator/__init__.py:41
+msgid "calculator"
+msgstr ""
+
+#: src/cogs/calculator/__init__.py:42
+msgid "Show a calculator you can use."
+msgstr ""
+
+#: src/cogs/calculator/__init__.py:66
+msgid "Invalid expression"
 msgstr ""
 
 #: src/cogs/clear/__init__.py:54
