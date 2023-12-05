@@ -4,5 +4,5 @@ pybabel extract \
     --project="MyBot" \
     --version="1.0" \
     -k "_ __" \
-    -o ./data/locale/mybot.pot \
+    -o ./resources/locale/mybot.pot \
     ./src/
