@@ -2,14 +2,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
-"POT-Creation-Date: 2023-04-08 23:14+0000\n"
-"PO-Revision-Date: 2023-04-08 23:52\n"
+"POT-Creation-Date: 2023-12-05 13:40+0000\n"
+"PO-Revision-Date: 2023-12-05 14:13\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.12.1\n"
+"Generated-By: Babel 2.13.1\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Crowdin-Project: mybot-discord\n"
 "X-Crowdin-Project-ID: 532668\n"
@@ -17,14 +17,6 @@ msgstr ""
 "X-Crowdin-File: /auto.translations-source/data/locale/mybot.pot\n"
 "X-Crowdin-File-ID: 55\n"
 "Language: fr_FR\n"
-
-#: src/cogs/calculator.py:26
-msgid "calculator"
-msgstr "calculatrice"
-
-#: src/cogs/calculator.py:27
-msgid "Show a calculator you can use."
-msgstr "Afficher une calculatrice que vous pouvez utiliser."
 
 #: src/cogs/help.py:29
 msgid "slash command"
@@ -89,6 +81,18 @@ msgstr "statistiques"
 #: src/cogs/stats.py:41
 msgid "Get some stats about the bot."
 msgstr "Obtenir quelques statistiques sur le bot."
+
+#: src/cogs/calculator/__init__.py:41
+msgid "calculator"
+msgstr "calculatrice"
+
+#: src/cogs/calculator/__init__.py:42
+msgid "Show a calculator you can use."
+msgstr "Afficher une calculatrice que vous pouvez utiliser."
+
+#: src/cogs/calculator/__init__.py:66
+msgid "Invalid expression"
+msgstr ""
 
 #: src/cogs/clear/__init__.py:54
 msgid "Delete multiple messages with some filters."
@@ -297,37 +301,53 @@ msgstr "Les traductions seront désormais publiques."
 msgid "Translations will now be private."
 msgstr "Les traductions seront désormais privées."
 
-#: src/cogs/game/__init__.py:31
+#: src/cogs/game/__init__.py:33
 msgid "game"
 msgstr "jeu"
 
-#: src/cogs/game/__init__.py:32
+#: src/cogs/game/__init__.py:34
 msgid "Play some games."
 msgstr "Jouez à des jeux."
 
-#: src/cogs/game/__init__.py:48
+#: src/cogs/game/__init__.py:58
 msgid "connect4"
 msgstr "puissance4"
 
-#: src/cogs/game/__init__.py:49
+#: src/cogs/game/__init__.py:59
 msgid "Play connect 4"
 msgstr "Jouer au puissance 4"
 
-#: src/cogs/game/__init__.py:56
+#: src/cogs/game/__init__.py:66
 msgid "rpc"
 msgstr "rpc"
 
-#: src/cogs/game/__init__.py:57
+#: src/cogs/game/__init__.py:67
 msgid "Play rock paper scissors"
 msgstr "Jouer à Pierre Feuille Ciseaux"
 
-#: src/cogs/game/__init__.py:64
+#: src/cogs/game/__init__.py:74
 msgid "tictactoe"
 msgstr "morpion"
 
-#: src/cogs/game/__init__.py:65
+#: src/cogs/game/__init__.py:75
 msgid "Play tictactoe"
 msgstr "Jouer au morpion"
+
+#: src/cogs/game/__init__.py:82
+msgid "minesweeper"
+msgstr ""
+
+#: src/cogs/game/__init__.py:83
+msgid "Play minesweeper"
+msgstr ""
+
+#: src/cogs/game/__init__.py:90
+msgid "2048"
+msgstr ""
+
+#: src/cogs/game/__init__.py:91
+msgid "Play 2048"
+msgstr ""
 
 #: src/cogs/poll/__init__.py:35
 msgid "poll"
