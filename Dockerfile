@@ -12,11 +12,10 @@ RUN --mount=type=cache,target=/var/cache/apk/ \
 FROM python:3.12.0-alpine as base
 WORKDIR /app
 COPY --from=build /opt/venv /opt/venv
+COPY ./alembic.ini ./src  ./
+COPY ./alembic ./alembic
 ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONUNBUFFERED=0
-COPY ./alembic.ini  ./
-COPY ./alembic ./alembic
-COPY ./src ./
 
 
 FROM base as prod
