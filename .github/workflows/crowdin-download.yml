@@ -29,23 +29,10 @@ jobs:
         env:
           CROWDIN_API_KEY: ${{ secrets.CROWDIN_API_KEY }}
 
-      # - uses: EndBug/add-and-commit@v9
-      #   with:
-      #     message: "PO files updated."
-
-      # - name: Create pull request
-      #   id: cpr_crowdin
-      #   uses: peter-evans/create-pull-request@v3
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     commit-message: Crowdin translations download
-      #     title: "[Crowdin] Updated translation files"
-      #     body: |
-      #       Created by the [Crowdin download workflow](.github/workflows/crowdin_download.yml).
-      #     branch: "auto/crowdin"
-      #     author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-
-      - name: create pull request
-        run: gh pr create -B auto/crowdin -H master --title 'Update translations.' --body 'Created by Github action'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "PO files added."
+          branch: auto/crowdin
+          title: "Update translations"
+          add-paths: "**.po"
