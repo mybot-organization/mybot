@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
 "POT-Creation-Date: 2023-12-05 23:54+0000\n"
-"PO-Revision-Date: 2023-12-05 23:57\n"
+"PO-Revision-Date: 2023-12-06 01:20\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -68,7 +68,7 @@ msgstr "Aide à propos de {} [{}]"
 
 #: src/cogs/ping.py:28
 msgid "ping"
-msgstr ""
+msgstr "ping"
 
 #: src/cogs/ping.py:29
 msgid "Get the bot latency."
@@ -76,11 +76,11 @@ msgstr "Obtenir la latence du bot."
 
 #: src/cogs/stats.py:40
 msgid "stats"
-msgstr ""
+msgstr "stats"
 
 #: src/cogs/stats.py:41
 msgid "Get some stats about the bot."
-msgstr ""
+msgstr "Obtenez quelques statistiques sur le bot."
 
 #: src/cogs/calculator/__init__.py:41
 msgid "calculator"
@@ -92,7 +92,7 @@ msgstr "Afficher une calculatrice que vous pouvez utiliser."
 
 #: src/cogs/calculator/__init__.py:66
 msgid "Invalid expression"
-msgstr ""
+msgstr "Expression invalide"
 
 #: src/cogs/clear/__init__.py:54
 msgid "Delete multiple messages with some filters."
