@@ -1,6 +1,7 @@
 name: Upload to crowdin
 
 on:
+  pull_request:
   workflow_dispatch:
   push:
     branches: [master]
