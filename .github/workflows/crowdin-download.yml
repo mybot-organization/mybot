@@ -6,30 +6,15 @@ on:
     - cron: 0 * * * *
 
 jobs:
-  check-environment:
-    runs-on: ubuntu-latest
-    outputs:
-      available: ${{ steps.check.outputs.available }}
-    steps:
-      - id: check
-        if: env.CROWDIN_API_KEY != null
-        run: |
-          echo "available=true" >> $GITHUB_OUTPUT
-        env:
-          CROWDIN_API_KEY: ${{ secrets.CROWDIN_API_KEY }}
-
   download:
     runs-on: ubuntu-latest
-    needs: [check-environment]
     # secrets cannot be accessed inside an `if` so this needs to be checked in separate job
-    if: needs.check-environment.outputs.available == 'true'
     name: dowload
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          token: ${{ secrets.GH_TOKEN }}
-          ref: auto/crowdin
+          ref: master
 
       - name: Install crowdin cli
         run: |
@@ -40,19 +25,13 @@ jobs:
       - name: Download translations
         shell: bash
         run: |
-          crowdin download
+          crowdin download --all
         env:
           CROWDIN_API_KEY: ${{ secrets.CROWDIN_API_KEY }}
 
-      # - uses: actions/setup-python@v4
-      #   with:
-      #     python-version: "3.11"
-      # - name: Build mo files.
-      #   run: sh ./bin/po-to-mo.sh
-
       # - uses: EndBug/add-and-commit@v9
       #   with:
-      #     message: "MO files generated."
+      #     message: "PO files updated."
 
       # - name: Create pull request
       #   id: cpr_crowdin
