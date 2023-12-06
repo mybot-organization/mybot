@@ -44,11 +44,11 @@ jobs:
         env:
           CROWDIN_API_KEY: ${{ secrets.CROWDIN_API_KEY }}
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - name: Build mo files.
-        run: sh ./bin/po-to-mo.sh
+      # - uses: actions/setup-python@v4
+      #   with:
+      #     python-version: "3.11"
+      # - name: Build mo files.
+      #   run: sh ./bin/po-to-mo.sh
 
       # - uses: EndBug/add-and-commit@v9
       #   with:

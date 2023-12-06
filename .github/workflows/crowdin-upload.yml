@@ -15,7 +15,12 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: master
-          path: master/
+
+      - name: Install crowdin cli
+        run: |
+          wget -qO - https://artifacts.crowdin.com/repo/GPG-KEY-crowdin | sudo apt-key add -
+          echo "deb https://artifacts.crowdin.com/repo/deb/ /" | sudo tee -a /etc/apt/sources.list.d/crowdin.list
+          sudo apt-get update && sudo apt-get install crowdin3
 
       - uses: actions/setup-python@v4
         with:
@@ -28,21 +33,9 @@ jobs:
           pip install babel
           sh ./bin/pot-generation.sh
 
-      - uses: actions/checkout@v3
-        with:
-          ref: auto/crowdin
-          path: crowdin/
-
-      - name: setup git
+      - name: Upload sources
+        shell: bash
         run: |
-          cd crowdin
-          git config user.name "GitHub Actions Bot"
-          git config user.email "<>"
-
-      - name: commit
-        run: |
-          mv -f master/resources/locale/mybot.pot crowdin/resources/locale/mybot.pot
-          cd crowdin
-          git add ./resources/locale/mybot.pot
-          git commit -m "POT file generated"
-          git push origin auto/crowdin
+          crowdin upload
+        env:
+          CROWDIN_API_KEY: ${{ secrets.CROWDIN_API_KEY }}
