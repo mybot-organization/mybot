@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
-"POT-Creation-Date: 2023-12-05 23:54+0000\n"
-"PO-Revision-Date: 2023-12-05 23:57\n"
+"POT-Creation-Date: 2023-12-06 16:02+0000\n"
+"PO-Revision-Date: 2023-12-06 16:50\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -14,8 +14,8 @@ msgstr ""
 "X-Crowdin-Project: mybot-discord\n"
 "X-Crowdin-Project-ID: 532668\n"
 "X-Crowdin-Language: fr\n"
-"X-Crowdin-File: /auto.translations-source/resources/locale/mybot.pot\n"
-"X-Crowdin-File-ID: 60\n"
+"X-Crowdin-File: mybot.pot\n"
+"X-Crowdin-File-ID: 68\n"
 "Language: fr_FR\n"
 
 #: src/cogs/help.py:29
@@ -68,7 +68,7 @@ msgstr "Aide à propos de {} [{}]"
 
 #: src/cogs/ping.py:28
 msgid "ping"
-msgstr ""
+msgstr "ping"
 
 #: src/cogs/ping.py:29
 msgid "Get the bot latency."
@@ -76,11 +76,11 @@ msgstr "Obtenir la latence du bot."
 
 #: src/cogs/stats.py:40
 msgid "stats"
-msgstr ""
+msgstr "stats"
 
 #: src/cogs/stats.py:41
 msgid "Get some stats about the bot."
-msgstr ""
+msgstr "Obtenez quelques statistiques sur le bot."
 
 #: src/cogs/calculator/__init__.py:41
 msgid "calculator"
@@ -92,7 +92,7 @@ msgstr "Afficher une calculatrice que vous pouvez utiliser."
 
 #: src/cogs/calculator/__init__.py:66
 msgid "Invalid expression"
-msgstr ""
+msgstr "Expression invalide"
 
 #: src/cogs/clear/__init__.py:54
 msgid "Delete multiple messages with some filters."
@@ -128,7 +128,7 @@ msgstr "Supprimer uniquement les messages envoyés avant le message ou la date s
 
 #: src/cogs/clear/__init__.py:71
 msgid "Delete only messages sent after the specified message or date. (yyyy-mm-dd) #TODO"
-msgstr ""
+msgstr "Supprimer les messages envoyés après un message ou une date. (aaaa-mm-jj) #TODO"
 
 #: src/cogs/clear/__init__.py:72
 msgid "Include/exclude pinned messages in deletion, or deletes \"only\" pinned messages. (default to exclude)"
@@ -182,7 +182,9 @@ msgstr "Suppression de {amount} message(s)..."
 msgid "Analyzed: {analyzed}\n"
 "Deleted: {deleted}/{goal}\n"
 "Planned for deletion: {planned}"
-msgstr ""
+msgstr "Analysés : {analyzed}\n"
+"Supprimés : {deleted}/{goal}\n"
+"Prévu pour la suppression : {planned}"
 
 #: src/cogs/clear/__init__.py:187
 msgid "Cannot clear more than 3 minutes. {} message(s) deleted."
@@ -217,7 +219,7 @@ msgstr "seulement"
 
 #: src/cogs/clear/clear_transformers.py:47
 msgid "image"
-msgstr ""
+msgstr "image"
 
 #: src/cogs/clear/clear_transformers.py:48
 msgid "video"
@@ -225,7 +227,7 @@ msgstr "vidéo"
 
 #: src/cogs/clear/clear_transformers.py:49
 msgid "audio"
-msgstr ""
+msgstr "audio"
 
 #: src/cogs/clear/clear_transformers.py:50
 msgid "stickers"
@@ -233,11 +235,11 @@ msgstr "autocollants"
 
 #: src/cogs/clear/clear_transformers.py:51
 msgid "file"
-msgstr ""
+msgstr "fichier"
 
 #: src/cogs/clear/clear_transformers.py:52
 msgid "embed"
-msgstr ""
+msgstr "embed"
 
 #: src/cogs/clear/clear_transformers.py:53
 msgid "link (any URL)"
@@ -245,7 +247,7 @@ msgstr "lien (n'importe quelle URL)"
 
 #: src/cogs/clear/clear_transformers.py:54
 msgid "mention"
-msgstr ""
+msgstr "mention"
 
 #: src/cogs/clear/clear_transformers.py:55
 msgid "discord invitation"
@@ -269,7 +271,7 @@ msgstr "Définir la configuration du serveur."
 
 #: src/cogs/config/__init__.py:40
 msgid "bot"
-msgstr ""
+msgstr "bot"
 
 #: src/cogs/config/__init__.py:41
 msgid "Set configuration for the bot."
@@ -317,11 +319,11 @@ msgstr "Jouer au puissance 4"
 
 #: src/cogs/game/__init__.py:66
 msgid "rpc"
-msgstr ""
+msgstr "pcc"
 
 #: src/cogs/game/__init__.py:67
 msgid "Play rock paper scissors"
-msgstr ""
+msgstr "Jouer à Pierre Feuille Ciseaux"
 
 #: src/cogs/game/__init__.py:74
 msgid "tictactoe"
@@ -333,19 +335,19 @@ msgstr "Jouer au morpion"
 
 #: src/cogs/game/__init__.py:82
 msgid "minesweeper"
-msgstr ""
+msgstr "démineur"
 
 #: src/cogs/game/__init__.py:83
 msgid "Play minesweeper"
-msgstr ""
+msgstr "Jouer au démineur"
 
 #: src/cogs/game/__init__.py:90
 msgid "2048"
-msgstr ""
+msgstr "2048"
 
 #: src/cogs/game/__init__.py:91
 msgid "Play 2048"
-msgstr ""
+msgstr "Jouer au 2048"
 
 #: src/cogs/poll/__init__.py:35
 msgid "poll"
@@ -386,7 +388,7 @@ msgstr "Ce message n'est pas un sondage."
 
 #: src/cogs/poll/__init__.py:103
 msgid "You are not the author of this poll. You can't edit it."
-msgstr ""
+msgstr "Vous n'êtes pas le créateur du sondage. Vous ne pouvez pas le modifier."
 
 #: src/cogs/poll/__init__.py:120 src/cogs/poll/edit.py:192
 msgid "Poll question"
@@ -422,11 +424,11 @@ msgstr "Absolument !"
 
 #: src/cogs/poll/__init__.py:157
 msgid "Choice 3"
-msgstr ""
+msgstr "Choix 3"
 
 #: src/cogs/poll/__init__.py:158
 msgid "Of course!"
-msgstr ""
+msgstr "Bien sûr !"
 
 #: src/cogs/poll/display.py:78
 msgid "Poll created by {}"
@@ -446,11 +448,11 @@ msgstr "Le sondage se termine <t:{}:R>\n"
 
 #: src/cogs/poll/display.py:112
 msgid "Yes!"
-msgstr ""
+msgstr "Oui !"
 
 #: src/cogs/poll/display.py:112
 msgid "No!"
-msgstr ""
+msgstr "Non !"
 
 #: src/cogs/poll/edit.py:25
 msgid "Select what you want to edit."
@@ -502,7 +504,7 @@ msgstr "Le sondage a été mis à jour pendant votre vote."
 
 #: src/cogs/poll/edit.py:182
 msgid "Edit title and description"
-msgstr ""
+msgstr "Modifier le titre et la description"
 
 #: src/cogs/poll/edit.py:218
 msgid "Edit ending time"
@@ -540,7 +542,7 @@ msgstr "{} heure(s)"
 
 #: src/cogs/poll/edit.py:235
 msgid "{} minute(s)"
-msgstr ""
+msgstr "{} minute(s)"
 
 #: src/cogs/poll/edit.py:316
 msgid "Edit choices"
@@ -684,7 +686,7 @@ msgstr "Votez pour le bot"
 
 #: src/cogs/translate/__init__.py:319
 msgid "You have reached the maximum number of translations per day.Vote for the bot to remove this limit !"
-msgstr ""
+msgstr "Vous avez atteint le nombre maximum de traduction par jour. Votez pour le bot pour retirer cette limite !"
 
 #: src/cogs/translate/__init__.py:360
 msgid "Translate from {from_} to {to}"
@@ -700,27 +702,29 @@ msgstr "Cette commande est déjà exécutée le nombre maximal de fois. (Max : 
 
 #: src/core/error_handler.py:67
 msgid "This command needs some conditions you don't meet."
-msgstr ""
+msgstr "Cette commande nécessite certaines conditions que vous ne remplissez pas."
 
 #: src/core/error_handler.py:70
 msgid "You provided a bad argument."
-msgstr ""
+msgstr "Vous avez fourni un mauvais argument."
 
 #: src/core/error_handler.py:73
 msgid "The bot is missing some permissions.\n"
 "`{}`"
-msgstr ""
+msgstr "Il manque des permissions au bot.\n"
+"`{}`"
 
 #: src/core/error_handler.py:77
 msgid "It looks like the bot has been added incorrectly. Please ask an admin to re-add the bot."
-msgstr ""
+msgstr "Il semblerait que le bot ait été ajouté de manière incorrecte. Veuillez demander à un administrateur de ré-ajouter le bot."
 
 #: src/core/error_handler.py:80
 msgid "This command cannot be used in DMs."
-msgstr ""
+msgstr "Cette commande ne peut pas être utilisée en message privé."
 
 #: src/core/error_handler.py:83
 msgid "An unhandled error happened.\n"
 "Please ask on the support server!"
-msgstr ""
+msgstr "Une erreur inattendue est survenue.\n"
+"Demandez de l'aide sur le serveur de support !"
 
