@@ -1,4 +1,4 @@
-name: Generate pot file
+name: Upload to crowdin
 
 on:
   workflow_dispatch:
@@ -13,6 +13,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: master
+          path: master/
 
       - uses: actions/setup-python@v4
         with:
@@ -25,14 +28,21 @@ jobs:
           pip install babel
           sh ./bin/pot-generation.sh
 
+      - uses: actions/checkout@v3
+        with:
+          ref: auto/crowdin
+          path: crowdin/
+
       - name: setup git
         run: |
+          cd crowdin
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
 
       - name: commit
         run: |
-          git switch -c auto/translations-source
-          git add ./data/locale/mybot.pot
+          mv -f master/resources/locale/mybot.pot crowdin/resources/locale/mybot.pot
+          cd crowdin
+          git add ./resources/locale/mybot.pot
           git commit -m "POT file generated"
-          git push origin auto/translations-source --force
+          git push origin auto/crowdin
