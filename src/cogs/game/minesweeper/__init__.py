@@ -9,14 +9,12 @@ from typing import TYPE_CHECKING, Self
 import discord
 from discord import ui
 
-from core import ResponseType, SpecialCog, response_constructor
+from core import ExtendedCog, ResponseType, response_constructor
 
 from .minesweeper_game import Minesweeper, MinesweeperConfig, PlayType
 
 if TYPE_CHECKING:
     from discord import Interaction
-
-    from mybot import MyBot
 
 
 logger = logging.getLogger(__name__)
@@ -57,7 +55,7 @@ def build_board_display(game: Minesweeper) -> str:
     return description
 
 
-class MinesweeperCog(SpecialCog["MyBot"], name="minesweeper"):
+class MinesweeperCog(ExtendedCog, name="minesweeper"):
     async def minesweeper(self, inter: Interaction) -> None:
         embed = response_constructor(ResponseType.info, "Minesweeper").embed
         game = Minesweeper(board_size, 0)  # only used for the view, will be regenerated within the first play

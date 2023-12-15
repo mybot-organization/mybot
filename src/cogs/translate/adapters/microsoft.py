@@ -3,7 +3,7 @@ from typing import Sequence, Type
 from lingua import Language as LinguaLanguage, LanguageDetectorBuilder
 
 from core import config
-from core.modules.microsoft_translation import MicrosoftTranslator
+from libraries.microsoft_translation import MicrosoftTranslator
 
 from ..languages import Language, Languages, LanguagesEnum
 from ..translator_abc import TranslatorAdapter

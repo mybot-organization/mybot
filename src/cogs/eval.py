@@ -13,9 +13,9 @@ from typing import TYPE_CHECKING, Any, Self
 import discord
 from discord import ButtonStyle, Color, Embed, Message, TextStyle, app_commands, ui
 from discord.ext import commands
-from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.interactions import Interaction
 
+from core import ExtendedCog
 from core._config import config
 from core.checkers.app import is_me
 from core.checkers.base import is_me_bool
@@ -30,10 +30,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class Eval(Cog):
-    def __init__(self, bot: MyBot):
-        self.bot: MyBot = bot
-
+class Eval(ExtendedCog):
     @commands.command(name="+eval")
     @commands.check(lambda ctx: is_me_bool(ctx.author.id))
     async def add_eval(self, ctx: commands.Context[MyBot]) -> None:

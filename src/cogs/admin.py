@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from discord import app_commands
 
-from core import SpecialCog, config
+from core import ExtendedCog, config
 
 if TYPE_CHECKING:
     from discord import Interaction
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class Admin(SpecialCog["MyBot"]):  # TODO(airo.pi_): add checkers
+class Admin(ExtendedCog):  # TODO(airo.pi_): add checkers
     @app_commands.command()
     @app_commands.guilds(config.SUPPORT_GUILD_ID)
     async def reload_extension(self, inter: Interaction, extension: str):

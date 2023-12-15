@@ -8,7 +8,7 @@ from discord.app_commands import Command, ContextMenu, check as app_check
 
 from .._config import config
 from ..errors import BotMissingPermissions, NotAllowedUser
-from ..misc_command import MiscCommandContext, misc_check as misc_check
+from ..extended_commands import MiscCommandContext, misc_check as misc_check
 from ..utils import CommandType
 
 T = TypeVar("T")

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Callable
 
-from ..misc_command import MiscCommandContext, misc_check as misc_check
+from ..extended_commands import MiscCommandContext, misc_check as misc_check
 from ..utils import CommandType
 from .base import T, bot_required_permissions_base
 

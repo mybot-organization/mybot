@@ -11,7 +11,7 @@ import discord
 from discord import Embed, Message, app_commands, ui
 from discord.app_commands import locale_str as __
 
-from core import ResponseType, SpecialCog, TemporaryCache, misc_command, response_constructor
+from core import ExtendedCog, ResponseType, TemporaryCache, misc_command, response_constructor
 from core.checkers.misc import bot_required_permissions, is_activated, is_user_authorized, misc_check
 from core.errors import BadArgument, NonSpecificError
 from core.i18n import _
@@ -149,7 +149,7 @@ class TempUsage:
         self.cache[key].append(id)
 
 
-class Translate(SpecialCog["MyBot"]):
+class Translate(ExtendedCog):
     def __init__(self, bot: MyBot):
         super().__init__(bot)
         self.cache: TemporaryCache[str, TranslationTask] = TemporaryCache(expire=timedelta(days=1), max_size=10_000)

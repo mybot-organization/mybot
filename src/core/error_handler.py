@@ -18,12 +18,12 @@ from .errors import (
     MiscNoPrivateMessage,
     NonSpecificError,
 )
+from .extended_commands import MiscCommandContext
 from .i18n import i18n
-from .misc_command import MiscCommandContext
 
 if TYPE_CHECKING:
     from core.errors import MiscCommandError
-    from core.misc_command import MiscCommandContext
+    from core.extended_commands import MiscCommandContext
     from mybot import MyBot
 
 logger = logging.getLogger(__name__)

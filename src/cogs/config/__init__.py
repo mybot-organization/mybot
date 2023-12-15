@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from discord import app_commands
 from discord.app_commands import locale_str as __
 
-from core import SpecialGroupCog, cog_property
+from core import ExtendedGroupCog, cog_property
 
 if TYPE_CHECKING:
     from discord import Interaction
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 @app_commands.guild_only()
 @app_commands.default_permissions(administrator=True)
 class Config(
-    SpecialGroupCog["MyBot"],
+    ExtendedGroupCog,
     group_name=__("config"),
     group_description=__("Set configurations."),
     group_extras={"beta": True},

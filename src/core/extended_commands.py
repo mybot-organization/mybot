@@ -6,28 +6,33 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    ClassVar,
     Concatenate,
     Generic,
     Literal,
     ParamSpec,
     Protocol,
     Self,
+    Sequence,
+    TypeVar,
     cast,
     runtime_checkable,
 )
 
 import discord
 from discord import ClientUser, Member, Permissions, User
-from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
+from discord.ext import commands
 from discord.utils import maybe_coroutine
 from typing_extensions import TypeVar
 
 from ._types import BotT, CogT
-from .errors import MiscCheckFailure, MiscCommandError, MiscNoPrivateMessage
+from .errors import MiscCheckFailure, MiscCommandError, MiscNoPrivateMessage, UnexpectedError
 
 if TYPE_CHECKING:
-    from discord.abc import MessageableChannel
-    from discord.ext.commands.bot import AutoShardedBot, Bot  # pyright: ignore[reportMissingTypeStubs]
+    from discord.abc import MessageableChannel, Snowflake
+    from discord.ext.commands.bot import AutoShardedBot, Bot, BotBase  # pyright: ignore[reportMissingTypeStubs]
+
+    from mybot import MyBot
 
     from ._types import CoroT, UnresolvedContext, UnresolvedContextT
 
@@ -36,6 +41,9 @@ if TYPE_CHECKING:
 
 P = ParamSpec("P")
 T = TypeVar("T")
+C = TypeVar("C", bound="commands.Cog")
+_BotType = TypeVar("_BotType", bound="Bot | AutoShardedBot")
+
 
 LiteralNames = Literal["raw_reaction_add", "message"]
 
@@ -49,6 +57,43 @@ events_to_type: dict[str, MiscCommandsType] = {
     "on_raw_reaction_add": MiscCommandsType.REACTION,
     "on_message": MiscCommandsType.MESSAGE,
 }
+
+
+class ExtendedCog(commands.Cog):
+    __cog_misc_commands__: list[MiscCommand[Any, ..., Any]]
+    bot: MyBot
+
+    def __new__(cls, *args: Any, **kwargs: Any) -> Self:
+        cls = super().__new__(cls, *args, **kwargs)
+
+        cls.__cog_misc_commands__ = []
+        for _, listener in cls.__cog_listeners__:
+            misc_command = getattr(getattr(cls, listener), "__listener_as_command__", None)
+            if isinstance(misc_command, MiscCommand):
+                cls.__cog_misc_commands__.append(misc_command)  # pyright: ignore [reportUnknownArgumentType]
+
+        return cls
+
+    def __init__(self, bot: MyBot) -> None:
+        self.bot = bot
+
+    def get_misc_commands(self) -> list[MiscCommand[Any, ..., Any]]:
+        """Return all the misc commands in this cog."""
+        return list(self.__cog_misc_commands__)
+
+    async def _inject(self, bot: BotBase, override: bool, guild: Snowflake | None, guilds: Sequence[Snowflake]) -> Self:
+        await super()._inject(bot, override, guild, guilds)
+
+        # bind the bot to the misc commands
+        # used to dispatch error for error handling
+        for misc_command in self.get_misc_commands():
+            misc_command.bot = bot  # type: ignore
+
+        return self
+
+
+class ExtendedGroupCog(ExtendedCog):
+    __cog_is_app_commands_group__: ClassVar[bool] = True
 
 
 class MiscCommand(Generic[CogT, P, T]):
@@ -152,7 +197,7 @@ def misc_command(
 
         setattr(inner, "__listener_as_command__", misc_command)
 
-        add_listener = Cog.listener(true_listener_name)
+        add_listener = commands.Cog.listener(true_listener_name)
         add_listener(inner)
 
         return inner
@@ -258,3 +303,24 @@ def misc_check(predicate: Callable[[MiscCommandContext[Any]], CoroT[bool] | bool
         return func
 
     return decorator
+
+
+def cog_property(cog_name: str):
+    """Transform a method into a property that return the cog with the name passed in argument.
+    Type is not truly correct because we force it to be a Cog value while it is a property that return a Cog.
+
+    Args:
+        cog_name: the cog name to return
+    """
+
+    def inner(_: Callable[..., C]) -> C:
+        @property
+        def cog_getter(self: Any) -> C:  # self is a cog within the .bot attribute (because every Cog should have it)
+            cog: C | None = self.bot.get_cog(cog_name)
+            if cog is None:
+                raise UnexpectedError(f"Cog named {cog_name} is not loaded.")
+            return cog
+
+        return cog_getter  # type: ignore
+
+    return inner

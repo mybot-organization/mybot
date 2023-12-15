@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Callable, Deque, Hashable, TypeVar, Union
 from typing_extensions import Self
 
 from ..errors import MaxConcurrencyReached
-from ..misc_command import misc_check as misc_check
+from ..extended_commands import misc_check as misc_check
 
 T = TypeVar("T")
 

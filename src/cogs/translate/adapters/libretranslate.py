@@ -5,7 +5,7 @@ from typing import Sequence, Type, TypeVar
 
 from lingua import Language as LinguaLanguage, LanguageDetectorBuilder
 
-from core.modules.libre_translate import Language as LibreLanguage, LibreTranslate
+from libraries.libre_translate import Language as LibreLanguage, LibreTranslate
 
 from ..languages import Language, Languages, LanguagesEnum
 from ..translator_abc import TranslatorAdapter
