@@ -9,6 +9,8 @@ from discord.app_commands import locale_str as __
 from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import get
 
+from core import ExtendedCog
+
 if TYPE_CHECKING:
     from discord import Interaction
 
@@ -18,10 +20,9 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class Stats(Cog):
+class Stats(ExtendedCog):
     def __init__(self, bot: MyBot):
-        self.bot: MyBot = bot
-
+        super().__init__(bot)
         self.temp_store: dict[int, int] = {}
 
     @Cog.listener()

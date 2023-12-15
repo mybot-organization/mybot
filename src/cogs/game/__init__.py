@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from discord import app_commands
 from discord.app_commands import locale_str as __
 
-from core import SpecialGroupCog, cog_property
+from core import ExtendedGroupCog, cog_property
 
 from .connect4 import GameConnect4
 from .game_2084 import Two048Cog
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 class Game(
-    SpecialGroupCog["MyBot"],
+    ExtendedGroupCog,
     group_name=__("game"),
     group_description=__("Play some games."),
     group_extras={"soon": True},

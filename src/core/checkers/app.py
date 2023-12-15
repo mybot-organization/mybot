@@ -4,7 +4,7 @@ from typing import Callable
 
 from discord.app_commands import check
 
-from ..misc_command import misc_check as misc_check
+from ..extended_commands import misc_check as misc_check
 from ..utils import CommandType
 from .base import T, bot_required_permissions_base, is_me_bool
 

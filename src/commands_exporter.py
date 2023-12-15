@@ -11,7 +11,7 @@ from discord import app_commands
 from typing_extensions import NotRequired
 
 from core._config import define_config
-from core.misc_command import MiscCommand, MiscCommandsType
+from core.extended_commands import MiscCommand, MiscCommandsType
 
 if TYPE_CHECKING:
     from mybot import MyBot

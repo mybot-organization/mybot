@@ -12,7 +12,7 @@ import discord
 from discord import ButtonStyle, app_commands, ui
 from discord.app_commands import locale_str as __
 
-from core import SpecialCog
+from core import ExtendedCog
 from core.i18n import _
 
 from .calcul import Calcul, UnclosedParentheses
@@ -36,7 +36,7 @@ def display_calcul(calcul: Calcul) -> str:
     return display
 
 
-class Calculator(SpecialCog["MyBot"]):
+class Calculator(ExtendedCog):
     @app_commands.command(
         name=__("calculator"),
         description=__("Show a calculator you can use."),

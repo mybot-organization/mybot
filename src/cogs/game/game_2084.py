@@ -11,13 +11,11 @@ import discord
 from discord import ui
 from two048 import Direction, Tile, Two048
 
-from core import ResponseType, SpecialCog, response_constructor
+from core import ExtendedCog, ResponseType, response_constructor
 from core.constants import Emojis
 
 if TYPE_CHECKING:
     from discord import Interaction
-
-    from mybot import MyBot
 
 
 logger = logging.getLogger(__name__)
@@ -46,7 +44,7 @@ tile_value_to_emoji = {
 }
 
 
-class Two048Cog(SpecialCog["MyBot"], name="game_2048"):
+class Two048Cog(ExtendedCog, name="game_2048"):
     async def two048(self, inter: Interaction) -> None:
         await inter.response.send_message(**Two048View.init_game(inter.user))
 

@@ -7,11 +7,10 @@ from typing import TYPE_CHECKING, Iterable, Self, Sequence, cast
 import discord
 from discord import app_commands, ui
 from discord.app_commands import Choice, locale_str as __
-from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import get
 
 from commands_exporter import ContextCommand, FeatureType, Misc, MiscCommandsType, SlashCommand
-from core import ResponseType, response_constructor
+from core import ExtendedCog, ResponseType, response_constructor
 from core.constants import Emojis
 from core.i18n import _
 from core.utils import splitter
@@ -33,10 +32,7 @@ friendly_commands_types = {
 }
 
 
-class Help(Cog):
-    def __init__(self, bot: MyBot) -> None:
-        self.bot = bot
-
+class Help(ExtendedCog):
     @app_commands.command(name=__("help"), description=__("Get help about the bot."), extras={"beta": True})
     @app_commands.rename(feature_identifier=__("feature"))
     async def _help(self, inter: Interaction, feature_identifier: str | None = None):

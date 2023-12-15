@@ -13,12 +13,11 @@ from discord.utils import get
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from commands_exporter import Feature, extract_features
-from core import ResponseType, TemporaryCache, config, db, response_constructor
+from core import ExtendedCog, ResponseType, TemporaryCache, config, db, response_constructor
 from core.custom_command_tree import CustomCommandTree
 from core.error_handler import ErrorHandler
+from core.extended_commands import MiscCommandContext
 from core.i18n import Translator
-from core.misc_command import MiscCommandContext
-from core.special_cog import SpecialCog
 
 if TYPE_CHECKING:
     from discord import Guild, Thread, User
@@ -28,7 +27,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
     from core.errors import MiscCommandError
-    from core.misc_command import MiscCommand
+    from core.extended_commands import MiscCommand
 
 logger = logging.getLogger(__name__)
 
@@ -354,7 +353,7 @@ class MyBot(AutoShardedBot):
         """
         misc_commands: list[MiscCommand[Any, ..., Any]] = []
         for cog in self.cogs.values():
-            if isinstance(cog, SpecialCog):
+            if isinstance(cog, ExtendedCog):
                 for misc_command in cog.get_misc_commands():
                     misc_commands.append(misc_command)
         return misc_commands

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any
 import discord
 from discord.app_commands import CommandTree
 
-from core.errors import BotUserNotPresent
+from .errors import BotUserNotPresent
 
 if TYPE_CHECKING:
     from discord import Interaction

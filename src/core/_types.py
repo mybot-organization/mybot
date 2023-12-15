@@ -6,8 +6,7 @@ from discord import Message
 from discord.ext import commands
 
 if TYPE_CHECKING:
-    from .misc_command import MiscCommandContextFilled, MiscCommandContextRaw
-    from .special_cog import SpecialCog
+    from .extended_commands import ExtendedCog, MiscCommandContextFilled, MiscCommandContextRaw
 
 UnresolvedContext: TypeAlias = Union["MiscCommandContextRaw", "MiscCommandContextFilled", Message]
 UnresolvedContextT = TypeVar("UnresolvedContextT", bound=UnresolvedContext)
@@ -15,7 +14,7 @@ UnresolvedContextT = TypeVar("UnresolvedContextT", bound=UnresolvedContext)
 P = ParamSpec("P")
 T = TypeVar("T")
 
-CogT = TypeVar("CogT", bound="SpecialCog[Any]")
+CogT = TypeVar("CogT", bound="ExtendedCog")
 BotT = TypeVar("BotT", bound="commands.Bot | commands.AutoShardedBot")
 
 

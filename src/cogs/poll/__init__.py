@@ -12,7 +12,7 @@ from discord import app_commands, ui
 from discord.app_commands import locale_str as __
 from sqlalchemy.orm import selectinload
 
-from core import SpecialGroupCog, db
+from core import ExtendedGroupCog, db
 from core.checkers.app import bot_required_permissions
 from core.errors import NonSpecificError
 from core.i18n import _
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 @app_commands.default_permissions(administrator=True)
 @app_commands.guild_only()
-class PollCog(SpecialGroupCog["MyBot"], group_name=__("poll"), group_description=__("Create a new poll")):
+class PollCog(ExtendedGroupCog, group_name=__("poll"), group_description=__("Create a new poll")):
     def __init__(self, bot: MyBot):
         super().__init__(bot)
 

@@ -8,10 +8,9 @@ from typing import TYPE_CHECKING, AsyncGenerator, Awaitable, Callable, cast
 import discord
 from discord import app_commands, ui
 from discord.app_commands import Transform, locale_str as __
-from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from typing_extensions import Self
 
-from core import Menu, MessageDisplay, ResponseType, response_constructor
+from core import ExtendedCog, Menu, MessageDisplay, ResponseType, response_constructor
 from core.checkers import MaxConcurrency
 from core.errors import BadArgument, MaxConcurrencyReached, NonSpecificError, UnexpectedError
 from core.i18n import _
@@ -44,9 +43,9 @@ def channel_bucket(inter: discord.Interaction):
     return inter.channel_id
 
 
-class Clear(Cog):
+class Clear(ExtendedCog):
     def __init__(self, bot: MyBot):
-        self.bot: MyBot = bot
+        super().__init__(bot)
 
         self.clear_max_concurrency = MaxConcurrency(1, key=channel_bucket, wait=False)
 

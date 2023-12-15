@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Awaitable, Callable, Concatenate, ParamSpec, T
 from aiohttp import hdrs, web
 from psutil import Process
 
-from core import SpecialCog, config
+from core import ExtendedCog, config
 
 if TYPE_CHECKING:
     from mybot import MyBot
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 P = ParamSpec("P")
-S = TypeVar("S", bound="SpecialCog[MyBot]")
+S = TypeVar("S", bound="ExtendedCog")
 
 
 def route(method: str, path: str):
@@ -28,9 +28,9 @@ def route(method: str, path: str):
     return wrap
 
 
-class API(SpecialCog["MyBot"]):
+class API(ExtendedCog):
     def __init__(self, bot: MyBot):
-        self.bot: MyBot = bot
+        super().__init__(bot)
         self.app = web.Application()
         self.runner = web.AppRunner(self.app)
         self.routes = web.RouteTableDef()

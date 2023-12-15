@@ -1,0 +1,40 @@
+name: Upload to crowdin
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - "**.py"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: master
+
+      - name: Install crowdin cli
+        run: |
+          wget -qO - https://artifacts.crowdin.com/repo/GPG-KEY-crowdin | sudo apt-key add -
+          echo "deb https://artifacts.crowdin.com/repo/deb/ /" | sudo tee -a /etc/apt/sources.list.d/crowdin.list
+          sudo apt-get update && sudo apt-get install crowdin3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: babel extract (pot file generation)
+        run: |
+          pip install babel
+          sh ./bin/pot-generation.sh
+
+      - name: Upload sources
+        shell: bash
+        run: |
+          crowdin upload
+        env:
+          CROWDIN_API_KEY: ${{ secrets.CROWDIN_API_KEY }}
