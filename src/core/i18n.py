@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING, Any
 from discord import Interaction, Locale, app_commands
 from discord.utils import MISSING, find
 
+from core.constants import TranslationContextLimits
+
 if TYPE_CHECKING:
     from types import FrameType
 
@@ -40,20 +42,27 @@ def load_translations():
 class Translator(app_commands.Translator):
     async def translate(self, string: locale_str, locale: Locale, context: TranslationContextTypes) -> str:
         new_string = i18n(str(string), _locale=locale)
-        if context.location is app_commands.TranslationContextLocation.parameter_description:
-            if len(new_string) > 100:
-                logger.warning(
-                    "The translated string is too long: %s for %s from %s\n%s",
-                    context.location,
-                    context.data.name,
-                    context.data.command.name,
-                    new_string,
-                )
-                new_string = new_string[:99] + "…"
+        char_limit = TranslationContextLimits.from_location(context.location)
+        if char_limit and len(new_string) > char_limit.value:
+            logger.warning(
+                "The translated string is too long: %s from %s\n%s",
+                context.location,
+                context.data.name,
+                new_string,
+            )
+            new_string = new_string[: char_limit.value - 1] + "…"
         return new_string
 
 
-def i18n(string: str, /, *args: Any, _locale: Locale | None = MISSING, _silent: bool = False, **kwargs: Any) -> str:
+def i18n(
+    string: str,
+    /,
+    *args: Any,
+    _locale: Locale | None = MISSING,
+    _silent: bool = False,
+    _size_limit: int = -1,
+    **kwargs: Any,
+) -> str:
     if _locale is MISSING:
         frame: FrameType | None = inspect.currentframe()
 
@@ -73,9 +82,14 @@ def i18n(string: str, /, *args: Any, _locale: Locale | None = MISSING, _silent: 
 
         _locale = inter.locale
     if _locale is None:
-        return string.format(*args, **kwargs)
+        result = string.format(*args, **kwargs)
+    else:
+        result = translations.get(_locale, translations[LOCALE_DEFAULT]).gettext(string).format(*args, **kwargs)
 
-    return translations.get(_locale, translations[LOCALE_DEFAULT]).gettext(string).format(*args, **kwargs)
+    if _size_limit > 0 and len(result) > _size_limit:
+        logger.warning("The translated and formatted string is too long: %s\n%s", string, result)
+        result = result[: _size_limit - 1] + "…"
+    return result
 
 
 _ = i18n

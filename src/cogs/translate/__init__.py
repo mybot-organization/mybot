@@ -11,8 +11,9 @@ import discord
 from discord import Embed, Message, app_commands, ui
 from discord.app_commands import locale_str as __
 
-from core import CHARACTERS_LIMITS, ExtendedCog, ResponseType, TemporaryCache, db, misc_command, response_constructor
+from core import ExtendedCog, ResponseType, TemporaryCache, db, misc_command, response_constructor
 from core.checkers.misc import bot_required_permissions, is_activated, is_user_authorized, misc_check
+from core.constants import EmbedsCharLimits
 from core.errors import BadArgument, NonSpecificError
 from core.i18n import _
 
@@ -74,7 +75,7 @@ class TranslationTask:
     def inject_translations(self, translation: Sequence[str]):
         i = 0
         if self.content:
-            self.content = translation[0]
+            self.content = translation[0][: EmbedsCharLimits.DESCRIPTION.value - 1]
             i += 1
         for tr_embed in self.tr_embeds:
             tr_embed.reconstruct(translation[i : i + len(tr_embed)])  # noqa: E203
@@ -150,10 +151,13 @@ class EmbedTranslation:
                     char_lim_key.append(key)
                 obj = obj[key]
 
-            limit = CHARACTERS_LIMITS.get(".".join(char_lim_key + [keys[-1]]))
+            try:
+                limit = EmbedsCharLimits["_".join(char_lim_key + [keys[-1]]).upper()]
+            except KeyError:
+                limit = None
 
-            if limit and limit < len(translation):
-                obj[keys[-1]] = translation[: limit - 1] + "…"
+            if limit and limit.value < len(translation):
+                obj[keys[-1]] = translation[: limit.value - 1] + "…"
             else:
                 obj[keys[-1]] = translation
 

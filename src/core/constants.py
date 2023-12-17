@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import enum
 from typing import TYPE_CHECKING, Self
+
+from discord.app_commands import TranslationContextLocation
 
 if TYPE_CHECKING:
     from ._types import Snowflake
@@ -99,13 +102,39 @@ class Emojis:
     thumb_down = "👎"
 
 
-CHARACTERS_LIMITS = {
-    "content": 2000,
-    "title": 256,
-    "description": 4096,
-    "fields.name": 256,
-    "fields.value": 1024,
-    "footer.text": 2048,
-    "author.name": 256,
-    "total": 6000,
-}
+class EmbedsCharLimits(enum.Enum):
+    TITLE = 256
+    DESCRIPTION = 4096
+    FIELDS_NAME = 256
+    FIELDS_VALUE = 1024
+    FOOTER_TEXT = 2048
+    AUTHOR_NAME = 256
+
+
+class GeneralCharLimits(enum.Enum):
+    MESSAGE_TOTAL = 6000
+    MESSAGE_CONTENT = 2000
+    SLASH_COMMAND_TOTAL = 4000
+
+
+class TranslationContextLimits(enum.Enum):
+    CHOICE_NAME = 100
+    COMMAND_DESCRIPTION = 100
+    PARAMETER_DESCRIPTION = 100
+    PARAMETER_NAME = 100
+    COMMAND_NAME = 100
+    GROUP_NAME = 100
+    GROUP_DESCRIPTION = 100
+
+    @classmethod
+    def from_location(cls, location: TranslationContextLocation) -> TranslationContextLimits | None:
+        translation_context_limits_bind = {
+            TranslationContextLocation.choice_name: TranslationContextLimits.CHOICE_NAME,
+            TranslationContextLocation.command_description: TranslationContextLimits.COMMAND_DESCRIPTION,
+            TranslationContextLocation.parameter_description: TranslationContextLimits.PARAMETER_DESCRIPTION,
+            TranslationContextLocation.parameter_name: TranslationContextLimits.PARAMETER_NAME,
+            TranslationContextLocation.command_name: TranslationContextLimits.COMMAND_NAME,
+            TranslationContextLocation.group_name: TranslationContextLimits.GROUP_NAME,
+            TranslationContextLocation.group_description: TranslationContextLimits.GROUP_DESCRIPTION,
+        }
+        return translation_context_limits_bind.get(location)
