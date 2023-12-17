@@ -4,11 +4,10 @@ import asyncio
 import json
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Any, TypedDict, cast, overload
+from typing import TYPE_CHECKING, Any, NotRequired, TypedDict, cast, overload
 
 import discord
 from discord import app_commands
-from typing_extensions import NotRequired
 
 from core._config import define_config
 from core.extended_commands import MiscCommand, MiscCommandsType

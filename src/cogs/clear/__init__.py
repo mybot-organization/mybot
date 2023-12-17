@@ -3,12 +3,11 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from typing import TYPE_CHECKING, AsyncGenerator, Awaitable, Callable, cast
+from typing import TYPE_CHECKING, AsyncGenerator, Awaitable, Callable, Self, cast
 
 import discord
 from discord import app_commands, ui
 from discord.app_commands import Transform, locale_str as __
-from typing_extensions import Self
 
 from core import ExtendedCog, Menu, MessageDisplay, ResponseType, response_constructor
 from core.checkers import MaxConcurrency

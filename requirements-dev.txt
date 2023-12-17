@@ -1,8 +1,5 @@
 black
 bandit
-toml
 tox
 pyright
 isort
-pytest
-flake8

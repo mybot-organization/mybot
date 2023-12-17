@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Any, Generic, Self
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar
 
 import discord
 from discord import ui

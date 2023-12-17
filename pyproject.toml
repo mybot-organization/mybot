@@ -18,7 +18,7 @@ skipsdist = true
 
 [testenv]
 deps = 
-    -r requirements.txt 
+    -r requirements.txt
     -r requirements-dev.txt
 commands =
     # pytest

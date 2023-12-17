@@ -3,9 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections import deque
-from typing import TYPE_CHECKING, Any, Callable, Deque, Hashable, TypeVar, Union
-
-from typing_extensions import Self
+from typing import TYPE_CHECKING, Any, Callable, Deque, Hashable, Self, TypeVar, Union
 
 from ..errors import MaxConcurrencyReached
 from ..extended_commands import misc_check as misc_check

@@ -1,5 +1,4 @@
-data/database
-data/grafana
+data/
 config.toml
 
 # editors

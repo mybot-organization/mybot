@@ -23,7 +23,6 @@ import discord
 from discord import ClientUser, Member, Permissions, User
 from discord.ext import commands
 from discord.utils import maybe_coroutine
-from typing_extensions import TypeVar
 
 from ._types import BotT, CogT
 from .errors import MiscCheckFailure, MiscCommandError, MiscNoPrivateMessage, UnexpectedError

@@ -33,7 +33,7 @@ You can reach me over Discord at `@airo.pi`. Feel free to open an issue if you e
 
 ## How to contribute
 
-I would ❤️ to see your contribution! Refer to [CONTRIBUTING.md](/CONTRIBUTING.md)
+I would ❤️ to see your contribution! Refer to [CONTRIBUTING.md](.github/CONTRIBUTING.md)
 
 ## License
 
