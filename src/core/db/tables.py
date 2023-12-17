@@ -69,8 +69,8 @@ class GuildDB(Base):
     __tablename__ = "guild"
 
     guild_id: Mapped[Snowflake] = mapped_column(primary_key=True)
-    premium_type: Mapped[PremiumType] = mapped_column(Enum(PremiumType))
-    translations_are_public: Mapped[bool] = mapped_column()
+    premium_type: Mapped[PremiumType] = mapped_column(Enum(PremiumType), default=PremiumType.NONE)
+    translations_are_public: Mapped[bool] = mapped_column(default=False)
 
 
 class UserDB(Base):
@@ -97,11 +97,11 @@ class Poll(Base, kw_only=True):
     public_results: Mapped[bool] = mapped_column(default=True)
     closed: Mapped[bool] = mapped_column(default=False)
     anonymous_allowed: Mapped[bool] = mapped_column(default=False)
-    allowed_roles: Mapped[list[Snowflake]] = mapped_column(
+    allowed_roles: Mapped[list[Snowflake]] = _mapped_column(
         MutableList.as_mutable(ARRAY(BigInteger)), default_factory=list
     )
 
-    choices: Mapped[list[PollChoice]] = relationship(cascade="all, delete-orphan")
+    choices: Mapped[list[PollChoice]] = relationship(cascade="all, delete-orphan", default_factory=list)
 
 
 class PollChoice(Base):
@@ -141,8 +141,8 @@ class TSUsage(Base):
 
     ts: Mapped[TimestampFK] = mapped_column()
     user_id: Mapped[Snowflake] = mapped_column()  # ForeignKey(UserDB.user_id))
-    guild_id: Mapped[Snowflake] = mapped_column(ForeignKey(GuildDB.guild_id))
-    data: Mapped[dict[str, Any]] = mapped_column(JSONB, default_factory=dict)
+    guild_id: Mapped[Snowflake | None] = mapped_column(ForeignKey(GuildDB.guild_id))
+    data: Mapped[dict[str, Any]] = _mapped_column(JSONB, default_factory=dict)
 
 
 class TSPollModification(Base):
@@ -151,7 +151,7 @@ class TSPollModification(Base):
     ts: Mapped[TimestampFK] = mapped_column()
     user_id: Mapped[Snowflake] = mapped_column()
     poll_id: Mapped[int] = mapped_column(ForeignKey(Poll.id))
-    data: Mapped[dict[str, Any]] = mapped_column(JSONB, default_factory=dict)
+    data: Mapped[dict[str, Any]] = _mapped_column(JSONB, default_factory=dict)
 
 
 class TSSettingUpdate(Base):
@@ -160,4 +160,4 @@ class TSSettingUpdate(Base):
     ts: Mapped[TimestampFK] = mapped_column()
     guild_id: Mapped[Snowflake] = mapped_column(ForeignKey(GuildDB.guild_id))
     user_id: Mapped[Snowflake] = mapped_column()
-    data: Mapped[dict[str, Any]] = mapped_column(JSONB, default_factory=dict)
+    data: Mapped[dict[str, Any]] = _mapped_column(JSONB, default_factory=dict)
