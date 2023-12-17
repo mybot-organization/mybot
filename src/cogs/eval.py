@@ -110,7 +110,7 @@ class EvalForm(ui.Modal):
             embeds[1].description = "```Evaluation cancelled.```"
             set_embeds_color(Color.orange())
         else:
-            result, errored = await code_evaluation(str(self.code), inter, self.bot)
+            result, errored = task.result()
             embeds[1].description = f"```py\n{size_text(result, 4000, 'middle')}\n```"
             if errored:
                 set_embeds_color(Color.red())

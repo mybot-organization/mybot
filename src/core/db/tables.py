@@ -2,14 +2,22 @@ from __future__ import annotations
 
 import enum
 from datetime import datetime
-from typing import Iterable, Sequence, TypedDict, TypeVar, Unpack
+from functools import partial
+from typing import Annotated, Any, Iterable, Sequence, TypeVar
 
-from sqlalchemy import ARRAY, BigInteger, Boolean, DateTime, Enum, ForeignKey, SmallInteger, String
+from sqlalchemy import ARRAY, BigInteger, DateTime, Enum, ForeignKey
+from sqlalchemy.dialects.postgresql import BIGINT, BOOLEAN, INTEGER, JSONB, SMALLINT, VARCHAR
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.ext.mutable import Mutable
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy.sql.schema import ColumnDefault
+from sqlalchemy.orm import DeclarativeBase, Mapped, MappedAsDataclass, mapped_column as _mapped_column, relationship
+from sqlalchemy.sql import functions
 
 T = TypeVar("T")
+
+mapped_column = partial(_mapped_column, default=None)
+
+Snowflake = Annotated[int, mapped_column(BIGINT)]
+TimestampFK = Annotated[datetime, mapped_column(server_default=functions.now(), primary_key=True)]
 
 
 class MutableList(Mutable, list[T]):
@@ -46,89 +54,62 @@ class PollType(enum.Enum):
     ENTRY = 4  # A poll where users can enter their own choices
 
 
-class UsageType(enum.Enum):
-    SLASHCOMMAND = 1
-
-
 class PremiumType(enum.Enum):
     NONE = 1
 
 
-class Base(DeclarativeBase):
-    pass
+class Base(MappedAsDataclass, AsyncAttrs, DeclarativeBase):
+    type_annotation_map = {
+        bool: BOOLEAN,
+        int: INTEGER,
+    }
 
 
 class GuildDB(Base):
     __tablename__ = "guild"
 
-    guild_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    premium_type: Mapped[PremiumType] = mapped_column(Enum(PremiumType))
-    translations_are_public: Mapped[bool] = mapped_column(Boolean)
+    guild_id: Mapped[Snowflake] = mapped_column(primary_key=True)
+    premium_type: Mapped[PremiumType] = mapped_column(Enum(PremiumType), default=PremiumType.NONE)
+    translations_are_public: Mapped[bool] = mapped_column(default=False)
 
 
 class UserDB(Base):
     __tablename__ = "user"
 
-    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[Snowflake] = mapped_column(primary_key=True)
 
 
-class PollKwargs(TypedDict, total=False):
-    message_id: int
-    channel_id: int
-    channel_id: int
-    guild_id: int
-    author_id: int
-    type: PollType
-    title: str
-    creation_date: datetime
-    description: str | None
-    end_date: datetime | None
-    max_answers: int
-    users_can_change_answers: bool
-    public_results: bool
-    closed: bool
-    anonymous_allowed: bool
-    allowed_roles: list[int]
-
-
-class Poll(Base):
+class Poll(Base, kw_only=True):
     __tablename__ = "poll"
 
-    def __init__(self, **kwargs: Unpack[PollKwargs]):
-        for m in self.__mapper__.columns:
-            if m.name not in kwargs and m.default is not None and isinstance(m.default, ColumnDefault):
-                kwargs[m.name] = m.default.arg
-
-        super().__init__(**kwargs)
-
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    message_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    channel_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    guild_id: Mapped[int] = mapped_column(ForeignKey(GuildDB.guild_id), nullable=False)
-    author_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    type: Mapped[PollType] = mapped_column(Enum(PollType), nullable=False)
-    title: Mapped[str] = mapped_column(String, nullable=False)
-    description: Mapped[str | None] = mapped_column(String, nullable=True)
-    creation_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    end_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
-    max_answers: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=1)
-    users_can_change_answer: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    public_results: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    closed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    anonymous_allowed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    allowed_roles: Mapped[list[int]] = mapped_column(
-        MutableList.as_mutable(ARRAY(BigInteger)), nullable=False, default=[]
+    message_id: Mapped[Snowflake] = mapped_column()
+    channel_id: Mapped[Snowflake] = mapped_column()
+    guild_id: Mapped[Snowflake] = mapped_column(ForeignKey(GuildDB.guild_id))
+    author_id: Mapped[Snowflake] = mapped_column()
+    type: Mapped[PollType] = mapped_column(Enum(PollType))
+    title: Mapped[str] = mapped_column(VARCHAR)  # todo: define max length
+    description: Mapped[str | None] = mapped_column(VARCHAR)  # todo: define max length
+    creation_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    end_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    max_answers: Mapped[int] = mapped_column(SMALLINT, default=1)
+    users_can_change_answer: Mapped[bool] = mapped_column(default=True)
+    public_results: Mapped[bool] = mapped_column(default=True)
+    closed: Mapped[bool] = mapped_column(default=False)
+    anonymous_allowed: Mapped[bool] = mapped_column(default=False)
+    allowed_roles: Mapped[list[Snowflake]] = _mapped_column(
+        MutableList.as_mutable(ARRAY(BigInteger)), default_factory=list
     )
 
-    choices: Mapped[list[PollChoice]] = relationship(cascade="all, delete-orphan")
+    choices: Mapped[list[PollChoice]] = relationship(cascade="all, delete-orphan", default_factory=list)
 
 
 class PollChoice(Base):
     __tablename__ = "poll_choice"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    poll_id: Mapped[Poll] = mapped_column(ForeignKey(Poll.id))
-    label: Mapped[str] = mapped_column(String, nullable=False)
+    poll_id: Mapped[int] = mapped_column(ForeignKey(Poll.id))
+    label: Mapped[str] = mapped_column(VARCHAR)  # todo: define max length
 
 
 class PollAnswer(Base):
@@ -143,16 +124,40 @@ class PollAnswer(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     poll_id: Mapped[int] = mapped_column(ForeignKey(Poll.id))
-    value: Mapped[str] = mapped_column(String)
-    user_id: Mapped[int] = mapped_column(BigInteger)
-    anonymous: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    value: Mapped[str] = mapped_column(VARCHAR)  # use JSONB instead?
+    user_id: Mapped[Snowflake] = mapped_column()
+    anonymous: Mapped[bool] = mapped_column(default=False)
 
 
-class Usage(Base):
-    __tablename__ = "usage"
+class TSGuildCount(Base):
+    __tablename__ = "ts_guild_count"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    type: Mapped[UsageType] = mapped_column(Enum(UsageType))
-    details: Mapped[str] = mapped_column(String)
-    user_id: Mapped[UserDB] = mapped_column(ForeignKey(UserDB.user_id))
-    guild_id: Mapped[GuildDB] = mapped_column(ForeignKey(GuildDB.guild_id))
+    ts: Mapped[TimestampFK] = mapped_column()
+    value: Mapped[int] = mapped_column()
+
+
+class TSUsage(Base):
+    __tablename__ = "ts_command_usage"
+
+    ts: Mapped[TimestampFK] = mapped_column()
+    user_id: Mapped[Snowflake] = mapped_column()  # ForeignKey(UserDB.user_id))
+    guild_id: Mapped[Snowflake | None] = mapped_column(ForeignKey(GuildDB.guild_id))
+    data: Mapped[dict[str, Any]] = _mapped_column(JSONB, default_factory=dict)
+
+
+class TSPollModification(Base):
+    __tablename__ = "ts_poll_modification"
+
+    ts: Mapped[TimestampFK] = mapped_column()
+    user_id: Mapped[Snowflake] = mapped_column()
+    poll_id: Mapped[int] = mapped_column(ForeignKey(Poll.id))
+    data: Mapped[dict[str, Any]] = _mapped_column(JSONB, default_factory=dict)
+
+
+class TSSettingUpdate(Base):
+    __tablename__ = "ts_setting_update"
+
+    ts: Mapped[TimestampFK] = mapped_column()
+    guild_id: Mapped[Snowflake] = mapped_column(ForeignKey(GuildDB.guild_id))
+    user_id: Mapped[Snowflake] = mapped_column()
+    data: Mapped[dict[str, Any]] = _mapped_column(JSONB, default_factory=dict)

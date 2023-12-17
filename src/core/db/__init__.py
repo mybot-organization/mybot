@@ -13,6 +13,10 @@ from .tables import (
     PollChoice as PollChoice,
     PollType as PollType,
     PremiumType as PremiumType,
+    TSGuildCount as TSGuildCount,
+    TSPollModification as TSPollModification,
+    TSSettingUpdate as TSSettingUpdate,
+    TSUsage as TSUsage,
     UserDB as UserDB,
 )
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import re
 import sys
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Type, cast
 
 import discord
 import topgg as topggpy
@@ -13,7 +13,7 @@ from discord.utils import get
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from commands_exporter import Feature, extract_features
-from core import ExtendedCog, ResponseType, TemporaryCache, config, db, response_constructor
+from core import ExtendedCog, ResponseType, TemporaryCache, config, response_constructor
 from core.custom_command_tree import CustomCommandTree
 from core.error_handler import ErrorHandler
 from core.extended_commands import MiscCommandContext
@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     from discord.guild import GuildChannel
     from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
+    from core.db.tables import Base
     from core.errors import MiscCommandError
     from core.extended_commands import MiscCommand
 
@@ -93,7 +94,7 @@ class MyBot(AutoShardedBot):
             "poll",
             # "ping",
             # "restore",
-            # "stats",
+            "stats",
             "eval",
             "translate",
         ]
@@ -318,30 +319,16 @@ class MyBot(AutoShardedBot):
             return None
         return channel
 
-    async def get_guild_db(self, guild_id: int, session: AsyncSession | None = None) -> db.GuildDB:
-        """Get a GuildDB object from the database.
+    async def get_or_create_db[T: Type[Base]](self, session: AsyncSession, table: T, **key: Any) -> T:
+        """Get an object from the database. If it doesn't exist, it is created.
         It is CREATEd if the guild doesn't exist in the database.
-
-        Args:
-            guild_id (int): the guild id
-
-        Returns:
-            db.GuildDB: the GuildDB object
         """
-        if new_session := (session is None):
-            session = self.async_session()
-
-        stmt = db.select(db.GuildDB).where(db.GuildDB.guild_id == guild_id)
-        result = await session.execute(stmt)
-        guild = result.scalar_one_or_none()
+        guild = await session.get(table, tuple(key.values()))  # pyright: ignore[reportGeneralTypeIssues]
 
         if guild is None:
-            guild = db.GuildDB(guild_id=guild_id, premium_type=db.PremiumType.NONE, translations_are_public=False)
+            guild = table(**key)
             session.add(guild)
-            await session.commit()
-
-        if new_session:
-            await session.close()
+            await session.flush()
 
         return guild
 
