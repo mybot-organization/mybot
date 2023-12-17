@@ -384,7 +384,7 @@ class Translate(ExtendedCog):
             translation_task = cached
         else:
             translated_values = await translator.batch_translate(translation_task.values, to, from_)
-            translation_task.inject_translations(translated_values)
+            translation_task.inject_translations(tuple(self.clean_translation(t) for t in translated_values))
 
             if use_cache:
                 self.cache[f"{message_reference.id}:{to.lang_code}"] = translation_task
@@ -402,6 +402,11 @@ class Translate(ExtendedCog):
         head.description = translation_task.content
 
         await send_strategies.send(embeds=[head, *[tr_embed.embed for tr_embed in translation_task.tr_embeds]])
+
+    def clean_translation(self, translation: str) -> str:
+        """This function will try to clean the translation by removing some spaces etc..."""
+        translation = translation.replace("\xa0:", ":")
+        return translation
 
 
 async def setup(bot: MyBot):
