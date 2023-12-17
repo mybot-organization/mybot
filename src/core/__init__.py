@@ -1,6 +1,6 @@
 from ._config import config as config
 from .caches import SizedMapping as SizedMapping, SizedSequence as SizedSequence, TemporaryCache as TemporaryCache
-from .constants import Emojis as Emojis
+from .constants import CHARACTERS_LIMITS as CHARACTERS_LIMITS, Emojis as Emojis
 from .extended_commands import (
     ExtendedCog as ExtendedCog,
     ExtendedGroupCog as ExtendedGroupCog,

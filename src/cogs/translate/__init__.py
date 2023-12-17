@@ -11,7 +11,7 @@ import discord
 from discord import Embed, Message, app_commands, ui
 from discord.app_commands import locale_str as __
 
-from core import ExtendedCog, ResponseType, TemporaryCache, db, misc_command, response_constructor
+from core import CHARACTERS_LIMITS, ExtendedCog, ResponseType, TemporaryCache, db, misc_command, response_constructor
 from core.checkers.misc import bot_required_permissions, is_activated, is_user_authorized, misc_check
 from core.errors import BadArgument, NonSpecificError
 from core.i18n import _
@@ -67,62 +67,95 @@ class TranslationTask:
 
     @property
     def values(self) -> list[str]:
-        return ([self.content] if self.content else []) + [value for embed in self.tr_embeds for value in embed.values]
+        return ([self.content] if self.content else []) + [
+            value for embed in self.tr_embeds for value in embed.flattened.values()
+        ]
 
     def inject_translations(self, translation: Sequence[str]):
         i = 0
-        if self.content is not None:
+        if self.content:
             self.content = translation[0]
             i += 1
         for tr_embed in self.tr_embeds:
-            tr_embed.reconstruct(translation[i : i + len(tr_embed.values)])  # noqa: E203
-            i += len(tr_embed.values)
+            tr_embed.reconstruct(translation[i : i + len(tr_embed)])  # noqa: E203
+            i += len(tr_embed)
 
 
 class EmbedTranslation:
     def __init__(self, embed: Embed):
         self.dict_embed = embed.to_dict()
-        self.deconstruct()
+        self._flattened = self.flat()
 
-    def deconstruct(self):
-        pointers: list[str] = []
-        values: list[str] = []
+    def __len__(self):
+        return len(self._flattened)
+
+    def flat(self) -> dict[str, str]:
+        """Flat then embed to a key-value dict of strings.
+
+        Nested keys are separated by a dot. List are indexed.
+        For example:
+        ```py
+        {
+            "title": "Hello",
+            "fields": [
+                {"name": "Field 1", "value": "Value 1"},
+                {"name": "Field 2", "value": "Value 2"},
+            ],
+        }
+        ```
+        Gives:
+        ```py
+        {
+            "title": "Hello",
+            "fields.0.name": "Field 1",
+            "fields.0.value": "Value 1",
+            "fields.1.name": "Field 2",
+            "fields.1.value": "Value 2",
+        }
+        ```
+
+        We use dict only because they are ordered now.
+        Key that are not destined to be translated are not included.
+        """
+        result = dict[str, str]()
 
         if "title" in self.dict_embed:
-            pointers.append("title")
-            values.append(self.dict_embed["title"])
+            result["title"] = self.dict_embed["title"]
         if "description" in self.dict_embed:
-            pointers.append("description")
-            values.append(self.dict_embed["description"])
+            result["description"] = self.dict_embed["description"]
         if "fields" in self.dict_embed:
             for i, embed_field in enumerate(self.dict_embed["fields"]):
-                pointers.append(f"fields.{i}.name")
-                values.append(embed_field["name"])
-                pointers.append(f"fields.{i}.value")
-                values.append(embed_field["value"])
+                result[f"fields.{i}.name"] = embed_field["name"]
+                result[f"fields.{i}.value"] = embed_field["value"]
         if "author" in self.dict_embed and "name" in self.dict_embed["author"]:
-            pointers.append("author.name")
-            values.append(self.dict_embed["author"]["name"])
+            result["author.name"] = self.dict_embed["author"]["name"]
         if "footer" in self.dict_embed and "text" in self.dict_embed["footer"]:
-            pointers.append("footer.text")
-            values.append(self.dict_embed["footer"]["text"])
+            result["footer.text"] = self.dict_embed["footer"]["text"]
 
-        self._pointers: tuple[str, ...] = tuple(pointers)
-        self._values: tuple[str, ...] = tuple(values)
+        return result
 
     @property
-    def values(self) -> tuple[str, ...]:
-        return self._values
+    def flattened(self) -> dict[str, str]:
+        return self._flattened
 
     def reconstruct(self, translations: Sequence[str]):
-        for pointer, translation in zip(self._pointers, translations):
+        for pointer, translation in zip(self.flattened.keys(), translations):
             keys = pointer.split(".")
-            current: Any = self.dict_embed
+            obj: Any = self.dict_embed
+            char_lim_key: list[str] = []
             for key in keys[:-1]:
-                if key.isdigit():  # for fields
+                if key.isdigit():  # list index
                     key = int(key)
-                current = current[key]
-            current[keys[-1]] = translation  # to edit memory in place
+                else:
+                    char_lim_key.append(key)
+                obj = obj[key]
+
+            limit = CHARACTERS_LIMITS.get(".".join(char_lim_key + [keys[-1]]))
+
+            if limit and limit < len(translation):
+                obj[keys[-1]] = translation[: limit - 1] + "…"
+            else:
+                obj[keys[-1]] = translation
 
     @property
     def embed(self) -> Embed:
@@ -166,7 +199,7 @@ class Translate(ExtendedCog):
                 callback=self.translate_message_ctx,
                 extras={
                     "beta": True,
-                    "description": _("Translate a message based on your discord settings.", _locale=None),
+                    "description": _("Translate a message with your account language settings.", _locale=None),
                 },
             )
         )
@@ -346,7 +379,7 @@ class Translate(ExtendedCog):
         if from_ is None:
             from_ = await translator.detect(translation_task.values[0])
 
-        use_cache = message_reference is not None  # we cache because we can retrieve.
+        use_cache = message_reference is not None
         if use_cache and (cached := self.cache.get(f"{message_reference.id}:{to.lang_code}")):
             translation_task = cached
         else:
