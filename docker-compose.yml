@@ -21,20 +21,15 @@ services:
         condition: service_healthy
     volumes:
       - ./config.toml:/app/config.toml
-    ports:
-      - 666:8081
-    expose:
-      - 8080
 
   database:
+    hostname: database
     image: timescale/timescaledb:latest-pg14
     env_file:
       - .env
     restart: always
     volumes:
       - ./data/database:/var/lib/postgresql/data
-    ports:
-      - "54321:5432"
     healthcheck:
       test:
         [

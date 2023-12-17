@@ -10,5 +10,5 @@ services:
       - 8080:8080
 
   database:
-    expose:
-      - 5432
+    ports:
+      - 5432:5432
