@@ -5,7 +5,7 @@ import logging
 from typing import TYPE_CHECKING, Literal, TypeVar
 
 from discord import ButtonStyle, Interaction, ui
-from discord.app_commands.errors import AppCommandError, CheckFailure, CommandNotFound, NoPrivateMessage
+from discord.app_commands.errors import AppCommandError, CommandNotFound, NoPrivateMessage
 from discord.ext import commands
 
 from . import ResponseType, response_constructor
@@ -14,7 +14,6 @@ from .errors import (
     BotMissingPermissions,
     BotUserNotPresent,
     MaxConcurrencyReached,
-    MiscCheckFailure,
     MiscNoPrivateMessage,
     NonSpecificError,
 )
@@ -63,21 +62,21 @@ class ErrorHandler:
                     ctx,
                     _("This command is already executed the max amount of times. (Max: {error.rate})", error=error),
                 )
-            case CheckFailure() | MiscCheckFailure():
-                return await self.send_error(ctx, _("This command needs some conditions you don't meet."))
-            case BadArgument():  # Interactions only
-                # TODO(airo.pi_): improve this ?
-                return await self.send_error(ctx, _("You provided a bad argument."))
             case BotMissingPermissions():
                 return await self.send_error(
                     ctx, _("The bot is missing some permissions.\n`{}`", "`, `".join(error.missing_perms))
                 )
+            case BadArgument():  # Interactions only
+                # TODO(airo.pi_): improve this ?
+                return await self.send_error(ctx, _("You provided a bad argument."))
             case BotUserNotPresent():
                 return await self.send_error(
                     ctx, _("It looks like the bot has been added incorrectly. Please ask an admin to re-add the bot.")
                 )
             case MiscNoPrivateMessage() | NoPrivateMessage():
                 return await self.send_error(ctx, _("This command cannot be used in DMs."))
+            # case CheckFailure() | MiscCheckFailure():
+            #     return await self.send_error(ctx, _("This command needs some conditions you don't meet."))
             case _:
                 await self.send_error(
                     ctx, _("An unhandled error happened.\nPlease ask on the support server!", error=error)

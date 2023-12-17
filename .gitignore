@@ -1,5 +1,6 @@
 data/
 config.toml
+draft/
 
 # editors
 .vscode/

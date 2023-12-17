@@ -3,21 +3,20 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from datetime import datetime
 from typing import TYPE_CHECKING, AsyncGenerator, Awaitable, Callable, Self, cast
 
 import discord
 from discord import app_commands, ui
-from discord.app_commands import Transform, locale_str as __
+from discord.app_commands import Range, Transform, locale_str as __
 
-from core import ExtendedCog, Menu, MessageDisplay, ResponseType, response_constructor
-from core.checkers import MaxConcurrency
+from core import ExtendedCog, Menu, MessageDisplay, ResponseType, checkers, response_constructor
 from core.errors import BadArgument, MaxConcurrencyReached, NonSpecificError, UnexpectedError
 from core.i18n import _
+from core.transformers import DateTransformer
 from core.utils import async_all
 
 from .clear_transformers import (
-    AfterTransformer,
-    BeforeTransformer,
     HasTransformer,
     LengthTransformer,
     PinnedTransformer,
@@ -25,7 +24,7 @@ from .clear_transformers import (
     RoleTransformer,
     UserTransformer,
 )
-from .filters import DateFilter, Filter, HasFilter, LengthFilter, PinnedFilter, RegexFilter, RoleFilter, UserFilter
+from .filters import Filter, HasFilter, LengthFilter, PinnedFilter, RegexFilter, RoleFilter, UserFilter
 
 if TYPE_CHECKING:
     from discord import TextChannel, Thread, VoiceChannel
@@ -46,30 +45,27 @@ class Clear(ExtendedCog):
     def __init__(self, bot: MyBot):
         super().__init__(bot)
 
-        self.clear_max_concurrency = MaxConcurrency(1, key=channel_bucket, wait=False)
+        self.clear_max_concurrency = checkers.MaxConcurrency(1, key=channel_bucket, wait=False)
 
+    @checkers.app.bot_required_permissions(
+        manage_messages=True, read_message_history=True, read_messages=True, connect=True
+    )
     @app_commands.command(
-        description=__("Delete multiple messages with some filters."),
-        extras={"beta": True},
+        description=__("Delete multiple messages with filters."),
     )
     @app_commands.default_permissions(manage_messages=True)
     @app_commands.guild_only()
     @app_commands.describe(
-        amount=__("The amount of messages to delete."),
-        user=__("Delete only messages from the specified user."),
-        role=__("Delete only messages whose user has the specified role."),
-        pattern=__(
-            "Delete only messages that match the specified search (can be regex)."
-        ),  # e.g. regex:hello will delete the message "hello world".
-        has=__(
-            "Delete only messages that contains the selected entry. #TODO"
-        ),  # e.g. attachement:image will delete messages that has an image attached.
-        length=__("Delete only messages where length match the specified entry. (e.g. '<=100', '5', '>10') #TODO"),
-        before=__("Delete only messages sent before the specified message or date. (yyyy-mm-dd) #TODO"),
-        after=__("Delete only messages sent after the specified message or date. (yyyy-mm-dd) #TODO"),
-        pinned=__(
-            'Include/exclude pinned messages in deletion, or deletes "only" pinned messages. (default to exclude)'
-        ),
+        amount=__("{{}} messages (max 250)"),
+        user=__("messages from the user {{}}"),
+        role=__("messages whose user has the role {{}}"),
+        pattern=__("messages that match {{}} (regex, multiline, case sensitive, not anchored)"),
+        has=__("messages that has {{}}"),  # e.g. attachement:image will delete messages that has an image attached.
+        max_length=__("messages longer or equal to {{}} (blank spaces included) (empty messages included)"),
+        min_length=__("messages shorter or equal to {{}} (blank spaces included)"),
+        before=__("messages sent before {{}} (yyyy-mm-dd or message ID)"),
+        after=__("messages sent after {{}} (yyyy-mm-dd or message ID)"),
+        pinned=__("only pinned message or exclude them from the deletion. (default to exclude)"),
     )
     @app_commands.rename(
         amount=__("amount"),
@@ -77,7 +73,8 @@ class Clear(ExtendedCog):
         role=__("role"),
         pattern=__("search"),
         has=__("has"),
-        length=__("length"),
+        max_length=__("max_length"),
+        min_length=__("min_length"),
         before=__("before"),
         after=__("after"),
         pinned=__("pinned"),
@@ -85,14 +82,15 @@ class Clear(ExtendedCog):
     async def clear(
         self,
         inter: discord.Interaction,
-        amount: int,
+        amount: Range[int, 1, 250],
         user: Transform[UserFilter, UserTransformer] | None = None,
         role: Transform[RoleFilter, RoleTransformer] | None = None,
         pattern: Transform[RegexFilter, RegexTransformer] | None = None,
         has: Transform[HasFilter, HasTransformer] | None = None,
-        length: Transform[LengthFilter, LengthTransformer] | None = None,
-        before: Transform[DateFilter, BeforeTransformer] | None = None,
-        after: Transform[DateFilter, AfterTransformer] | None = None,
+        max_length: Transform[LengthFilter, LengthTransformer("max")] | None = None,
+        min_length: Transform[LengthFilter, LengthTransformer("min")] | None = None,
+        before: Transform[datetime, DateTransformer] | None = None,
+        after: Transform[datetime, DateTransformer] | None = None,
         pinned: Transform[PinnedFilter, PinnedTransformer] = PinnedFilter.default(),
     ):
         await self.clear_max_concurrency.acquire(inter)
@@ -103,13 +101,18 @@ class Clear(ExtendedCog):
         if not 0 < amount < 251:
             raise BadArgument(_("You must supply a number between 1 and 250. (0 < {amount} < 251)", amount=amount))
 
-        # Because of @guild_only, we can assume that the channel is a guild channel
-        # Also, the channel should not be able to be a ForumChannel or StageChannel or CategoryChannel
-
-        available_filters: list[Filter | None] = [pinned, user, role, pattern, has, length, before, after]
+        available_filters: list[Filter | None] = [
+            pinned,
+            user,
+            role,
+            pattern,
+            has,
+            max_length,
+            min_length,
+        ]
         active_filters: list[Filter] = [f for f in available_filters if f is not None]
 
-        job = ClearWorker(self.bot, inter, amount, active_filters)
+        job = ClearWorker(self.bot, inter, amount, active_filters, before, after)
         await job.start()
         await self.clear_max_concurrency.release(inter)
 
@@ -126,12 +129,16 @@ class ClearWorker:
         inter: discord.Interaction,
         amount: int,
         filters: list[Filter],
+        before: datetime | None,
+        after: datetime | None,
     ):
         self.deleted_messages: int = 0
         self.analyzed_messages: int = 0
         self.deletion_planned: int = 0
         self.deletion_goal: int = amount
         self.filters = filters
+        self.before = before
+        self.after = after
         self.inter = inter
         self.bot = bot
         self.channel = cast("AllowPurgeChannel", inter.channel)
@@ -241,7 +248,7 @@ class ClearWorker:
     async def filtered_history(self) -> AsyncGenerator[discord.Message, None]:
         limit = self.deletion_goal if not any(self.filters) else None
 
-        async for msg in self.channel.history(limit=limit):
+        async for msg in self.channel.history(limit=limit, before=self.before, after=self.after):
             # if not all the filters tests are compliant, continue
             self.analyzed_messages += 1
             if not await async_all(await filter.test(msg) for filter in self.filters):
