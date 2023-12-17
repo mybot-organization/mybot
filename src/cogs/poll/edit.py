@@ -9,6 +9,7 @@ from sqlalchemy import delete
 
 from cogs.poll.vote_menus import PollPublicMenu
 from core import Menu, MessageDisplay, ResponseType, db, response_constructor
+from core.constants import Emojis
 from core.i18n import _
 
 from .constants import LEGEND_EMOJIS, TOGGLE_EMOTES
@@ -161,6 +162,7 @@ class EditPollMenus(ui.Select[EditPoll]):
                 label=_(menu.select_name, _l=100),
                 value=str(i),
                 description=_(menu.select_description, _l=100),
+                emoji=menu.select_emoji,
             )
 
     async def callback(self, inter: Interaction[MyBot]) -> None:  # pyright: ignore [reportIncompatibleMethodOverride]
@@ -172,6 +174,7 @@ class EditSubmenu(Menu):
     parent: EditPoll
     select_name: str
     select_description: str = ""
+    select_emoji: str | None = None
 
     async def __init__(self, parent: EditPoll):
         await super().__init__(parent.bot, parent)
@@ -187,6 +190,7 @@ class EditSubmenu(Menu):
 
 class EditTitleAndDescription(EditSubmenu, ui.Modal):
     select_name = _("Edit title and description", _locale=None)
+    select_emoji = Emojis.pencil
 
     async def __init__(self, parent: EditPoll):
         self.title = _("Create a new poll")
@@ -220,6 +224,7 @@ class EditTitleAndDescription(EditSubmenu, ui.Modal):
 
 class EditEndingTime(EditSubmenu):
     select_name = _("Edit ending time", _locale=None)
+    select_emoji = Emojis.add_date
 
     async def __init__(self, parent: EditPoll):
         await super().__init__(parent)
@@ -316,6 +321,7 @@ class EditEndingTime(EditSubmenu):
 
 class EditChoices(EditSubmenu):
     select_name = _("Edit choices", _locale=None)
+    select_emoji = Emojis.plus
 
     async def __init__(self, parent: EditPoll):
         await super().__init__(parent)
@@ -415,6 +421,7 @@ class RemoveChoices(Menu):
 
 class EditMaxChoices(EditSubmenu):
     select_name = _("Edit max choices", _locale=None)
+    select_emoji = Emojis.pencil
 
     async def __init__(self, parent: EditPoll) -> None:
         await super().__init__(parent=parent)
@@ -450,6 +457,7 @@ class EditMaxChoices(EditSubmenu):
 
 class EditAllowedRoles(EditSubmenu):
     select_name = _("Edit allowed roles", _locale=None)
+    select_emoji = Emojis.role
 
     async def __init__(self, parent: EditPoll) -> None:
         await super().__init__(parent=parent)

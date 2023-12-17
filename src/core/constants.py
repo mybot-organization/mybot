@@ -26,6 +26,14 @@ class Emojis:
     beta_1 = Emoji(1083897907981320272)
     beta_2 = Emoji(1083897910728609872)
 
+    soon_1 = Emoji(1083897922522988575)
+    soon_2 = Emoji(1083897924146180198)
+
+    add_date = Emoji(1185978892213825637)
+    plus = Emoji(1185978897146323016)
+    pencil = Emoji(1185978895846097096)
+    role = Emoji(1185978899679690752)
+
     two048_2 = Emoji(1068989299808292956)
     two048_4 = Emoji(1068989301888663604)
     two048_8 = Emoji(1068989303243415672)
@@ -45,9 +53,6 @@ class Emojis:
     down_arrow = Emoji(1069018464301363240)
     left_arrow = Emoji(1069018466624995439)
     right_arrow = Emoji(1069018468185288834)
-
-    soon_1 = Emoji(1083897922522988575)
-    soon_2 = Emoji(1083897924146180198)
 
     misc_command_reaction = Emoji(1084116094245163141)
     misc_command_text = Emoji(1084118001088999544)
