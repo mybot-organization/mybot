@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+import discord
 from discord import app_commands
 from discord.app_commands import locale_str as __
 from discord.utils import get
@@ -21,6 +22,22 @@ logger = logging.getLogger(__name__)
 class Stats(ExtendedCog):
     def __init__(self, bot: MyBot):
         super().__init__(bot)
+
+    @ExtendedCog.listener()
+    async def on_guild_join(self, guild: discord.Guild):
+        # TODO: send a message in the 'bot add' channel
+        async with self.bot.async_session.begin() as session:
+            await self.bot.get_or_create_db(session, db.GuildDB, guild_id=guild.id)
+        await self.update_guild_count()
+
+    @ExtendedCog.listener()
+    async def on_guild_remove(self, guild: discord.Guild):
+        # TODO: send a message in the 'bot add' channel
+        await self.update_guild_count()
+
+    async def update_guild_count(self):
+        async with self.bot.async_session.begin() as session:
+            session.add(db.TSGuildCount(value=len(self.bot.guilds)))
 
     @ExtendedCog.listener()
     async def on_interaction(self, inter: Interaction) -> None:
