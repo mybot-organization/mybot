@@ -97,3 +97,15 @@ class Emojis:
 
     thumb_up = "👍"
     thumb_down = "👎"
+
+
+CHARACTERS_LIMITS = {
+    "content": 2000,
+    "title": 256,
+    "description": 4096,
+    "fields.name": 256,
+    "fields.value": 1024,
+    "footer.text": 2048,
+    "author.name": 256,
+    "total": 6000,
+}
