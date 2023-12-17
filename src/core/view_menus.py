@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Generic, Self
 
 import discord
 from discord import ui
+from typing_extensions import TypeVar
 
 from core import AsyncInitMixin
+from core.i18n import _
 
 from .response import MessageDisplay, UneditedMessageDisplay
 
@@ -16,34 +18,28 @@ if TYPE_CHECKING:
     from mybot import MyBot
 
 
+P = TypeVar("P", bound="Menu")
+
+
 class Menu(ui.View, AsyncInitMixin):
-    bot: MyBot
+    parent = None
 
     async def __init__(
         self,
-        bot: MyBot | None = None,
-        parent: Menu | None = None,
+        bot: MyBot,
         message_attached_to: discord.Message | None = None,
         timeout: float | None = 600,
         **kwargs: Any,
     ):
-        """
-        While building the view needs to be async, you shouldn't use __init__ to create a new Menu.
-        Instead, always use the `new` method.
-        """
         del kwargs  # unused
-        if parent is None and bot is None:
-            raise ValueError("You must provide a parent or the bot.")
 
         super().__init__(timeout=timeout)
-        self.bot = bot or parent.bot  # pyright: ignore[reportOptionalMemberAccess]
-        self.parent = parent
+        self._bot = bot
         self.message_attached_to: discord.Message | None = message_attached_to
 
-    async def set_back(self, inter: Interaction) -> None:
-        if not self.parent:
-            raise ValueError(f"This menu has no parent. Menu : {self}")
-        await inter.response.edit_message(**(await self.parent.message_display()), view=self.parent)
+    @property
+    def bot(self) -> MyBot:
+        return self._bot
 
     async def set_menu(self, inter: Interaction, menu: Menu) -> None:
         if isinstance(menu, ui.Modal):
@@ -89,19 +85,51 @@ class Menu(ui.View, AsyncInitMixin):
         return os.urandom(16).hex()
 
 
-class ModalMenu(Menu, ui.Modal):
+class SubMenu(Menu, Generic[P]):
     async def __init__(
         self,
-        bot: MyBot | None = None,
-        parent: Menu | None = None,
+        parent: P,
+        timeout: float | None = 600,
+    ):
+        await super().__init__(
+            bot=parent.bot,
+            timeout=timeout,
+        )
+        self.parent: P = parent
+        self.cancel_btn.label = _("Cancel")
+        self.validate_btn.label = _("Validate")
+
+    async def set_back(self, inter: Interaction) -> None:
+        await inter.response.edit_message(**(await self.parent.message_display()), view=self.parent)
+
+    async def cancel(self):
+        pass
+
+    @ui.button(style=discord.ButtonStyle.grey, row=4)
+    async def cancel_btn(self, inter: discord.Interaction, button: ui.Button[Self]):
+        del button  # unused
+        await self.cancel()
+        await self.set_back(inter)
+
+    @ui.button(style=discord.ButtonStyle.green, row=4)
+    async def validate_btn(self, inter: discord.Interaction, button: ui.Button[Self]):
+        del button  # unused
+        await self.set_back(inter)
+
+
+class ModalSubMenu(Generic[P], Menu, ui.Modal):
+    async def __init__(
+        self,
+        parent: P,
         timeout: float | None = 600,
         **kwargs: Any,
     ):
         self.custom_id: str = self.generate_custom_id()
         await Menu.__init__(
             self,
-            bot=bot,
-            parent=parent,
+            bot=parent.bot,
             timeout=timeout,
             **kwargs,
         )
+
+        self.parent: P = parent

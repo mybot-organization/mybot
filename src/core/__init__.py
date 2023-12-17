@@ -14,4 +14,4 @@ from .response import (
     response_constructor as response_constructor,
 )
 from .utils import AsyncInitMixin as AsyncInitMixin
-from .view_menus import Menu as Menu
+from .view_menus import Menu as Menu, ModalSubMenu as ModalSubMenu, SubMenu as SubMenu

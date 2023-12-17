@@ -13,6 +13,7 @@ from sqlalchemy.orm import selectinload
 from core import Menu, ResponseType, db, response_constructor
 from core.constants import Emojis
 from core.i18n import _
+from core.view_menus import SubMenu
 
 from .constants import LEGEND_EMOJIS
 from .display import PollDisplay
@@ -110,9 +111,7 @@ class PollPublicMenu(Menu):
         )
 
 
-class VoteMenu(Menu):
-    parent: PollPublicMenu
-
+class VoteMenu(SubMenu[PollPublicMenu]):
     async def __init__(
         self, parent: PollPublicMenu, poll: db.Poll, user_votes: Sequence[db.PollAnswer], base_inter: Interaction
     ):
