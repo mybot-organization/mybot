@@ -58,9 +58,9 @@ class Clear(ExtendedCog):
         amount=__("{{}} messages (max 250)"),
         user=__("messages from the user {{}}"),
         role=__("messages whose user has the role {{}}"),
-        pattern=__("messages that match {{}} (can be regex)"),
+        pattern=__("messages that match {{}} (regex, multiline, case sensitive, not anchored)"),
         has=__("messages that has {{}}"),  # e.g. attachement:image will delete messages that has an image attached.
-        max_length=__("messages longer or equal to {{}} (blank spaces included)"),
+        max_length=__("messages longer or equal to {{}} (blank spaces included) (empty messages included)"),
         min_length=__("messages shorter or equal to {{}} (blank spaces included)"),
         before=__("messages sent before {{}} (yyyy-mm-dd or message ID)"),
         after=__("messages sent after {{}} (yyyy-mm-dd or message ID)"),
