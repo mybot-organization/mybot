@@ -20,7 +20,6 @@ services:
       database:
         condition: service_healthy
     volumes:
-      - ./resources/locale:/app/locale
       - ./config.toml:/app/config.toml
     ports:
       - 666:8081

@@ -1,19 +1,25 @@
+# syntax=docker/dockerfile-upstream:master-labs
+
 FROM python:3.12.0-alpine as build
+WORKDIR /app
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
+COPY ./resources ./
 RUN --mount=type=cache,target=/var/cache/apk/ \
     --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
+    --mount=type=bind,source=./bin/msgfmt.py,target=./msgfmt.py \
     : \
     && apk add gcc musl-dev linux-headers \
-    && pip install -U -r requirements.txt
-
+    && pip install -U -r requirements.txt \
+    && python ./msgfmt.py ./locale/**/LC_MESSAGES/*.po \
+    && :
 
 FROM python:3.12.0-alpine as base
+COPY --parents --from=build /opt/venv /app/locale/**/LC_MESSAGES/*.mo /
 WORKDIR /app
-COPY --from=build /opt/venv /opt/venv
-COPY ./alembic.ini ./src  ./
-COPY ./alembic ./alembic
+COPY ./src ./
+COPY --parents ./alembic.ini ./alembic ./
 ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONUNBUFFERED=0
 
