@@ -96,15 +96,16 @@ class Help(ExtendedCog):
                     if app_command is None:
                         logger.warning("Feature %s didn't get its app_command for some reason.", feature.name)
                         continue
+
                     if not feature.sub_commands:
                         description[feature.type].insert(
                             0,
-                            f"{Emojis.slash_command} </{feature.name}:{app_command.id}> {set_tags(feature)}\n"
+                            f"{Emojis.slash_command} {app_command.mention} {set_tags(feature)}\n"
                             f"{_(feature.description)}",
                         )
                     else:
                         description[feature.type].append(
-                            f"{Emojis.slash_command} `{feature.name}` {set_tags(feature)}\n{_(feature.description)}"
+                            f"{Emojis.slash_command} `/{feature.name}` {set_tags(feature)}\n{_(feature.description)}"
                         )
                 case ContextCommand():
                     prefix = {

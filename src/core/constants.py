@@ -20,8 +20,8 @@ class Emoji(str):
 
 
 class Emojis:
-    beta_1 = Emoji(1012449366449078384)
-    beta_2 = Emoji(1012449349424390265)
+    beta_1 = Emoji(1083897907981320272)
+    beta_2 = Emoji(1083897910728609872)
 
     two048_2 = Emoji(1068989299808292956)
     two048_4 = Emoji(1068989301888663604)

@@ -73,7 +73,7 @@ def i18n(string: str, /, *args: Any, _locale: Locale | None = MISSING, _silent: 
 
         _locale = inter.locale
     if _locale is None:
-        return string
+        return string.format(*args, **kwargs)
 
     return translations.get(_locale, translations[LOCALE_DEFAULT]).gettext(string).format(*args, **kwargs)
 
