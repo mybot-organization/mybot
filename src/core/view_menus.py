@@ -1,27 +1,28 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar
+from typing import TYPE_CHECKING, Any
 
 import discord
 from discord import ui
-from typing_extensions import TypeVar
+
+from core import AsyncInitMixin
 
 from .response import MessageDisplay, UneditedMessageDisplay
 
 if TYPE_CHECKING:
     from discord import Interaction
 
-BotT = TypeVar("BotT", bound=discord.Client, default=discord.Client)
+    from mybot import MyBot
 
 
-class Menu(ui.View, Generic[BotT]):
-    bot: BotT
+class Menu(ui.View, AsyncInitMixin):
+    bot: MyBot
 
-    def __init__(
+    async def __init__(
         self,
-        bot: BotT | None = None,
-        parent: Menu[BotT] | None = None,
+        bot: MyBot | None = None,
+        parent: Menu | None = None,
         message_attached_to: discord.Message | None = None,
         timeout: float | None = 600,
         **kwargs: Any,
@@ -44,18 +45,11 @@ class Menu(ui.View, Generic[BotT]):
             raise ValueError(f"This menu has no parent. Menu : {self}")
         await inter.response.edit_message(**(await self.parent.message_display()), view=self.parent)
 
-    async def set_menu(self, inter: Interaction, menu: Menu[BotT]) -> None:
+    async def set_menu(self, inter: Interaction, menu: Menu) -> None:
         if isinstance(menu, ui.Modal):
             await inter.response.send_modal(menu)
         else:
             await inter.response.edit_message(**(await menu.message_display()), view=menu)
-
-    async def build(self) -> Self:
-        """
-        Add buttons label, selects values, etc... Called with the `new` method.
-        """
-        await self.update()
-        return self
 
     async def update(self) -> None:
         """
@@ -95,16 +89,16 @@ class Menu(ui.View, Generic[BotT]):
         return os.urandom(16).hex()
 
 
-class ModalMenu(Menu[BotT], ui.Modal):
-    def __init__(
+class ModalMenu(Menu, ui.Modal):
+    async def __init__(
         self,
-        bot: BotT | None = None,
-        parent: Menu[BotT] | None = None,
+        bot: MyBot | None = None,
+        parent: Menu | None = None,
         timeout: float | None = 600,
         **kwargs: Any,
     ):
         self.custom_id: str = self.generate_custom_id()
-        Menu[BotT].__init__(
+        await Menu.__init__(
             self,
             bot=bot,
             parent=parent,

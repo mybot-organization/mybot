@@ -47,7 +47,7 @@ class PollCog(ExtendedGroupCog, group_name=__("poll"), group_description=__("Cre
         self.current_votes: dict[int, dict[int, tuple[Interaction, ui.View]]] = {}  # poll_id: {user_id: interaction}
 
     async def cog_load(self) -> None:
-        self.bot.add_view(PollPublicMenu(self))
+        self.bot.add_view(await PollPublicMenu(self))
 
     async def callback(self, inter: Interaction, poll_type: db.PollType) -> None:
         channel_id = cast(int, inter.channel_id)  # not usable in private messages
@@ -103,7 +103,7 @@ class PollCog(ExtendedGroupCog, group_name=__("poll"), group_description=__("Cre
             raise NonSpecificError(_("You are not the author of this poll. You can't edit it.", _l=256))
         await inter.response.send_message(
             **(await PollDisplay.build(poll, self.bot)),
-            view=await EditPoll(self, poll, message).build(),
+            view=await EditPoll(self, poll, message),
             ephemeral=True,
         )
 
@@ -134,7 +134,7 @@ class PollModal(ui.Modal):
         self.poll.description = self.description.value
         await inter.response.send_message(
             **(await PollDisplay.build(self.poll, self.bot)),
-            view=await EditPoll(self.cog, self.poll, inter.message).build(),
+            view=await EditPoll(self.cog, self.poll, inter.message),
             ephemeral=True,
         )
 
@@ -174,7 +174,7 @@ class ChoicesPollModal(PollModal):
 
         await inter.response.send_message(
             **(await PollDisplay.build(self.poll, self.bot)),
-            view=await EditPoll(self.cog, self.poll, inter.message).build(),
+            view=await EditPoll(self.cog, self.poll, inter.message),
             ephemeral=True,
         )
 

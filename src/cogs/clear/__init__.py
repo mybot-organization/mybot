@@ -161,7 +161,7 @@ class ClearWorker:
         return display
 
     async def start(self):
-        view = await CancelClearView(self.bot, self.inter.user.id).build()
+        view = await CancelClearView(self.bot, self.inter.user.id)
 
         await self.inter.response.send_message(
             **self.working_display(),
@@ -264,14 +264,12 @@ class ClearWorker:
 
 
 class CancelClearView(Menu):
-    def __init__(self, bot: MyBot, user_id: int):
-        super().__init__(bot, timeout=3 * 60)
+    async def __init__(self, bot: MyBot, user_id: int):
+        await super().__init__(bot, timeout=3 * 60)
         self.pressed: bool = False
         self.user_id: int = user_id
 
-    async def build(self):
         self.cancel.label = _("Cancel")
-        return self
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         await interaction.response.defer()

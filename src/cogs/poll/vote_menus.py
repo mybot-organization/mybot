@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Self, Sequence, cast
+from typing import TYPE_CHECKING, Any, Self, Sequence, cast
 
 import discord
 from discord import ui
@@ -20,24 +20,20 @@ from .display import PollDisplay
 if TYPE_CHECKING:
     from discord import Interaction
 
-    from mybot import MyBot
-
     from . import PollCog
 
 
-class PollPublicMenu(Menu["MyBot"]):
-    def __init__(self, cog: PollCog, poll: db.Poll | None = None):
-        super().__init__(bot=cog.bot, timeout=None)
+class PollPublicMenu(Menu):
+    async def __init__(self, cog: PollCog, poll: db.Poll | None = None):
+        await super().__init__(bot=cog.bot, timeout=None)
 
         self.cog = cog
         self.poll = poll
 
+        self.vote.label = _("Vote")
+
     def get_current_votes(self, poll: db.Poll) -> dict[int, tuple[Interaction, ui.View]]:
         return self.cog.current_votes.setdefault(poll.id, {})
-
-    async def build(self) -> Self:
-        self.vote.label = _("Vote")
-        return self
 
     @ui.button(style=discord.ButtonStyle.blurple, custom_id="poll_vote_button")
     async def vote(self, inter: discord.Interaction, button: ui.Button[Self]):
@@ -106,21 +102,21 @@ class PollPublicMenu(Menu["MyBot"]):
             db.PollType.ENTRY: EntryPollVote,
         }
 
-        vote_menu = vote_menu_types[poll.type](self, poll, votes, inter)
+        vote_menu = await vote_menu_types[poll.type](self, poll, votes, inter)
         await inter.response.send_message(
             **(await vote_menu.message_display()),
-            view=await vote_menu.build(),
+            view=vote_menu,
             ephemeral=True,
         )
 
 
-class VoteMenu(Menu["MyBot"]):
+class VoteMenu(Menu):
     parent: PollPublicMenu
 
-    def __init__(
+    async def __init__(
         self, parent: PollPublicMenu, poll: db.Poll, user_votes: Sequence[db.PollAnswer], base_inter: Interaction
     ):
-        super().__init__(parent=parent, timeout=180)
+        await super().__init__(parent=parent, timeout=180)
 
         self.user_votes = user_votes
         self.poll = poll
@@ -149,7 +145,8 @@ class VoteMenu(Menu["MyBot"]):
 
 
 class ChoicePollVote(VoteMenu):
-    async def build(self) -> Self:
+    async def __init__(self, *args: Any, **kwargs: Any):
+        await super().__init__(*args, **kwargs)
         self.remove_vote.label = _("Remove vote")
         self.validate.label = _("Validate")
 
@@ -169,8 +166,6 @@ class ChoicePollVote(VoteMenu):
 
             if default:
                 self.choice._values.append(str(choice.id))  # pyright: ignore [reportPrivateUsage]
-
-        return await super().build()
 
     async def update(self):
         await super().update()
@@ -217,10 +212,10 @@ class ChoicePollVote(VoteMenu):
 
 
 class BooleanPollVote(VoteMenu):
-    async def build(self) -> Self:
+    async def __init__(self, *args: Any, **kwargs: Any):
+        await super().__init__(*args, **kwargs)
         self.yes.label = _("Yes")
         self.no.label = _("No")
-        return await super().build()
 
     async def update(self):
         self.yes.style = self.no.style = discord.ButtonStyle.grey
