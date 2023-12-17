@@ -188,6 +188,27 @@ class EditSubmenu(Menu):
         await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=view or self)
 
 
+class EditSubMenuComponents(EditSubmenu):
+    async def __init__(self, parent: EditPoll):
+        await super().__init__(parent)
+        self.cancel_btn.label = _("Cancel")
+        self.validate_btn.label = _("Validate")
+
+    async def cancel(self):
+        pass
+
+    @ui.button(style=discord.ButtonStyle.grey, row=4)
+    async def cancel_btn(self, inter: discord.Interaction, button: ui.Button[Self]):
+        del button  # unused
+        await self.cancel()
+        await self.set_back(inter)
+
+    @ui.button(style=discord.ButtonStyle.green, row=4)
+    async def validate_btn(self, inter: discord.Interaction, button: ui.Button[Self]):
+        del button  # unused
+        await self.set_back(inter)
+
+
 class EditTitleAndDescription(EditSubmenu, ui.Modal):
     select_name = _("Edit title and description", _locale=None)
     select_emoji = Emojis.pencil
@@ -222,7 +243,7 @@ class EditTitleAndDescription(EditSubmenu, ui.Modal):
         await self.set_back(inter)
 
 
-class EditEndingTime(EditSubmenu):
+class EditEndingTime(EditSubMenuComponents):
     select_name = _("Edit ending time", _locale=None)
     select_emoji = Emojis.add_date
 
@@ -233,8 +254,6 @@ class EditEndingTime(EditSubmenu):
         self.select_days.placeholder = _("Select the number of days.")
         self.select_hours.placeholder = _("Select the number of hours.")
         self.select_minutes.placeholder = _("Select the number of minutes.")
-        self.cancel.label = _("Cancel")
-        self.back.label = _("Back")
 
         self.select_days.options = [discord.SelectOption(label=_("{} day(s)", i), value=str(i)) for i in range(1, 26)]
         self.select_hours.options = [discord.SelectOption(label=_("{} hour(s)", i), value=str(i)) for i in range(1, 24)]
@@ -270,7 +289,9 @@ class EditEndingTime(EditSubmenu):
 
                     option = next(opt for opt in self.select_minutes.options if opt.value == default_minutes)
                     option.default = True
-        return self
+
+    async def cancel(self):
+        self.poll.end_date = self.old_value
 
     def set_time(self):
         ending_time = timedelta()
@@ -307,19 +328,8 @@ class EditEndingTime(EditSubmenu):
         del select  # unused
         await self.callback(inter)
 
-    @ui.button(style=discord.ButtonStyle.red)
-    async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
-        del button  # unused
-        self.poll.end_date = self.old_value
-        await self.set_back(inter)
 
-    @ui.button(style=discord.ButtonStyle.green)
-    async def back(self, inter: discord.Interaction, button: ui.Button[Self]):
-        del button  # unused
-        await self.set_back(inter)
-
-
-class EditChoices(EditSubmenu):
+class EditChoices(EditSubMenuComponents):
     select_name = _("Edit choices", _locale=None)
     select_emoji = Emojis.plus
 
@@ -329,8 +339,9 @@ class EditChoices(EditSubmenu):
 
         self.add_choice.label = _("Add a choice")
         self.remove_choice.label = _("Remove a choice")
-        self.back.label = _("Back")
-        self.cancel.label = _("Cancel")
+
+    async def cancel(self):
+        self.poll.choices = self.old_value
 
     async def update(self):
         self.remove_choice.disabled = len(self.poll.choices) <= 2
@@ -344,17 +355,6 @@ class EditChoices(EditSubmenu):
     async def remove_choice(self, inter: discord.Interaction, button: ui.Button[Self]):
         del button  # unused
         await inter.response.edit_message(view=await RemoveChoices(self))
-
-    @ui.button(row=1, style=discord.ButtonStyle.red)
-    async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
-        del button  # unused
-        self.poll.choices = self.old_value
-        await self.set_back(inter)
-
-    @ui.button(row=1, style=discord.ButtonStyle.green)
-    async def back(self, inter: discord.Interaction, button: ui.Button[Self]):
-        del button  # unused
-        await self.set_back(inter)
 
 
 class AddChoice(Menu, ui.Modal):
@@ -419,16 +419,13 @@ class RemoveChoices(Menu):
         await self.parent.set_back(inter)
 
 
-class EditMaxChoices(EditSubmenu):
+class EditMaxChoices(EditSubMenuComponents):
     select_name = _("Edit max choices", _locale=None)
     select_emoji = Emojis.pencil
 
     async def __init__(self, parent: EditPoll) -> None:
         await super().__init__(parent=parent)
         self.old_value = self.parent.poll.max_answers
-
-        self.cancel.label = _("Cancel")
-        self.back.label = _("Back")
 
         self.max_choices.placeholder = _("Select the maximum number of choices.")
         self.max_choices.min_values = 1
@@ -443,19 +440,11 @@ class EditMaxChoices(EditSubmenu):
         self.parent.poll.max_answers = int(select.values[0])
         await self.message_refresh(inter)
 
-    @ui.button(style=discord.ButtonStyle.red)
-    async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
-        del button  # unused
+    async def cancel(self):
         self.parent.poll.max_answers = self.old_value
-        await self.set_back(inter)
-
-    @ui.button(style=discord.ButtonStyle.green)
-    async def back(self, inter: discord.Interaction, button: ui.Button[Self]):
-        del button  # unused
-        await self.set_back(inter)
 
 
-class EditAllowedRoles(EditSubmenu):
+class EditAllowedRoles(EditSubMenuComponents):
     select_name = _("Edit allowed roles", _locale=None)
     select_emoji = Emojis.role
 
@@ -463,8 +452,6 @@ class EditAllowedRoles(EditSubmenu):
         await super().__init__(parent=parent)
         self.old_value = self.parent.poll.allowed_roles.copy()
 
-        self.cancel.label = _("Cancel")
-        self.back.label = _("Back")
         self.allowed_roles.placeholder = _("Select the roles that can vote.")
 
         await self.update()
@@ -474,16 +461,8 @@ class EditAllowedRoles(EditSubmenu):
         self.parent.poll.allowed_roles = [role.id for role in select.values]
         await self.message_refresh(inter)
 
-    @ui.button(style=discord.ButtonStyle.red)
-    async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
-        del button  # unused
+    async def cancel(self):
         self.parent.poll.allowed_roles = self.old_value
-        await self.set_back(inter)
-
-    @ui.button(style=discord.ButtonStyle.green)
-    async def back(self, inter: discord.Interaction, button: ui.Button[Self]):
-        del button  # unused
-        await self.set_back(inter)
 
 
 class Reset(EditSubmenu):
@@ -500,12 +479,12 @@ class Reset(EditSubmenu):
             _('This operation cannot be undone. By clicking on the "RESET" button, all the votes will be deleted.'),
         )
 
-    @ui.button(style=discord.ButtonStyle.red)
+    @ui.button(style=discord.ButtonStyle.grey)
     async def cancel(self, inter: discord.Interaction, button: ui.Button[Self]):
         del button  # unused
         await self.set_back(inter)
 
-    @ui.button(style=discord.ButtonStyle.green)
+    @ui.button(style=discord.ButtonStyle.red)
     async def reset(self, inter: discord.Interaction, button: ui.Button[Self]):
         del button  # unused
         async with self.bot.async_session.begin() as session:
