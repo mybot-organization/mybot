@@ -50,7 +50,7 @@ class PollPublicMenu(Menu["MyBot"]):
             if poll is None:
                 await inter.response.send_message(
                     **response_constructor(
-                        ResponseType.error, _("Sorry, this poll seems not to exist. Please contact an admin.")
+                        ResponseType.error, _("Sorry, this poll seems not to exist. Please contact an admin.", _l=256)
                     ),
                     ephemeral=True,
                 )

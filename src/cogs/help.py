@@ -65,7 +65,7 @@ class Help(ExtendedCog):
         )
 
     def general_embed(self) -> Embed:
-        embed = response_constructor(ResponseType.info, _("Commands of MyBot"))["embed"]
+        embed = response_constructor(ResponseType.info, _("Commands of MyBot", _l=256))["embed"]
 
         feature_types_ui = OrderedDict(
             (

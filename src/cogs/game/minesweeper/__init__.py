@@ -115,9 +115,7 @@ class MinesweeperView(ui.View):
             self.flag.disabled = False
         else:
             play = self.game.play(x, y)
-            print(play)
             if play.type == PlayType.BOMB_EXPLODED:
-                print("bomb exploded")
                 self.clear_items()
 
         self.game_embed.description = build_board_display(self.game)

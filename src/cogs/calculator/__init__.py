@@ -199,8 +199,7 @@ class CalculatorView(ui.View):
         elif selection == "result":
             try:
                 calcul.process()
-            except decimal.InvalidOperation as error:
-                print(error)
+            except decimal.InvalidOperation:
                 avertissements.append("Quelque chose cloche avec votre calcul, vérifiez la syntax.")
             except ZeroDivisionError:
                 avertissements.append("Vous ne pouvez pas diviser par 0.")
