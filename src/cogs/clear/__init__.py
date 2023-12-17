@@ -10,8 +10,7 @@ import discord
 from discord import app_commands, ui
 from discord.app_commands import Range, Transform, locale_str as __
 
-from core import ExtendedCog, Menu, MessageDisplay, ResponseType, response_constructor
-from core.checkers import MaxConcurrency
+from core import ExtendedCog, Menu, MessageDisplay, ResponseType, checkers, response_constructor
 from core.errors import BadArgument, MaxConcurrencyReached, NonSpecificError, UnexpectedError
 from core.i18n import _
 from core.transformers import DateTransformer
@@ -46,11 +45,13 @@ class Clear(ExtendedCog):
     def __init__(self, bot: MyBot):
         super().__init__(bot)
 
-        self.clear_max_concurrency = MaxConcurrency(1, key=channel_bucket, wait=False)
+        self.clear_max_concurrency = checkers.MaxConcurrency(1, key=channel_bucket, wait=False)
 
+    @checkers.app.bot_required_permissions(
+        manage_messages=True, read_message_history=True, read_messages=True, connect=True
+    )
     @app_commands.command(
-        description=__("Delete multiple messages with some filters."),
-        extras={"beta": True},
+        description=__("Delete multiple messages with filters."),
     )
     @app_commands.default_permissions(manage_messages=True)
     @app_commands.guild_only()
@@ -99,9 +100,6 @@ class Clear(ExtendedCog):
 
         if not 0 < amount < 251:
             raise BadArgument(_("You must supply a number between 1 and 250. (0 < {amount} < 251)", amount=amount))
-
-        # Because of @guild_only, we can assume that the channel is a guild channel
-        # Also, the channel should not be able to be a ForumChannel or StageChannel or CategoryChannel
 
         available_filters: list[Filter | None] = [
             pinned,
