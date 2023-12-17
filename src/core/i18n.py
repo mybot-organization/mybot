@@ -63,6 +63,8 @@ def i18n(
     _l: int = -1,  # size limit
     **kwargs: Any,
 ) -> str:
+    if not string:
+        return string  # empty string
     if _locale is MISSING:
         frame: FrameType | None = inspect.currentframe()
 
