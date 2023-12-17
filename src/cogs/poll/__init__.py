@@ -100,7 +100,7 @@ class PollCog(ExtendedGroupCog, group_name=__("poll"), group_description=__("Cre
         if not poll:
             raise NonSpecificError(_("This message is not a poll."))
         if poll.author_id != inter.user.id:
-            raise NonSpecificError(_("You are not the author of this poll. You can't edit it."))
+            raise NonSpecificError(_("You are not the author of this poll. You can't edit it.", _l=256))
         await inter.response.send_message(
             **(await PollDisplay.build(poll, self.bot)),
             view=await EditPoll(self, poll, message).build(),

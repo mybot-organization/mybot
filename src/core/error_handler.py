@@ -71,7 +71,11 @@ class ErrorHandler:
                 return await self.send_error(ctx, _("You provided a bad argument."))
             case BotUserNotPresent():
                 return await self.send_error(
-                    ctx, _("It looks like the bot has been added incorrectly. Please ask an admin to re-add the bot.")
+                    ctx,
+                    _(
+                        "It looks like the bot has been added incorrectly. Please ask an admin to re-add the bot.",
+                        _l=256,
+                    ),
                 )
             case MiscNoPrivateMessage() | NoPrivateMessage():
                 return await self.send_error(ctx, _("This command cannot be used in DMs."))

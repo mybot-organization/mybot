@@ -99,7 +99,9 @@ class Clear(ExtendedCog):
             raise UnexpectedError(f"{inter} had its channel set to None")
 
         if not 0 < amount < 251:
-            raise BadArgument(_("You must supply a number between 1 and 250. (0 < {amount} < 251)", amount=amount))
+            raise BadArgument(
+                _("You must supply a number between 1 and 250. (0 < {amount} < 251)", _l=256, amount=amount)
+            )
 
         available_filters: list[Filter | None] = [
             pinned,
@@ -189,8 +191,8 @@ class ClearWorker:
 
         if tasks[0] in done:
             text_response = (
-                _("Cannot clear more than 3 minutes. {} message(s) deleted.", self.deleted_messages),
-                _("Clear cancelled. {} message(s) deleted.", self.deleted_messages),
+                _("Cannot clear more than 3 minutes. {} message(s) deleted.", self.deleted_messages, _l=256),
+                _("Clear cancelled. {} message(s) deleted.", self.deleted_messages, _l=256),
             )
             await self.inter.edit_original_response(
                 **response_constructor(ResponseType.warning, text_response[view.pressed]),

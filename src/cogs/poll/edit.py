@@ -216,7 +216,7 @@ class EditTitleAndDescription(EditSubmenu, ui.Modal):
 
 class EditEndingTime(EditSubmenu):
     select_name = _("Edit ending time", _locale=None)
-    select_description = _("Set a poll duration, it will be closed automatically.", _locale=None)
+    select_description = _("Set a poll duration, it will be closed automatically.", _locale=None, _l=100)
 
     def __init__(self, parent: EditPoll):
         super().__init__(parent)
@@ -314,7 +314,7 @@ class EditEndingTime(EditSubmenu):
 
 class EditChoices(EditSubmenu):
     select_name = _("Edit choices", _locale=None)
-    select_description = _("Add and removes choices for multiple choices polls.", _locale=None)
+    select_description = _("Add and removes choices for multiple choices polls.", _locale=None, _l=100)
 
     def __init__(self, parent: EditPoll):
         super().__init__(parent)
@@ -387,7 +387,7 @@ class RemoveChoices(Menu["MyBot"]):
     async def build(self) -> Self:
         self.back.label = _("Back")
         self.cancel.label = _("Cancel")
-        self.choices_to_remove.placeholder = _("Select the choices you want to remove.")
+        self.choices_to_remove.placeholder = _("Select the choices you want to remove.", _l=100)
         for choice, i in self.linked_choice.items():
             self.choices_to_remove.add_option(label=choice.label[:99] + "…", value=str(i), emoji=LEGEND_EMOJIS[i])
         self.choices_to_remove.max_values = len(self.old_value) - 2
@@ -421,7 +421,7 @@ class RemoveChoices(Menu["MyBot"]):
 
 class EditMaxChoices(EditSubmenu):
     select_name = _("Edit max choices", _locale=None)
-    select_description = _("Set the maximum of simultaneous values users can choose.", _locale=None)
+    select_description = _("Set the maximum of simultaneous values users can choose.", _locale=None, _l=100)
 
     def __init__(self, parent: EditPoll) -> None:
         super().__init__(parent=parent)
@@ -460,7 +460,7 @@ class EditMaxChoices(EditSubmenu):
 
 class EditAllowedRoles(EditSubmenu):
     select_name = _("Edit allowed roles", _locale=None)
-    select_description = _("Only users with one of these role can vote.", _locale=None)
+    select_description = _("Only users with one of these role can vote.", _locale=None, _l=100)
 
     def __init__(self, parent: EditPoll) -> None:
         super().__init__(parent=parent)

@@ -60,7 +60,7 @@ def i18n(
     *args: Any,
     _locale: Locale | None = MISSING,
     _silent: bool = False,
-    _size_limit: int = -1,
+    _l: int = -1,  # size limit
     **kwargs: Any,
 ) -> str:
     if _locale is MISSING:
@@ -86,9 +86,9 @@ def i18n(
     else:
         result = translations.get(_locale, translations[LOCALE_DEFAULT]).gettext(string).format(*args, **kwargs)
 
-    if _size_limit > 0 and len(result) > _size_limit:
+    if _l > 0 and len(result) > _l:
         logger.warning("The translated and formatted string is too long: %s\n%s", string, result)
-        result = result[: _size_limit - 1] + "…"
+        result = result[: _l - 1] + "…"
     return result
 
 
