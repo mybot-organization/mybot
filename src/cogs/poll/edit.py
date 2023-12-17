@@ -132,8 +132,8 @@ class EditPoll(Menu["MyBot"]):
 
             async with self.bot.async_session.begin() as session:
                 guild_id: int = inter.guild_id  # type: ignore (poll is only usable in guild)
-                await self.bot.get_guild_db(
-                    guild_id, session=session
+                await self.bot.get_or_create_db(
+                    session, db.GuildDB, guild_id=guild_id
                 )  # to be sure the guild is present in the database
                 session.add(self.poll)
         else:

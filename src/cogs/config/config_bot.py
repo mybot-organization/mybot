@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from core import ExtendedCog, ResponseType, response_constructor
+from core import ExtendedCog, ResponseType, db, response_constructor
 from core.errors import UnexpectedError
 from core.i18n import _
 
@@ -20,7 +20,7 @@ class ConfigBot(ExtendedCog, name="config_bot"):
             raise UnexpectedError()
 
         async with self.bot.async_session.begin() as session:
-            guild_db = await self.bot.get_guild_db(inter.guild_id, session=session)
+            guild_db = await self.bot.get_or_create_db(session, db.GuildDB, guild_id=inter.guild_id)
             guild_db.translations_are_public = value
 
         response_text = {

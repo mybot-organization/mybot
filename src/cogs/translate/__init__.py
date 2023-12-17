@@ -11,7 +11,7 @@ import discord
 from discord import Embed, Message, app_commands, ui
 from discord.app_commands import locale_str as __
 
-from core import ExtendedCog, ResponseType, TemporaryCache, misc_command, response_constructor
+from core import ExtendedCog, ResponseType, TemporaryCache, db, misc_command, response_constructor
 from core.checkers.misc import bot_required_permissions, is_activated, is_user_authorized, misc_check
 from core.errors import BadArgument, NonSpecificError
 from core.i18n import _
@@ -174,8 +174,9 @@ class Translate(ExtendedCog):
     async def public_translations(self, guild_id: int | None):
         if guild_id is None:  # we are in private channels, IG
             return True
-        guild_db = await self.bot.get_guild_db(guild_id)
-        return guild_db.translations_are_public
+        async with self.bot.async_session.begin() as session:
+            guild_db = await self.bot.get_or_create_db(session, db.GuildDB, guild_id=guild_id)
+            return guild_db.translations_are_public
 
     @app_commands.command(
         name=__("translate"),
