@@ -2,14 +2,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mybot-discord\n"
 "Report-Msgid-Bugs-To: contact@mybot-discord.com\n"
-"POT-Creation-Date: 2023-12-06 16:02+0000\n"
-"PO-Revision-Date: 2023-12-06 16:50\n"
+"POT-Creation-Date: 2023-12-17 11:43+0000\n"
+"PO-Revision-Date: 2023-12-18 10:27\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.13.1\n"
+"Generated-By: Babel 2.14.0\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Crowdin-Project: mybot-discord\n"
 "X-Crowdin-Project-ID: 532668\n"
@@ -18,67 +18,67 @@ msgstr ""
 "X-Crowdin-File-ID: 68\n"
 "Language: fr_FR\n"
 
-#: src/cogs/help.py:29
+#: src/cogs/help.py:28
 msgid "slash command"
 msgstr "commande slash"
 
-#: src/cogs/help.py:30
+#: src/cogs/help.py:29
 msgid "message context"
 msgstr "contexte de message"
 
-#: src/cogs/help.py:31
+#: src/cogs/help.py:30
 msgid "user context"
 msgstr "contexte d'utilisateur"
 
-#: src/cogs/help.py:32
+#: src/cogs/help.py:31
 msgid "miscellaneous"
 msgstr "divers"
 
-#: src/cogs/help.py:40
+#: src/cogs/help.py:36
 msgid "help"
 msgstr "aide"
 
-#: src/cogs/help.py:40
+#: src/cogs/help.py:36
 msgid "Get help about the bot."
 msgstr "Obtenir de l'aide à propos du bot."
 
-#: src/cogs/help.py:41
+#: src/cogs/help.py:37
 msgid "feature"
 msgstr "fonctionnalité"
 
-#: src/cogs/help.py:72
+#: src/cogs/help.py:68
 msgid "Commands of MyBot"
 msgstr "Commandes de MyBot"
 
-#: src/cogs/help.py:76
+#: src/cogs/help.py:72
 msgid "Slash commands"
 msgstr "Commandes slash"
 
-#: src/cogs/help.py:77
+#: src/cogs/help.py:73
 msgid "Context commands"
 msgstr "Commandes contextuelles"
 
-#: src/cogs/help.py:78
+#: src/cogs/help.py:74
 msgid "Miscellaneous features"
 msgstr "Fonctionnalités diverses"
 
-#: src/cogs/help.py:148
+#: src/cogs/help.py:145
 msgid "Help about {} [{}]"
 msgstr "Aide à propos de {} [{}]"
 
-#: src/cogs/ping.py:28
+#: src/cogs/ping.py:26
 msgid "ping"
 msgstr "ping"
 
-#: src/cogs/ping.py:29
+#: src/cogs/ping.py:27
 msgid "Get the bot latency."
 msgstr "Obtenir la latence du bot."
 
-#: src/cogs/stats.py:40
+#: src/cogs/stats.py:77
 msgid "stats"
 msgstr "stats"
 
-#: src/cogs/stats.py:41
+#: src/cogs/stats.py:78
 msgid "Get some stats about the bot."
 msgstr "Obtenez quelques statistiques sur le bot."
 
@@ -95,90 +95,98 @@ msgid "Invalid expression"
 msgstr "Expression invalide"
 
 #: src/cogs/clear/__init__.py:54
-msgid "Delete multiple messages with some filters."
+msgid "Delete multiple messages with filters."
 msgstr "Supprimer plusieurs messages avec des filtres."
 
+#: src/cogs/clear/__init__.py:59
+msgid "{{}} messages (max 250)"
+msgstr "{{}} messages (max 250)"
+
 #: src/cogs/clear/__init__.py:60
-msgid "The amount of messages to delete."
-msgstr "Le nombre de messages à supprimer."
+msgid "messages from the user {{}}"
+msgstr "messages de l'utilisateur {{}}"
 
 #: src/cogs/clear/__init__.py:61
-msgid "Delete only messages from the specified user."
-msgstr "Supprimer uniquement les messages de l'utilisateur spécifié."
+msgid "messages whose user has the role {{}}"
+msgstr "messages dont l'utilisateur a le rôle {{}}"
 
 #: src/cogs/clear/__init__.py:62
-msgid "Delete only messages whose user has the specified role."
-msgstr "Supprimer uniquement les messages dont l'utilisateur a le rôle spécifié."
+msgid "messages that match {{}} (regex, multiline, case sensitive, not anchored)"
+msgstr "messages qui correspondent à {{}} (regex, multiligne, sensible à la casse, non ancré)"
 
 #: src/cogs/clear/__init__.py:63
-msgid "Delete only messages that match the specified search (can be regex)."
-msgstr "Supprimer uniquement les messages qui correspondent à la recherche spécifiée (peut être une regex)."
+msgid "messages that has {{}}"
+msgstr "messages qui possèdent {{}}"
+
+#: src/cogs/clear/__init__.py:64
+msgid "messages longer or equal to {{}} (blank spaces included) (empty messages included)"
+msgstr "messages plus longs ou égaux à {{}} (espaces vides inclus) (messages vides inclus)"
+
+#: src/cogs/clear/__init__.py:65
+msgid "messages shorter or equal to {{}} (blank spaces included)"
+msgstr "messages courts ou égaux à {{}} (espaces vides inclus)"
 
 #: src/cogs/clear/__init__.py:66
-msgid "Delete only messages that contains the selected entry. #TODO"
-msgstr "Supprimer uniquement les messages qui contiennent l'entrée sélectionnée. #TODO"
+msgid "messages sent before {{}} (yyyy-mm-dd or message ID)"
+msgstr "messages envoyés avant {{}} (aaaa-mm-jj ou ID du message)"
 
-#: src/cogs/clear/__init__.py:69
-msgid "Delete only messages where length match the specified entry. (e.g. '<=100', '5', '>10') #TODO"
-msgstr "Supprimer uniquement les messages dont la longueur correspond à l'entrée. (ex : '<=100', '5', '>10')"
+#: src/cogs/clear/__init__.py:67
+msgid "messages sent after {{}} (yyyy-mm-dd or message ID)"
+msgstr "messages envoyés après {{}} (aaaa-mm-jj ou ID du message)"
 
-#: src/cogs/clear/__init__.py:70
-msgid "Delete only messages sent before the specified message or date. (yyyy-mm-dd) #TODO"
-msgstr "Supprimer uniquement les messages envoyés avant le message ou la date spécifiés. (aaaa-mm-jj) #TODO"
+#: src/cogs/clear/__init__.py:68
+msgid "only pinned message or exclude them from the deletion. (default to exclude)"
+msgstr "seulement le message épinglé ou les exclure de la suppression (exclus par défaut)"
 
 #: src/cogs/clear/__init__.py:71
-msgid "Delete only messages sent after the specified message or date. (yyyy-mm-dd) #TODO"
-msgstr "Supprimer les messages envoyés après un message ou une date. (aaaa-mm-jj) #TODO"
-
-#: src/cogs/clear/__init__.py:72
-msgid "Include/exclude pinned messages in deletion, or deletes \"only\" pinned messages. (default to exclude)"
-msgstr "Inclure/exclure les messages épinglés dans la suppression ou supprimer \"seulement\" ces messages."
-
-#: src/cogs/clear/__init__.py:77
 msgid "amount"
 msgstr "quantitée"
 
-#: src/cogs/clear/__init__.py:78
+#: src/cogs/clear/__init__.py:72
 msgid "user"
 msgstr "utilisateur"
 
-#: src/cogs/clear/__init__.py:79
+#: src/cogs/clear/__init__.py:73
 msgid "role"
 msgstr "rôle"
 
-#: src/cogs/clear/__init__.py:80
+#: src/cogs/clear/__init__.py:74
 msgid "search"
 msgstr "recherche"
 
-#: src/cogs/clear/__init__.py:81
+#: src/cogs/clear/__init__.py:75
 msgid "has"
 msgstr "contient"
 
-#: src/cogs/clear/__init__.py:82
-msgid "length"
-msgstr "longueur"
+#: src/cogs/clear/__init__.py:76
+msgid "max_length"
+msgstr "longueur_max"
 
-#: src/cogs/clear/__init__.py:83
+#: src/cogs/clear/__init__.py:77
+msgid "min_length"
+msgstr "longueur_min"
+
+#: src/cogs/clear/__init__.py:78
 msgid "before"
 msgstr "avant"
 
-#: src/cogs/clear/__init__.py:84
+#: src/cogs/clear/__init__.py:79
 msgid "after"
 msgstr "après"
 
-#: src/cogs/clear/__init__.py:85
+#: src/cogs/clear/__init__.py:80
 msgid "pinned"
 msgstr "épinglés"
 
-#: src/cogs/clear/__init__.py:106
+#: src/cogs/clear/__init__.py:103
 msgid "You must supply a number between 1 and 250. (0 < {amount} < 251)"
 msgstr "Vous devez fournir un nombre entre 1 et 250. (0 < {amount} < 251)"
 
-#: src/cogs/clear/__init__.py:144
+#: src/cogs/clear/__init__.py:151
 msgid "Clearing {amount} message(s)..."
 msgstr "Suppression de {amount} message(s)..."
 
-#: src/cogs/clear/__init__.py:146
+#: src/cogs/clear/__init__.py:153
 msgid "Analyzed: {analyzed}\n"
 "Deleted: {deleted}/{goal}\n"
 "Planned for deletion: {planned}"
@@ -186,70 +194,70 @@ msgstr "Analysés : {analyzed}\n"
 "Supprimés : {deleted}/{goal}\n"
 "Prévu pour la suppression : {planned}"
 
-#: src/cogs/clear/__init__.py:187
+#: src/cogs/clear/__init__.py:194
 msgid "Cannot clear more than 3 minutes. {} message(s) deleted."
 msgstr "Impossible de supprimer plus de 3 minutes. {} message(s) supprimé(s)."
 
-#: src/cogs/clear/__init__.py:188
+#: src/cogs/clear/__init__.py:195
 msgid "Clear cancelled. {} message(s) deleted."
 msgstr "Suppression annulée. {} message(s) supprimé(s)."
 
-#: src/cogs/clear/__init__.py:196
+#: src/cogs/clear/__init__.py:203
 msgid "{} message(s) deleted."
 msgstr "{} message(s) supprimé(s)."
 
-#: src/cogs/clear/__init__.py:266 src/cogs/poll/edit.py:229
+#: src/cogs/clear/__init__.py:273 src/cogs/poll/edit.py:229
 #: src/cogs/poll/edit.py:327 src/cogs/poll/edit.py:389
 #: src/cogs/poll/edit.py:431 src/cogs/poll/edit.py:470
 #: src/cogs/poll/edit.py:500
 msgid "Cancel"
 msgstr "Annuler"
 
-#: src/cogs/clear/clear_transformers.py:29
+#: src/cogs/clear/clear_transformers.py:28
 msgid "include"
 msgstr "inclus"
 
-#: src/cogs/clear/clear_transformers.py:30
+#: src/cogs/clear/clear_transformers.py:29
 msgid "exclude"
 msgstr "exclus"
 
-#: src/cogs/clear/clear_transformers.py:31
+#: src/cogs/clear/clear_transformers.py:30
 msgid "only"
 msgstr "seulement"
 
-#: src/cogs/clear/clear_transformers.py:47
+#: src/cogs/clear/clear_transformers.py:46
 msgid "image"
 msgstr "image"
 
-#: src/cogs/clear/clear_transformers.py:48
+#: src/cogs/clear/clear_transformers.py:47
 msgid "video"
 msgstr "vidéo"
 
-#: src/cogs/clear/clear_transformers.py:49
+#: src/cogs/clear/clear_transformers.py:48
 msgid "audio"
 msgstr "audio"
 
-#: src/cogs/clear/clear_transformers.py:50
+#: src/cogs/clear/clear_transformers.py:49
 msgid "stickers"
 msgstr "autocollants"
 
-#: src/cogs/clear/clear_transformers.py:51
+#: src/cogs/clear/clear_transformers.py:50
 msgid "file"
 msgstr "fichier"
 
-#: src/cogs/clear/clear_transformers.py:52
+#: src/cogs/clear/clear_transformers.py:51
 msgid "embed"
 msgstr "embed"
 
-#: src/cogs/clear/clear_transformers.py:53
+#: src/cogs/clear/clear_transformers.py:52
 msgid "link (any URL)"
 msgstr "lien (n'importe quelle URL)"
 
-#: src/cogs/clear/clear_transformers.py:54
+#: src/cogs/clear/clear_transformers.py:53
 msgid "mention"
 msgstr "mention"
 
-#: src/cogs/clear/clear_transformers.py:55
+#: src/cogs/clear/clear_transformers.py:54
 msgid "discord invitation"
 msgstr "invitation discord"
 
@@ -293,11 +301,11 @@ msgstr "traductions_publique"
 msgid "Set if the translations are visible for everyone or not."
 msgstr "Définir si les traductions sont visibles par tous ou non."
 
-#: src/cogs/config/config_bot.py:29
+#: src/cogs/config/config_bot.py:27
 msgid "Translations will now be public."
 msgstr "Les traductions seront désormais publiques."
 
-#: src/cogs/config/config_bot.py:30
+#: src/cogs/config/config_bot.py:28
 msgid "Translations will now be private."
 msgstr "Les traductions seront désormais privées."
 
@@ -648,81 +656,77 @@ msgstr "Oui"
 msgid "No"
 msgstr "Non"
 
-#: src/cogs/translate/__init__.py:165
+#: src/cogs/translate/__init__.py:202
 msgid "Translate"
 msgstr "Traduire"
 
-#: src/cogs/translate/__init__.py:169
-msgid "Translate a message based on your discord settings."
-msgstr "Traduire un message en fonction de vos paramètres de Discord."
+#: src/cogs/translate/__init__.py:206
+msgid "Translate a message with your account language settings."
+msgstr "Traduisez un message dans la langue de votre compte."
 
-#: src/cogs/translate/__init__.py:181
+#: src/cogs/translate/__init__.py:219
 msgid "translate"
 msgstr "traduire"
 
-#: src/cogs/translate/__init__.py:182
+#: src/cogs/translate/__init__.py:220
 msgid "Translate text in a selection of languages."
 msgstr "Traduire le texte dans une sélection de langues."
 
-#: src/cogs/translate/__init__.py:189
+#: src/cogs/translate/__init__.py:227
 msgid "The language you provided is not supported."
 msgstr "La langue que vous avez fournie n'est pas prise en charge."
 
-#: src/cogs/translate/__init__.py:232
+#: src/cogs/translate/__init__.py:270
 msgid "Translate text in the language corresponding on the flag you add."
 msgstr "Traduire le texte dans la langue correspondant au drapeau que vous ajoutez."
 
-#: src/cogs/translate/__init__.py:254
+#: src/cogs/translate/__init__.py:292
 msgid "The language you asked for is not supported."
 msgstr "La langue demandée n'est pas prise en charge."
 
-#: src/cogs/translate/__init__.py:285
+#: src/cogs/translate/__init__.py:323
 msgid "Your locale is not supported."
 msgstr "Votre langue n'est pas prise en charge."
 
-#: src/cogs/translate/__init__.py:312
+#: src/cogs/translate/__init__.py:350
 msgid "Vote for the bot"
 msgstr "Votez pour le bot"
 
-#: src/cogs/translate/__init__.py:319
+#: src/cogs/translate/__init__.py:357
 msgid "You have reached the maximum number of translations per day.Vote for the bot to remove this limit !"
 msgstr "Vous avez atteint le nombre maximum de traduction par jour. Votez pour le bot pour retirer cette limite !"
 
-#: src/cogs/translate/__init__.py:360
+#: src/cogs/translate/__init__.py:398
 msgid "Translate from {from_} to {to}"
 msgstr "Traduire depuis {from_} vers {to}"
 
-#: src/core/error_handler.py:50
+#: src/core/error_handler.py:49
 msgid "Support server"
 msgstr "Serveur support"
 
-#: src/core/error_handler.py:64
+#: src/core/error_handler.py:63
 msgid "This command is already executed the max amount of times. (Max: {error.rate})"
 msgstr "Cette commande est déjà exécutée le nombre maximal de fois. (Max : {error.rate})"
 
 #: src/core/error_handler.py:67
-msgid "This command needs some conditions you don't meet."
-msgstr "Cette commande nécessite certaines conditions que vous ne remplissez pas."
-
-#: src/core/error_handler.py:70
-msgid "You provided a bad argument."
-msgstr "Vous avez fourni un mauvais argument."
-
-#: src/core/error_handler.py:73
 msgid "The bot is missing some permissions.\n"
 "`{}`"
 msgstr "Il manque des permissions au bot.\n"
 "`{}`"
 
-#: src/core/error_handler.py:77
+#: src/core/error_handler.py:71
+msgid "You provided a bad argument."
+msgstr "Vous avez fourni un mauvais argument."
+
+#: src/core/error_handler.py:75
 msgid "It looks like the bot has been added incorrectly. Please ask an admin to re-add the bot."
 msgstr "Il semblerait que le bot ait été ajouté de manière incorrecte. Veuillez demander à un administrateur de ré-ajouter le bot."
 
-#: src/core/error_handler.py:80
+#: src/core/error_handler.py:81
 msgid "This command cannot be used in DMs."
 msgstr "Cette commande ne peut pas être utilisée en message privé."
 
-#: src/core/error_handler.py:83
+#: src/core/error_handler.py:86
 msgid "An unhandled error happened.\n"
 "Please ask on the support server!"
 msgstr "Une erreur inattendue est survenue.\n"
