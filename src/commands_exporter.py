@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import asyncio
 import json
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field, is_dataclass
 from enum import Enum
+from json import JSONEncoder
 from typing import TYPE_CHECKING, Any, NotRequired, TypedDict, cast, overload
 
 import discord
@@ -45,7 +46,7 @@ class SlashCommand(Feature):
     type: FeatureType = FeatureType.CHAT_INPUT
     parameters: list[SlashCommandParameter]
     sub_commands: list[SlashCommand] = field(default_factory=list)
-    parent: SlashCommand | None = None
+    # parent: SlashCommand | None = None
 
 
 @dataclass()
@@ -108,7 +109,7 @@ def fill_features(
                 default_permissions=child.default_permissions.value if child.default_permissions else None,
                 description=child.description,
                 parameters=[],
-                parent=parent,
+                # parent=parent,
             )
 
             for parameter in child.parameters:
@@ -126,7 +127,7 @@ def fill_features(
                 description=child.description,
                 parameters=[],
                 sub_commands=[],
-                parent=parent,
+                # parent=parent,
             )
             for sub_command in child.commands:
                 fill_features(sub_command, feature.sub_commands, feature)
@@ -175,19 +176,24 @@ def extract_features(mybot: MyBot) -> list[Feature]:
 async def export(mybot: MyBot, filename: str = "features.json") -> None:
     features: list[Feature] = extract_features(mybot)
 
-    # TODO(airo.pi_): fix features export to json.
+    def default(o: Any):
+        if is_dataclass(o):
+            return asdict(o)
+        elif isinstance(o, Enum):
+            return o.value
+
+        return JSONEncoder().default(o)
 
     with open(filename, "w", encoding="utf-8") as file:
-        json.dump(features, file, indent=4)
+        json.dump(features, file, indent=4, default=default)
 
 
 async def main():
     mybot = MyBot(False)
     await mybot.load_extensions()
 
-    print(extract_features(mybot))
-
-    # await export(mybot)
+    # TODO: find out where the unclosed session comes from.
+    await export(mybot)
 
 
 if __name__ == "__main__":
