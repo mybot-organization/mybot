@@ -1,17 +1,19 @@
 from __future__ import annotations
 
 import enum
-from functools import partial
 from typing import TYPE_CHECKING, Self
 
 from discord.app_commands import TranslationContextLocation
 
-from .i18n import _
-
 if TYPE_CHECKING:
     from ._types import Snowflake
 
-_ = partial(_, _locale=None)
+
+def _identity[T](x: T) -> T:
+    return x
+
+
+_ = _identity
 
 
 class Emoji(str):
