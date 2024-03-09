@@ -4,6 +4,7 @@ sqlalchemy[asyncio]
 typing_extensions
 discord.py
 click
+typer[all]
 psutil
 alembic
 two048  # a personal library

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import gettext
 import json
 from dataclasses import asdict, dataclass, field, is_dataclass
 from enum import Enum
@@ -8,10 +9,12 @@ from json import JSONEncoder
 from typing import TYPE_CHECKING, Any, NotRequired, TypedDict, cast, overload
 
 import discord
+import typer
 from discord import app_commands
 
 from core._config import define_config
 from core.extended_commands import MiscCommand, MiscCommandsType
+from core.i18n import translations
 
 if TYPE_CHECKING:
     from mybot import MyBot
@@ -79,17 +82,26 @@ def fill_features(
     child: app_commands.Group | app_commands.Command[Any, ..., Any],
     features: list[SlashCommand],
     parent: SlashCommand,
+    translations: gettext.GNUTranslations | gettext.NullTranslations = ...,
 ) -> None:
     ...
 
 
 @overload
-def fill_features(child: FeatureCodebaseTypes, features: list[Feature], parent: SlashCommand | None = None) -> None:
+def fill_features(
+    child: FeatureCodebaseTypes,
+    features: list[Feature],
+    parent: SlashCommand | None = None,
+    translations: gettext.GNUTranslations | gettext.NullTranslations = ...,
+) -> None:
     ...
 
 
 def fill_features(
-    child: FeatureCodebaseTypes, features: list[Feature] | list[SlashCommand], parent: SlashCommand | None = None
+    child: FeatureCodebaseTypes,
+    features: list[Feature] | list[SlashCommand],
+    parent: SlashCommand | None = None,
+    translations: gettext.GNUTranslations | gettext.NullTranslations = gettext.NullTranslations(),
 ) -> None:
     extras = cast(Extras, child.extras)
 
@@ -161,20 +173,30 @@ def fill_features(
     features.append(feature)  # type: ignore
 
 
-def extract_features(mybot: MyBot) -> list[Feature]:
+def extract_features(
+    mybot: MyBot,
+    translations: gettext.GNUTranslations | gettext.NullTranslations = gettext.NullTranslations(),
+) -> list[Feature]:
     features: list[Feature] = []
 
     for app_command in mybot.tree.get_commands():
-        fill_features(app_command, features)
+        fill_features(app_command, features, translations=translations)
 
     for misc_cmd in mybot.misc_commands():
-        fill_features(misc_cmd, features)
+        fill_features(misc_cmd, features, translations=translations)
 
     return features
 
 
-async def export(mybot: MyBot, filename: str = "features.json") -> None:
-    features: list[Feature] = extract_features(mybot)
+async def main(filename: str = "./features.json"):
+    mybot = MyBot(False)
+    await mybot.load_extensions()
+
+    # TODO: find out where the unclosed session comes from.
+    result: dict[str, list[Feature]] = {}
+
+    for locale, translator in translations.items():
+        result[locale.value] = extract_features(mybot, translator)
 
     def default(o: Any):
         if is_dataclass(o):
@@ -185,15 +207,11 @@ async def export(mybot: MyBot, filename: str = "features.json") -> None:
         return JSONEncoder().default(o)
 
     with open(filename, "w", encoding="utf-8") as file:
-        json.dump(features, file, indent=4, default=default)
+        json.dump(result, file, indent=4, default=default)
 
 
-async def main():
-    mybot = MyBot(False)
-    await mybot.load_extensions()
-
-    # TODO: find out where the unclosed session comes from.
-    await export(mybot)
+def main_cli(filename: str = "./features.json"):
+    asyncio.run(main(filename=filename))
 
 
 if __name__ == "__main__":
@@ -201,4 +219,4 @@ if __name__ == "__main__":
 
     define_config(EXPORT_MODE=True)
 
-    asyncio.run(main())
+    typer.run(main_cli)
