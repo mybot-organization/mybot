@@ -323,7 +323,7 @@ class MyBot(AutoShardedBot):
         """Get an object from the database. If it doesn't exist, it is created.
         It is CREATEd if the guild doesn't exist in the database.
         """
-        guild = await session.get(table, tuple(key.values()))  # pyright: ignore[reportGeneralTypeIssues]
+        guild = await session.get(table, tuple(key.values()))  # pyright: ignore[reportArgumentType]
 
         if guild is None:
             guild = table(**key)

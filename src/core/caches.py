@@ -151,12 +151,10 @@ class SizedSequence(Sequence[T]):
             self._internal = list(init)
 
     @overload
-    def __getitem__(self, i: SupportsIndex) -> T:
-        ...
+    def __getitem__(self, i: SupportsIndex) -> T: ...
 
     @overload
-    def __getitem__(self, i: slice) -> Sequence[T]:
-        ...
+    def __getitem__(self, i: slice) -> Sequence[T]: ...
 
     def __getitem__(self, i: SupportsIndex | slice) -> T | Sequence[T]:
         return self._internal.__getitem__(i)

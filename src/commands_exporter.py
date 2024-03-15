@@ -79,13 +79,11 @@ def fill_features(
     child: app_commands.Group | app_commands.Command[Any, ..., Any],
     features: list[SlashCommand],
     parent: SlashCommand,
-) -> None:
-    ...
+) -> None: ...
 
 
 @overload
-def fill_features(child: FeatureCodebaseTypes, features: list[Feature], parent: SlashCommand | None = None) -> None:
-    ...
+def fill_features(child: FeatureCodebaseTypes, features: list[Feature], parent: SlashCommand | None = None) -> None: ...
 
 
 def fill_features(

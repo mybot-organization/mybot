@@ -30,8 +30,7 @@ multiplication = (regex_builder("*"), op.mul)
 power = (regex_builder("^"), op.pow)
 
 
-class UnclosedParentheses(Exception):
-    ...
+class UnclosedParentheses(Exception): ...
 
 
 class Calcul:
