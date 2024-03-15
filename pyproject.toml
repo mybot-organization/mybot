@@ -66,3 +66,7 @@ callbacks = ['cb_', '_cb']
 
 # [tool.pyright]
 # reportImportCycles = false
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.in"] }
+optional-dependencies.dev = { file = ["requirements.dev.in"] }

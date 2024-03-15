@@ -3,3 +3,4 @@ bandit
 tox
 pyright
 isort
+pip-tools
