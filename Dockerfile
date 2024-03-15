@@ -16,6 +16,7 @@ RUN --mount=type=cache,target=/var/cache/apk/ \
     && :
 
 FROM python:3.12.0-alpine as base
+# https://docs.docker.com/reference/dockerfile/#copy---parents
 COPY --parents --from=build /opt/venv /app/locale/**/LC_MESSAGES/*.mo /
 WORKDIR /app
 COPY ./src ./
@@ -24,7 +25,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONUNBUFFERED=0
 
 
-FROM base as prod
+FROM base as production
 CMD ["/bin/sh", "-c", "alembic upgrade head && python ./main.py bot --sync -c ./config.toml"]
 
 

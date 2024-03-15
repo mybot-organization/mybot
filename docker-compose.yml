@@ -4,9 +4,8 @@ services:
   mybot:
     image: airopi/mybot:stable
     build:
-      context: .
       dockerfile: ./Dockerfile
-      target: prod
+      target: production
     develop:
       watch:
         - action: sync
