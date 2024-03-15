@@ -29,7 +29,7 @@ greenlet==3.0.3
     # via sqlalchemy
 idna==3.6
     # via yarl
-lingua-language-detector==2.0.2
+lingua-language-detector==1.3.4
     # via -r requirements.in
 mako==1.3.2
     # via alembic
@@ -39,10 +39,14 @@ multidict==6.0.5
     # via
     #   aiohttp
     #   yarl
+numpy==1.26.4
+    # via lingua-language-detector
 psutil==5.9.8
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via -r requirements.in
+regex==2023.12.25
+    # via lingua-language-detector
 six==1.16.0
     # via python-dateutil
 sqlalchemy[asyncio]==2.0.28
