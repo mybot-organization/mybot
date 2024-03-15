@@ -4,3 +4,4 @@ tox
 pyright
 isort
 pip-tools
+debugpy

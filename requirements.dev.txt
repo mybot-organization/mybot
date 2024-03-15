@@ -20,6 +20,8 @@ click==8.1.7
     #   pip-tools
 colorama==0.4.6
     # via tox
+debugpy==1.8.1
+    # via -r requirements.dev.in
 distlib==0.3.8
     # via virtualenv
 filelock==3.13.1
