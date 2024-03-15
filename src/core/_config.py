@@ -4,6 +4,7 @@ needed. Otherwise, if the config is used before the invocation of main() from ma
 correctly.
 A warning should be raised if we try to access config while it is not defined.
 """
+
 from __future__ import annotations
 
 import logging
