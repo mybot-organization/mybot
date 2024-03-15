@@ -11,6 +11,8 @@ services:
         - action: sync
           path: ./src
           target: /app
+        - action: rebuild
+          path: ./requirements.txt
     env_file:
       - .env
     tty: true
