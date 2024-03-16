@@ -1,5 +1,6 @@
 from enum import Enum
-from typing import Iterable, Iterator, NamedTuple, Sequence
+from typing import NamedTuple
+from collections.abc import Iterable, Iterator, Sequence
 
 from discord import Locale
 

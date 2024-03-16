@@ -5,7 +5,6 @@ from functools import wraps
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     ClassVar,
     Concatenate,
     Generic,
@@ -13,11 +12,11 @@ from typing import (
     ParamSpec,
     Protocol,
     Self,
-    Sequence,
     TypeVar,
     cast,
     runtime_checkable,
 )
+from collections.abc import Callable, Sequence
 
 import discord
 from discord import ClientUser, Member, Permissions, User

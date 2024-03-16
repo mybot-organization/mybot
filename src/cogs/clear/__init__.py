@@ -4,7 +4,8 @@ import asyncio
 import logging
 import time
 from datetime import datetime
-from typing import TYPE_CHECKING, AsyncGenerator, Awaitable, Callable, Self, cast
+from typing import TYPE_CHECKING, Self, cast
+from collections.abc import AsyncGenerator, Awaitable, Callable
 
 import discord
 from discord import app_commands, ui

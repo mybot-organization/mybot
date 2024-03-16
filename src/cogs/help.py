@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import logging
 from collections import OrderedDict
-from typing import TYPE_CHECKING, Iterable, Self, Sequence, cast
+from typing import TYPE_CHECKING, Self, cast
+from collections.abc import Iterable, Sequence
 
 import discord
 from discord import app_commands, ui

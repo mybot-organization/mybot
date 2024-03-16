@@ -3,7 +3,8 @@ from __future__ import annotations
 import enum
 from datetime import datetime
 from functools import partial
-from typing import Annotated, Any, Iterable, Sequence, TypeVar
+from typing import Annotated, Any, TypeVar
+from collections.abc import Iterable, Sequence
 
 from sqlalchemy import ARRAY, BigInteger, DateTime, Enum, ForeignKey
 from sqlalchemy.dialects.postgresql import BIGINT, BOOLEAN, INTEGER, JSONB, SMALLINT, VARCHAR

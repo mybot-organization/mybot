@@ -9,7 +9,7 @@ import operator as op
 import re
 from collections.abc import Sequence
 from math import pi
-from typing import Callable
+from collections.abc import Callable
 
 Decimal = decimal.Decimal
 

@@ -5,7 +5,8 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from functools import partial
-from typing import TYPE_CHECKING, Any, NamedTuple, Sequence, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
+from collections.abc import Sequence
 
 import discord
 from discord import Embed, Message, app_commands, ui

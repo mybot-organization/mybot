@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Self, Sequence, cast
+from datetime import datetime, UTC
+from typing import TYPE_CHECKING, Self, cast
+from collections.abc import Sequence
 
 import discord
 from discord import ui
@@ -65,7 +66,7 @@ class PollPublicMenu(Menu["MyBot"]):
                 )
                 return
 
-            if poll.end_date is not None and poll.end_date < datetime.now(timezone.utc):
+            if poll.end_date is not None and poll.end_date < datetime.now(UTC):
                 await inter.response.send_message(
                     **response_constructor(ResponseType.error, _("Sorry, this poll is over, you can't vote anymore!")),
                     ephemeral=True,

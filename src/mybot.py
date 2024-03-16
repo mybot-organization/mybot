@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import re
 import sys
-from typing import TYPE_CHECKING, Any, Type, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import discord
 import topgg as topggpy
@@ -319,7 +319,7 @@ class MyBot(AutoShardedBot):
             return None
         return channel
 
-    async def get_or_create_db[T: Type[Base]](self, session: AsyncSession, table: T, **key: Any) -> T:
+    async def get_or_create_db[T: type[Base]](self, session: AsyncSession, table: T, **key: Any) -> T:
         """Get an object from the database. If it doesn't exist, it is created.
         It is CREATEd if the guild doesn't exist in the database.
         """

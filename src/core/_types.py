@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Coroutine, ParamSpec, TypeAlias, TypeVar, Union
+from typing import TYPE_CHECKING, Any, ParamSpec, TypeAlias, TypeVar, Union
+from collections.abc import Coroutine
 
 from discord import Message
 from discord.ext import commands

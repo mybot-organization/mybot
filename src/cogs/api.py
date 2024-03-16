@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Awaitable, Callable
 from functools import partial
 from os import getpid
-from typing import TYPE_CHECKING, Awaitable, Callable, Concatenate, ParamSpec, TypeVar, cast
+from typing import TYPE_CHECKING, Concatenate, ParamSpec, TypeVar, cast
 
 from aiohttp import hdrs, web
 from psutil import Process

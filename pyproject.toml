@@ -25,6 +25,8 @@ commands =
     bandit -r src/ tests/ -c pyproject.toml
     isort ./src/ --check
     pyright src/
+    ruff check src/
+    ruff format src --check
 """
 
 [tool.ruff]
@@ -37,15 +39,16 @@ exclude = ["bin/msgfmt.py", "alembic/**"]
 select = [
     "E",
     "F",
-    # "UP",
-    "B",
-    "SIM",
+    "UP",
+    # "B",
+    # "SIM",
     # "I",
 ]
 extend-select = [
     # "UP", # pyupgrade
 ]
 ignore = [
+    "E501", # line too long (we relate on the formater)
     # "missing-module-docstring",
     # "missing-class-docstring",
     # "missing-function-docstring",

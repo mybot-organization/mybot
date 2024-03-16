@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Sequence, Type, TypeVar
+from typing import TypeVar
+from collections.abc import Sequence
 
 from lingua import Language as LinguaLanguage, LanguageDetectorBuilder
 
@@ -90,5 +91,5 @@ class Translator(TranslatorAdapter):
         return lingua_to_language[result].value
 
 
-def get_translator() -> Type[TranslatorAdapter]:
+def get_translator() -> type[TranslatorAdapter]:
     return Translator

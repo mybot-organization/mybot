@@ -4,18 +4,15 @@ from datetime import datetime, timedelta
 from functools import wraps
 from typing import (
     Any,
-    Callable,
     Concatenate,
     Generic,
-    Iterator,
-    MutableMapping,
     NamedTuple,
     ParamSpec,
-    Sequence,
     SupportsIndex,
     TypeVar,
     overload,
 )
+from collections.abc import Callable, Iterator, MutableMapping, Sequence
 
 _K = TypeVar("_K")  # Type for Keys
 _V = TypeVar("_V")  # Type for Values
