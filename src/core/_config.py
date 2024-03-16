@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class Config:
     SUPPORT_GUILD_ID: int = 332209340780118016
     BOT_ID: int = 500023552905314304  # this should be retrieved from bot.client.id, but anyway.
-    OWNERS_IDS: list[int] = [341550709193441280, 329710312880340992]
+    OWNERS_IDS: ClassVar[list[int]] = [341550709193441280, 329710312880340992]
     POSTGRES_USER: str = "postgres"
     POSTGRES_DB: str = "mybot"
     POSTGRES_PASSWORD: str | None = None

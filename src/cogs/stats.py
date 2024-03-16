@@ -78,7 +78,7 @@ class Stats(ExtendedCog):
         extras={"soon": True},
     )
     async def stats(self, inter: Interaction) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 async def setup(bot: MyBot):

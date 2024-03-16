@@ -182,7 +182,7 @@ async def export(mybot: MyBot, filename: str = "features.json") -> None:
 
         return JSONEncoder().default(o)
 
-    with open(filename, "w", encoding="utf-8") as file:
+    with open(filename, "w", encoding="utf-8") as file:  # noqa: ASYNC101
         json.dump(features, file, indent=4, default=default)
 
 

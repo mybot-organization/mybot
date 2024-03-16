@@ -1,8 +1,8 @@
 import logging
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Any
-from collections.abc import Iterator, Mapping
 
 import discord
 from discord import Color, Embed

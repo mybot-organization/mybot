@@ -50,7 +50,7 @@ class API(ExtendedCog):
         await self.bot.wait_until_ready()
 
         await self.runner.setup()
-        site = web.TCPSite(self.runner, "0.0.0.0", 8080)  # nosec : B104  # in a docker container
+        site = web.TCPSite(self.runner, "0.0.0.0", 8080)  # noqa: S104  # in a docker container
         await site.start()
 
     async def cog_unload(self) -> None:

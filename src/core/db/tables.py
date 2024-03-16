@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import enum
+from collections.abc import Iterable, Sequence
 from datetime import datetime
 from functools import partial
-from typing import Annotated, Any, TypeVar
-from collections.abc import Iterable, Sequence
+from typing import Annotated, Any, ClassVar, TypeVar
 
 from sqlalchemy import ARRAY, BigInteger, DateTime, Enum, ForeignKey
 from sqlalchemy.dialects.postgresql import BIGINT, BOOLEAN, INTEGER, JSONB, SMALLINT, VARCHAR
@@ -60,7 +60,7 @@ class PremiumType(enum.Enum):
 
 
 class Base(MappedAsDataclass, AsyncAttrs, DeclarativeBase):
-    type_annotation_map = {
+    type_annotation_map: ClassVar = {
         bool: BOOLEAN,
         int: INTEGER,
     }

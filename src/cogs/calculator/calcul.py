@@ -7,9 +7,8 @@ But could be improved.
 import decimal
 import operator as op
 import re
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from math import pi
-from collections.abc import Callable
 
 Decimal = decimal.Decimal
 
@@ -98,7 +97,7 @@ class Calcul:
         decimal.getcontext().prec = 10
 
         if calcul.count("(") != calcul.count(")"):
-            raise UnclosedParentheses()
+            raise UnclosedParentheses
         while match := re.search(r"([)\d])(\()", calcul):
             calcul = match.re.sub(r"\1 * \2", calcul)
         while match := re.search(r"(\))(\d)", calcul):

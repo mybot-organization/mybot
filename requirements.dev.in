@@ -1,7 +1,5 @@
-black
-bandit
 tox
 pyright
-isort
 pip-tools
 debugpy
+ruff

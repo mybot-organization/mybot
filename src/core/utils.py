@@ -1,6 +1,6 @@
+from collections.abc import AsyncIterable, Iterator, Sequence
 from enum import Enum, auto
 from typing import Literal, TypeVar
-from collections.abc import AsyncIterable, Iterator, Sequence
 
 T = TypeVar("T")
 

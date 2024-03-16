@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime, UTC
-from typing import TYPE_CHECKING, Self, cast
 from collections.abc import Sequence
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Self, cast
 
 import discord
 from discord import ui
@@ -73,7 +73,7 @@ class PollPublicMenu(Menu["MyBot"]):
                 )
                 return
             user = cast(discord.Member, inter.user)
-            if poll.allowed_roles and not set(role.id for role in user.roles) & set(poll.allowed_roles):
+            if poll.allowed_roles and not {role.id for role in user.roles} & set(poll.allowed_roles):
                 message_display = response_constructor(
                     ResponseType.error, _("Sorry, you need one of the following roles to vote :")
                 )

@@ -1,18 +1,8 @@
 from collections import OrderedDict
-from collections.abc import Mapping
+from collections.abc import Callable, Iterator, Mapping, MutableMapping, Sequence
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import (
-    Any,
-    Concatenate,
-    Generic,
-    NamedTuple,
-    ParamSpec,
-    SupportsIndex,
-    TypeVar,
-    overload,
-)
-from collections.abc import Callable, Iterator, MutableMapping, Sequence
+from typing import Any, Concatenate, Generic, NamedTuple, ParamSpec, SupportsIndex, TypeVar, overload
 
 _K = TypeVar("_K")  # Type for Keys
 _V = TypeVar("_V")  # Type for Values

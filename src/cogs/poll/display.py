@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from itertools import starmap
 from typing import TYPE_CHECKING
 
 import discord
@@ -46,11 +47,11 @@ class PollDisplay:
                     .where(db.PollAnswer.poll_id == poll.id)
                     .group_by(db.PollAnswer.value)
                 )
-                # a generator is used for typing purposes
-                votes = dict(
-                    (key, value)
+
+                votes = {  # noqa: C416, dict comprehension used for typing purposes
+                    key: value
                     for key, value in (await session.execute(stmt)).all()  # choice_id: vote_count
-                )
+                }
                 if poll.type == db.PollType.CHOICE:
                     # when we delete a choice from a poll, the votes are still in the db before commit
                     # so we need to filter them
@@ -62,9 +63,7 @@ class PollDisplay:
 
         poll_display = cls(poll, votes)
 
-        description_split: list[str] = []
-        description_split.append(poll_display.build_end_date())
-        description_split.append(poll_display.build_legend())
+        description_split: list[str] = [poll_display.build_end_date(), poll_display.build_legend()]
 
         embed.description = "\n".join(description_split)
 
@@ -106,7 +105,7 @@ class PollDisplay:
                     percent = self.calculate_proportion(str(choice.id)) * 100
                     return f"{LEGEND_EMOJIS[index]} `{percent:6.2f}%` {choice.label}"
 
-                return "\n".join(format_legend_choice(i, choice) for i, choice in enumerate(self.poll.choices))
+                return "\n".join(starmap(format_legend_choice, enumerate(self.poll.choices)))
             case db.PollType.BOOLEAN:
 
                 def format_legend_boolean(boolean_value: bool) -> str:
