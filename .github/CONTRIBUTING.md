@@ -29,12 +29,12 @@ Please use these tool to avoid github action failure. [tox](https://github.com/t
 
 ## Docker watch
 
-The [docker-compose.yml](/docker-compose.yml) implements [watch](https://docs.docker.com/compose/file-watch/) to help debugging the code. By running `docker compose watch`, the bot will be executed while observing for files changes or deps updates. This will allow extensions reload, and speed up restarts (rebuild not needed).
+The [compose file](/compose.yml) implements [watch](https://docs.docker.com/compose/file-watch/) to help debugging the code. By running `docker compose watch`, the bot will be executed while observing for files changes or deps updates. This will allow extensions reload, and speed up restarts (rebuild not needed).
 
 ## Run the code on debug version
 
 You can use [debugpy](https://github.com/microsoft/debugpy) easily when running MyBot on local, for dev and debug purposes.  
-Replace `docker compose` by `docker compose -f compose.yml -f compose.debug.yml`. Then you can use debugpy within the port `5678`.
+Replace `docker compose` by `docker compose -f compose.yml -f compose.debug.yml` when using Docker Compose. Then you can use debugpy within the port `5678`.
 
 Additionally, this will setup the `config.DEBUG` to `True` from the code pov, it will set the logger level to DEBUG, and expose the PostgresSQL port to the host (`5432`).
 
