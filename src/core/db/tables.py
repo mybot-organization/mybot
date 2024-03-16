@@ -31,7 +31,7 @@ class MutableList(Mutable, list[T]):
         self.changed()
 
     def clear(self):
-        list.clear(self)
+        list[T].clear(self)
         self.changed()
 
     def extend(self, value: Iterable[T]):

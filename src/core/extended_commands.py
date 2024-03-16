@@ -134,7 +134,7 @@ class MiscCommand(Generic[CogT, P, T]):
             )
             if not trigger_condition:
                 return None  # type: ignore
-        resolved_context = await MiscCommandContext.resolve(self.bot, context, self)
+        resolved_context = await MiscCommandContext[Any].resolve(self.bot, context, self)
         try:
             for checker in self.checks:
                 if not await maybe_coroutine(checker, resolved_context):
