@@ -13,7 +13,6 @@ from discord import ButtonStyle, app_commands, ui
 from discord.app_commands import locale_str as __
 
 from core import ExtendedCog
-from core.i18n import _
 
 from .calcul import Calcul, UnclosedParentheses
 

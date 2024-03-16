@@ -66,7 +66,7 @@ def _bot_required_permissions_predicate(perms: dict[str, bool]) -> Callable[...,
 def bot_required_permissions_base(type_: CommandType, **perms: bool) -> Callable[[T], T]:
     invalid = set(perms) - set(discord.Permissions.VALID_FLAGS)
     if invalid:
-        raise TypeError(f"Invalid permission(s): {', '.join(invalid)}")
+        raise TypeError(f"Invalid permission(s): {", ".join(invalid)}")
 
     def decorator(func: T) -> T:
         match type_:

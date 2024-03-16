@@ -59,7 +59,7 @@ class API(ExtendedCog):
     @route(hdrs.METH_GET, "/memory")
     async def test(self, request: web.Request):
         rss = cast(int, Process(getpid()).memory_info().rss)  # pyright: ignore[reportUnknownMemberType]
-        return web.Response(text=f"{round(rss/1024/1024, 2)} MB")
+        return web.Response(text=f"{round(rss / 1024 / 1024, 2)} MB")
 
 
 async def setup(bot: MyBot):

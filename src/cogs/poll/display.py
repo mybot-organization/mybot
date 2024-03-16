@@ -48,7 +48,8 @@ class PollDisplay:
                 )
                 # a generator is used for typing purposes
                 votes = dict(
-                    (key, value) for key, value in (await session.execute(stmt)).all()  # choice_id: vote_count
+                    (key, value)
+                    for key, value in (await session.execute(stmt)).all()  # choice_id: vote_count
                 )
                 if poll.type == db.PollType.CHOICE:
                     # when we delete a choice from a poll, the votes are still in the db before commit

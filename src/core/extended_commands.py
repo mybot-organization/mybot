@@ -128,7 +128,11 @@ class MiscCommand(Generic[CogT, P, T]):
     async def do_call(self, cog: CogT, context: UnresolvedContext, *args: P.args, **kwargs: P.kwargs) -> T:
         if self.trigger_condition:
             trigger_condition = await discord.utils.maybe_coroutine(
-                self.trigger_condition, cog, context, *args, **kwargs  # type: ignore
+                self.trigger_condition,
+                cog,
+                context,
+                *args,
+                **kwargs,  # type: ignore
             )
             if not trigger_condition:
                 return  # type: ignore

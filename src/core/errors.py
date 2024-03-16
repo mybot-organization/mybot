@@ -66,7 +66,7 @@ class NonSpecificError(MixedError):
 class BotMissingPermissions(MixedError):
     def __init__(self, perms: Iterable[str]) -> None:
         self.missing_perms = set(perms)
-        super().__init__(f"Bot is missing the following permissions: {', '.join(perms)}")
+        super().__init__(f"Bot is missing the following permissions: {", ".join(perms)}")
 
 
 class NotAllowedUser(MixedError):

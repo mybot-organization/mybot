@@ -111,7 +111,7 @@ class EvalForm(ui.Modal):
             set_embeds_color(Color.orange())
         else:
             result, errored = task.result()
-            embeds[1].description = f"```py\n{size_text(result, 4000, 'middle')}\n```"
+            embeds[1].description = f"```py\n{size_text(result, 4000, "middle")}\n```"
             if errored:
                 set_embeds_color(Color.red())
             else:
