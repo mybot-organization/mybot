@@ -3,8 +3,8 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections import deque
-from typing import TYPE_CHECKING, Any, Self, TypeVar, Union
 from collections.abc import Callable, Hashable
+from typing import TYPE_CHECKING, Any, Self, TypeVar
 
 from ..errors import MaxConcurrencyReached
 from ..extended_commands import misc_check as misc_check
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
     from .._types import CoroT
 
-    MaxConcurrencyFunction = Union[Callable[[Interaction], CoroT[T]], Callable[[Interaction], T]]
+    MaxConcurrencyFunction = Callable[[Interaction], CoroT[T]] | Callable[[Interaction], T]
 
 
 class MaxConcurrency:

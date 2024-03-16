@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any, TypeVar
 from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import discord
-from discord.app_commands import Command, ContextMenu, check as app_check
+from discord.app_commands import Command, ContextMenu
+from discord.app_commands import check as app_check
 
 from .._config import config
 from ..errors import BotMissingPermissions, NotAllowedUser
-from ..extended_commands import MiscCommandContext, misc_check as misc_check
+from ..extended_commands import MiscCommandContext
+from ..extended_commands import misc_check as misc_check
 from ..utils import CommandType
 
 T = TypeVar("T")
@@ -20,14 +22,13 @@ logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from discord import Interaction
-
     from mybot import MyBot
 
 
 def add_extra(type_: CommandType, func: T, name: str, value: Any) -> T:
     copy_func = func  # typing behavior
     if type_ is CommandType.APP:
-        if isinstance(func, (Command, ContextMenu)):
+        if isinstance(func, Command | ContextMenu):
             func.extras[name] = value
         else:
             logger.critical(

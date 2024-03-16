@@ -68,7 +68,7 @@ class Menu(ui.View, Generic[BotT]):
 
     def disable_view(self):
         for item in self.children:
-            if isinstance(item, (ui.Button, ui.Select)):
+            if isinstance(item, ui.Button | ui.Select):
                 item.disabled = True
 
     async def on_timeout(self) -> None:
