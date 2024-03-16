@@ -42,10 +42,62 @@ Additionally, this will setup `config.DEBUG` to `True` from the code perspective
 
 ### VSCode debug config
 
+As an example, here is a json configuration that can be added inside your local `.vscode/launch.py` to use the integrated debugger:
+```json
+{
+    "name": "debug",
+    "type": "debugpy",
+    "request": "attach",
+    "connect": {
+        "host": "localhost",
+        "port": 5678
+    },
+    "pathMappings": [
+        {
+            "localRoot": "${workspaceFolder}/src",
+            "remoteRoot": "/app"
+        }
+    ]
+}
+```
+
+After you run the code in debug mode, click on the "play" icon inside VSCode to attach the debug console. You can then use breakpoints, etc.  
+To make the restart button actually restart the bot and not just re-attach the debugger, you can add pre&post tasks:
+```json
+    ...
+    "preLaunchTask": "bot up",
+    "postDebugTask": "bot restart",
+```
+And in `.vscode/tasks.json`, add the tasks:
+```json
+{
+    "label": "bot up",
+    "type": "shell",
+    "presentation": {
+        "reveal": "silent"
+    },
+    "command": "docker compose -f compose.yml -f compose.debug.yml up -d",
+},
+{
+    "label": "bot restart",
+    "type": "shell",
+    "presentation": {
+        "reveal": "silent"
+    },
+    "command": "docker-compose restart mybot"
+}
+```
+
+If the bot is executed with the up task, you should then use the `watch` command with `--no-up`.
+More information here: https://code.visualstudio.com/docs/python/debugging
+
 ## Database revisions
 
 The project use [alembic](https://github.com/sqlalchemy/alembic) to manage database revisions.  
-When the bot is started using Docker, `alembic upgrade head` is [automatically executed](https://gitkraken.dev/link/dnNjb2RlOi8vZWFtb2Rpby5naXRsZW5zL2xpbmsvci8zZDkwNTc0ZjNjNTM5NWI5ZmQ0NDViZTMwMTY4YzRiMDk1NTc3ZWE2L2YvRG9ja2VyZmlsZT91cmw9aHR0cHMlM0ElMkYlMkZnaXRodWIuY29tJTJGbXlib3Qtb3JnYW5pemF0aW9uJTJGbXlib3QuZ2l0JmxpbmVzPTMw?origin=gitlens).
+When the bot is started using Docker, `alembic upgrade head` is [automatically executed](https://github.com/mybot-organization/mybot/blob/cleanup/Dockerfile#L30).
+To create revisions, you can use [`alembic.sh`](bin/alembic.sh) in the `bin` directory. This script allow you to use the alembic CLI inside the container, and will mount the [`/alembic`](/alembic/) directory.
+
+If you are unfamiliar with alembic, [`here is some information`](/alembic/README). Check also the [documentation](https://alembic.sqlalchemy.org/en/latest/tutorial.html#create-a-migration-script) as well.
 
 ## Translations contributions
 
