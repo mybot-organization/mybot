@@ -95,10 +95,8 @@ class HasFilter(Filter):
     video_content_type_re = re.compile(r"^video\/.*")
     audio_content_type_re = re.compile(r"^audio\/.*")
     has_link_re = re.compile(
-        
-            r"(?i)\b(?:(?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\((?:[^\s()<>]+|"
-            r"(?:\([^\s()<>]+\)))*\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
-        
+        r"(?i)\b(?:(?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\((?:[^\s()<>]+|"
+        r"(?:\([^\s()<>]+\)))*\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
     )
     has_discord_invite_re = re.compile(r"discord(?:app)?\.(?:gg|com/invite)\/([a-zA-Z0-9]+)")
 

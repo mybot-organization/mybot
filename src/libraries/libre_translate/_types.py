@@ -1,20 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeAlias, TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
     from .languages import Language
 
 
-RawDetectionsResponse: TypeAlias = list["RawDetections"]
+type RawDetectionsResponse = list["RawDetections"]
+type Detections = list["Detection"]
 
 
 class RawDetections(TypedDict):
     confidence: float
     language: str
-
-
-Detections: TypeAlias = list["Detection"]
 
 
 class Detection(TypedDict):

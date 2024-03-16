@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ParamSpec, TypeAlias, TypeVar, Union
 from collections.abc import Coroutine
+from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar, Union
 
 from discord import Message
 from discord.ext import commands
@@ -9,7 +9,7 @@ from discord.ext import commands
 if TYPE_CHECKING:
     from .extended_commands import ExtendedCog, MiscCommandContextFilled, MiscCommandContextRaw
 
-UnresolvedContext: TypeAlias = Union["MiscCommandContextRaw", "MiscCommandContextFilled", Message]
+type UnresolvedContext = Union["MiscCommandContextRaw", "MiscCommandContextFilled", Message]
 UnresolvedContextT = TypeVar("UnresolvedContextT", bound=UnresolvedContext)
 
 P = ParamSpec("P")

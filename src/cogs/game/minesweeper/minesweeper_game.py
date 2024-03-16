@@ -5,12 +5,12 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum, auto
 from itertools import chain, permutations
-from typing import TypeAlias, cast
+from typing import cast
 
-height: TypeAlias = int
-width: TypeAlias = int
-row: TypeAlias = int
-column: TypeAlias = int
+type height = int
+type width = int
+type row = int
+type column = int
 
 boardT = list[list[int]]
 
