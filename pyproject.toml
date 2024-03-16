@@ -19,7 +19,7 @@ skipsdist = true
 [testenv]
 deps = 
     -r requirements.txt
-    -r requirements-dev.txt
+    -r requirements.dev.txt
 commands =
     # pytest
     black --check src/
