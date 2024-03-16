@@ -25,7 +25,7 @@ If you add or change dependencies, edit the corresponding `.in` file, then use `
 
 ### Lint, formatting...
 
-The project use [pyright](https://github.com/microsoft/pyright) for static type checking, [black](https://github.com/psf/black) for general formatting, [isort](https://github.com/PyCQA/isort) for import sorting, [bandit](https://github.com/PyCQA/bandit) for security scans, and [pylint](https://github.com/pylint-dev/pylint) for static code analyses.
+The project use [pyright](https://github.com/microsoft/pyright) for static type checking and [ruff](https://github.com/astral-sh/ruff) for general formatting, import sorting, security scans and static code analyses.
 
 Please use these tool to avoid Github Actions failure. [tox](https://github.com/tox-dev/tox) can be used to run every checks before committing by running `tox`.
 
