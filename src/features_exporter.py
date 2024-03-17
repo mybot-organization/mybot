@@ -1,18 +1,16 @@
 from __future__ import annotations
 
-import asyncio
 import gettext
 import json
 from dataclasses import asdict, dataclass, field, is_dataclass
 from enum import Enum
 from json import JSONEncoder
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, NotRequired, TypedDict, cast, overload
 
 import discord
-import typer
 from discord import app_commands
 
-from core._config import define_config
 from core.extended_commands import MiscCommand, MiscCommandsType
 from core.i18n import translations
 
@@ -186,7 +184,9 @@ def extract_features(
     return features
 
 
-async def main(filename: str = "./features.json"):
+async def features_exporter(filename: str | Path = Path("./features.json")):
+    from mybot import MyBot
+
     mybot = MyBot(False)
     await mybot.load_extensions()
 
@@ -207,14 +207,5 @@ async def main(filename: str = "./features.json"):
     with open(filename, "w", encoding="utf-8") as file:  # noqa: ASYNC101
         json.dump(result, file, indent=4, default=default)
 
-
-def main_cli(filename: str = "./features.json"):
-    asyncio.run(main(filename=filename))
-
-
-if __name__ == "__main__":
-    from mybot import MyBot
-
-    define_config(EXPORT_MODE=True)
-
-    typer.run(main_cli)
+    for ext in tuple(mybot.extensions):
+        await mybot.unload_extension(ext)

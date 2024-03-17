@@ -12,12 +12,12 @@ from discord.ext.commands import AutoShardedBot, errors, when_mentioned  # pyrig
 from discord.utils import get
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from commands_exporter import Feature, extract_features
 from core import ExtendedCog, ResponseType, TemporaryCache, config, response_constructor
 from core.custom_command_tree import CustomCommandTree
 from core.error_handler import ErrorHandler
 from core.extended_commands import MiscCommandContext
 from core.i18n import Translator
+from features_exporter import Feature, extract_features
 
 if TYPE_CHECKING:
     from discord import Guild, Thread, User

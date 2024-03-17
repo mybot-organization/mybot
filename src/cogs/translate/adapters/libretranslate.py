@@ -65,6 +65,9 @@ class Translator(TranslatorAdapter):
             .build()
         )
 
+    async def close(self):
+        await self.instance.close()
+
     async def available_languages(self) -> Languages:
         return Languages(x.value for x in language_to_libre)
 

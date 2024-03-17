@@ -17,7 +17,7 @@ _ = _identity
 
 
 class Emoji(str):
-    __slots__ = ("id",)
+    __slots__ = ("_id",)
 
     def __new__(cls, id: Snowflake) -> Self:
         return super().__new__(cls, f"<:_:{id}>")
