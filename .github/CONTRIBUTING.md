@@ -64,9 +64,8 @@ As an example, here is a json configuration that can be added inside your local 
 After you run the code in debug mode, click on the "play" icon inside VSCode to attach the debug console. You can then use breakpoints, etc.  
 To make the restart button actually restart the bot and not just re-attach the debugger, you can add pre&post tasks:
 ```json
-    ...
-    "preLaunchTask": "bot up",
-    "postDebugTask": "bot restart",
+"preLaunchTask": "bot up",
+"postDebugTask": "bot restart",
 ```
 And in `.vscode/tasks.json`, add the tasks:
 ```json
