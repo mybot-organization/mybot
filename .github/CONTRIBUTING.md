@@ -99,6 +99,34 @@ To create revisions, you can use [`alembic.sh`](bin/alembic.sh) in the `bin` dir
 
 If you are unfamiliar with alembic, [`here is some information`](/alembic/README). Check also the [documentation](https://alembic.sqlalchemy.org/en/latest/tutorial.html#create-a-migration-script) as well.
 
+## Configuration and environnement
+
+In order to run the bot without any issue, there is some prerequisites.
+
+First, a `.env` file with the following values:
+| Key                   | Requirement | Description |
+|-----------------------|----------|--------------------------------------------------------------------------------|
+| `POSTGRES_USER`       | Required | Used to create the database                                                    |
+| `POSTGRES_PASSWORD`   | Required | Used to create the database                                                    |
+| `POSTGRES_DB`         | Required | Used to create the database                                                    |
+| `MYBOT_TOKEN`         | Required | [Create a bot](https://discord.com/developers/applications) and copy the token |
+| `TOPGG_AUTH`          | Optional | Used to sync top.gg                                                            |
+| `TOPGG_TOKEN`         | Optional | Used to sync top.gg                                                            |
+| `TRANSLATOR_SERVICES` | Optional | Will be deprecated                                                             |
+| `MS_TRANSLATE_KEY`    | Optional | Required if "microsoft" is set in `TRANSLATOR_SERVICES`                          |
+| `MS_TRANSLATE_REGION` | Optional | Required if "microsoft" is set in `TRANSLATOR_SERVICES`                          |
+
+
+Then, create a `config.toml` ([TOML](https://toml.io/en/)) with the following values:
+| Key              | Requirement | Description                                               |
+|------------------|-------------|-----------------------------------------------------------|
+| `SUPPORT_GUILD_ID` | Required    | The bot need to be member and administrator of this guild |
+| `BOT_ID`           | Required    | Used for links and top.gg (if enabled)                    |
+| `BOT_NAME`         | Required    | Used for the webhook logs                                 |
+| `LOG_WEBHOOK_URL`  | Optional    | Used to send bot logs using a webhook                     |
+| `OWNER_IDS`        | Required    | Grant permissions such a eval, extensions reload...       |
+
+
 ## Translations contributions
 
 MyBot is a multi-language bot! The codebase is in English, which is then translated in several languages.
