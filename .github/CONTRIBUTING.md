@@ -137,8 +137,7 @@ The `core` directory container internally used code for MyBot, while `cogs` cont
 
 ### i18n
 
-All strings should be passed into the `_` function (available in module `core.i18n`), to have them being translated automatically, e.g. `_("Hello World")`.  
-. The function also supports format options like the `str.format()` function (e.g., `_("Hello {}", name)`).
+All strings should be passed into the `_` function (available in module `core.i18n`), to have them being translated automatically, e.g. `_("Hello World")`. The function also supports format options like the `str.format()` function (e.g., `_("Hello {}", name)`).
 
 `_` allows `msgfmt` to extract the strings from the code automatically, but it will also ✨ magically ✨ translate the strings in the good language by walking through the callstack to find an `Interaction` object. (This is generally not recommended, but in this case it is justified in my opinion.)  
 Consequently, using `_` outside a command callback will not retrieve the language. You can then specify it using `_locale` argument. Set `_locale` to `None` if the string should not be translated at this time in the execution.
