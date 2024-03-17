@@ -79,13 +79,11 @@ def fill_features(
     child: app_commands.Group | app_commands.Command[Any, ..., Any],
     features: list[SlashCommand],
     parent: SlashCommand,
-) -> None:
-    ...
+) -> None: ...
 
 
 @overload
-def fill_features(child: FeatureCodebaseTypes, features: list[Feature], parent: SlashCommand | None = None) -> None:
-    ...
+def fill_features(child: FeatureCodebaseTypes, features: list[Feature], parent: SlashCommand | None = None) -> None: ...
 
 
 def fill_features(
@@ -184,7 +182,7 @@ async def export(mybot: MyBot, filename: str = "features.json") -> None:
 
         return JSONEncoder().default(o)
 
-    with open(filename, "w", encoding="utf-8") as file:
+    with open(filename, "w", encoding="utf-8") as file:  # noqa: ASYNC101
         json.dump(features, file, indent=4, default=default)
 
 

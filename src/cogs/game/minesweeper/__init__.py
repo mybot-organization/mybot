@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-corner = " "
+corner = " "  # noqa: RUF001
 row_denominators = ["⒈", "⒉", "⒊", "⒋", "⒌", "⒍", "⒎", "⒏", "⒐", "⒑", "⒒", "⒓", "⒔", "⒕", "⒖", "⒗", "⒘", "⒙", "⒚", "⒛"]
 column_denominators = ascii_uppercase
 
@@ -27,7 +27,7 @@ board_size = (20, 13)
 
 
 def build_board_display(game: Minesweeper) -> str:
-    description = "```" + corner + " " * 3 + " ".join(column_denominators[i] for i in range(0, game.size[1])) + "\n"
+    description = "```" + corner + " " * 3 + " ".join(column_denominators[i] for i in range(game.size[1])) + "\n"
 
     display_chars = {
         0: " ",
@@ -45,9 +45,9 @@ def build_board_display(game: Minesweeper) -> str:
 
         return unrevealed_char
 
-    for row in range(0, game.size[0]):
+    for row in range(game.size[0]):
         description += row_denominators[row] + " |"
-        for column in range(0, game.size[1]):
+        for column in range(game.size[1]):
             description += " " + get_char(row, column)
         description += "\n"
     description += "```"
@@ -73,11 +73,9 @@ class MinesweeperView(ui.View):
         self.game: Minesweeper | None = None
         self.game_embed = game_embed
 
-        self.row.options = [
-            discord.SelectOption(label=row_denominators[i], value=str(i)) for i in range(0, board_size[0])
-        ]
+        self.row.options = [discord.SelectOption(label=row_denominators[i], value=str(i)) for i in range(board_size[0])]
         self.column.options = [
-            discord.SelectOption(label=column_denominators[i], value=str(i)) for i in range(0, board_size[1])
+            discord.SelectOption(label=column_denominators[i], value=str(i)) for i in range(board_size[1])
         ]
 
     def check_playable(self) -> None:

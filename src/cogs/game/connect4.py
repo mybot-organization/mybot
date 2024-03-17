@@ -14,4 +14,4 @@ logger = logging.getLogger(__name__)
 
 class GameConnect4(ExtendedCog, name="game_connect4"):
     async def connect4(self, inter: Interaction) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError

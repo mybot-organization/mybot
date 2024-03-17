@@ -68,7 +68,7 @@ class Two048View(ui.View):
         return "\n".join("".join(tile_value_to_emoji[t.value] for t in row) for row in board)
 
     async def interaction_check(self, interaction: Interaction, /) -> bool:
-        if not interaction.user == self.user:
+        if interaction.user != self.user:
             await interaction.response.send_message(
                 **response_constructor(ResponseType.error, "You are not the owner of this game.")
             )

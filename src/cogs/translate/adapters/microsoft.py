@@ -1,4 +1,4 @@
-from typing import Sequence, Type
+from collections.abc import Sequence
 
 from lingua import Language as LinguaLanguage, LanguageDetectorBuilder
 
@@ -61,5 +61,5 @@ class Translator(TranslatorAdapter):
         return Languages(x.value for x in LanguagesEnum)
 
 
-def get_translator() -> Type[TranslatorAdapter]:
+def get_translator() -> type[TranslatorAdapter]:
     return Translator

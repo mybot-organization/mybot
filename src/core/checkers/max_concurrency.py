@@ -3,7 +3,8 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections import deque
-from typing import TYPE_CHECKING, Any, Callable, Deque, Hashable, Self, TypeVar, Union
+from collections.abc import Callable, Hashable
+from typing import TYPE_CHECKING, Any, Self, TypeVar
 
 from ..errors import MaxConcurrencyReached
 from ..extended_commands import misc_check as misc_check
@@ -19,7 +20,7 @@ if TYPE_CHECKING:
 
     from .._types import CoroT
 
-    MaxConcurrencyFunction = Union[Callable[[Interaction], CoroT[T]], Callable[[Interaction], T]]
+    MaxConcurrencyFunction = Callable[[Interaction], CoroT[T]] | Callable[[Interaction], T]
 
 
 class MaxConcurrency:
@@ -90,7 +91,7 @@ class _Semaphore:
     def __init__(self, number: int) -> None:
         self.value: int = number
         self.loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
-        self._waiters: Deque[asyncio.Future[Any]] = deque()
+        self._waiters: deque[asyncio.Future[Any]] = deque()
 
     def __repr__(self) -> str:
         return f"<_Semaphore value={self.value} waiters={len(self._waiters)}>"

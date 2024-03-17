@@ -1,0 +1,5 @@
+tox
+pyright
+pip-tools
+debugpy
+ruff

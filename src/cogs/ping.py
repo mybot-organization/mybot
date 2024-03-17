@@ -28,7 +28,7 @@ class Ping(ExtendedCog):
         extras={"soon": True},
     )
     async def ping(self, inter: Interaction) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 async def setup(bot: MyBot) -> None:

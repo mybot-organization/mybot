@@ -56,7 +56,6 @@ class Stats(ExtendedCog):
         payload = {
             "command": parent.name,
             "exact_command": inter.command.qualified_name,
-            "namespace": inter.namespace,
             "type": app_command.type.name,
             "locale": inter.locale.name,
             "namespace": inter.namespace.__dict__,
@@ -79,7 +78,7 @@ class Stats(ExtendedCog):
         extras={"soon": True},
     )
     async def stats(self, inter: Interaction) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 async def setup(bot: MyBot):

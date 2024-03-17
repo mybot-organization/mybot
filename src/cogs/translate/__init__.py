@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import importlib
 import logging
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from functools import partial
-from typing import TYPE_CHECKING, Any, NamedTuple, Sequence, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 import discord
 from discord import Embed, Message, app_commands, ui
@@ -78,7 +79,7 @@ class TranslationTask:
             self.content = translation[0][: EmbedsCharLimits.DESCRIPTION.value - 1]
             i += 1
         for tr_embed in self.tr_embeds:
-            tr_embed.reconstruct(translation[i : i + len(tr_embed)])  # noqa: E203
+            tr_embed.reconstruct(translation[i : i + len(tr_embed)])
             i += len(tr_embed)
 
 
@@ -152,7 +153,7 @@ class EmbedTranslation:
                 obj = obj[key]
 
             try:
-                limit = EmbedsCharLimits["_".join(char_lim_key + [keys[-1]]).upper()]
+                limit = EmbedsCharLimits["_".join([*char_lim_key, keys[-1]]).upper()]
             except KeyError:
                 limit = None
 
@@ -229,7 +230,9 @@ class Translate(ExtendedCog):
         if from_ is not None:
             from_language = available_languages.from_code(from_)
             if from_language is None:
-                raise BadArgument(_(f"The language you provided under the argument `from_` is not supported : {from_}"))
+                raise BadArgument(
+                    _("The language you provided under the argument `from_` is not supported : {}", from_)
+                )
         else:
             from_language = None
 
