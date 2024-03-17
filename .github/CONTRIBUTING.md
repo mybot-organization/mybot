@@ -126,6 +126,25 @@ Then, create a `config.toml` ([TOML](https://toml.io/en/)) with the following va
 | `LOG_WEBHOOK_URL`  | Optional    | Used to send bot logs using a webhook                     |
 | `OWNER_IDS`        | Required    | Grant permissions such a eval, extensions reload...       |
 
+## Extra informations
+
+In the project structure, `main.py` serves as the entry point executed by Docker. It provides a compact CLI utility with various options that can be utilized through pre-created shell files in the `bin/` directory.
+`mybot.py` is the base of MyBot, with the `MyBot` class, instantiated once at launch, and available in many places in the code.
+
+The `MyBot` class has some utility functions like `getch_user`, `getch_channel`, or `get_or_create_db`. Refer to their docstring for more information.
+
+The `core` directory container internally utilized code for MyBot, while `cogs` contains the implementation of features exposed by MyBot. Additionally, `libraries` holds wrappers for external APIs and tools utilized within the project.
+
+### i18n
+
+All strings should be inside the `_` function from `core.i18n` to have them translated (e.g., `_("Hello World")`). This functions also supports format options like the `str.format()` function (e.g., `_("Hello {}", name)`).
+
+`_` is used to extract the strings from the code automatically, but is also serves as a ✨ magic ✨ function because it walks through the callstack to find an `Interaction` object.  
+Consequently, if you use `_` outside a command callback, it will not be able to retrieve the language. You can then specify it with the `_locale` argument. Set `_locale` to `None` if the string should not be translated at this time in the execution.
+
+Additionally, `_` also accepts a `_l` parameter to set a maximum size, to avoid any bugs due to translations being too long.
+
+Strings in command parameters, descriptions, etc., should be surrounded with the `discord.app_commands.locale_str` (aliased as `__`), to make `discord.py` send the translations directly to Discord.
 
 ## Translations contributions
 
