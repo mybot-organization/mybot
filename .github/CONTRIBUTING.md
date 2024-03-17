@@ -101,46 +101,47 @@ If you are unfamiliar with alembic, [`here is some information`](/alembic/README
 
 ## Configuration and environnement
 
-In order to run the bot without any issue, there is some prerequisites.
+In order to run the bot without any issue, there are some prerequisites.
 
 First, a `.env` file with the following values:
-| Key                   | Requirement | Description |
-|-----------------------|----------|--------------------------------------------------------------------------------|
-| `POSTGRES_USER`       | Required | Used to create the database                                                    |
-| `POSTGRES_PASSWORD`   | Required | Used to create the database                                                    |
-| `POSTGRES_DB`         | Required | Used to create the database                                                    |
-| `MYBOT_TOKEN`         | Required | [Create a bot](https://discord.com/developers/applications) and copy the token |
-| `TOPGG_AUTH`          | Optional | Used to sync top.gg                                                            |
-| `TOPGG_TOKEN`         | Optional | Used to sync top.gg                                                            |
-| `TRANSLATOR_SERVICES` | Optional | Will be deprecated                                                             |
-| `MS_TRANSLATE_KEY`    | Optional | Required if "microsoft" is set in `TRANSLATOR_SERVICES`                          |
-| `MS_TRANSLATE_REGION` | Optional | Required if "microsoft" is set in `TRANSLATOR_SERVICES`                          |
+| Key                   | Requirement | Description                                                                    |
+|-----------------------|-------------|--------------------------------------------------------------------------------|
+| `POSTGRES_USER`       | Required    | Used to create the database                                                    |
+| `POSTGRES_PASSWORD`   | Required    | Used to create the database                                                    |
+| `POSTGRES_DB`         | Required    | Used to create the database                                                    |
+| `MYBOT_TOKEN`         | Required    | [Create a bot](https://discord.com/developers/applications) and copy the token |
+| `TOPGG_AUTH`          | Optional    | Used to sync top.gg                                                            |
+| `TOPGG_TOKEN`         | Optional    | Used to sync top.gg                                                            |
+| `TRANSLATOR_SERVICES` | Optional    | Will be deprecated                                                             |
+| `MS_TRANSLATE_KEY`    | Optional    | Required if "microsoft" is set in `TRANSLATOR_SERVICES`                        |
+| `MS_TRANSLATE_REGION` | Optional    | Required if "microsoft" is set in `TRANSLATOR_SERVICES`                        |
 
 
 Then, create a `config.toml` ([TOML](https://toml.io/en/)) with the following values:
-| Key              | Requirement | Description                                               |
-|------------------|-------------|-----------------------------------------------------------|
-| `SUPPORT_GUILD_ID` | Required    | The bot need to be member and administrator of this guild |
-| `BOT_ID`           | Required    | Used for links and top.gg (if enabled)                    |
-| `BOT_NAME`         | Required    | Used for the webhook logs                                 |
-| `LOG_WEBHOOK_URL`  | Optional    | Used to send bot logs using a webhook                     |
-| `OWNER_IDS`        | Required    | Grant permissions such a eval, extensions reload...       |
+| Key                | Requirement | Description                                                |
+|--------------------|-------------|------------------------------------------------------------|
+| `SUPPORT_GUILD_ID` | Required    | The bot needs to be member and administrator of this guild |
+| `BOT_ID`           | Required    | Used for links and top.gg (if enabled)                     |
+| `BOT_NAME`         | Required    | Used for the webhook logs                                  |
+| `LOG_WEBHOOK_URL`  | Optional    | Used to send bot logs using a webhook                      |
+| `OWNER_IDS`        | Required    | Grant permissions such eval, extensions reload...          |
 
 ## Extra informations
 
-In the project structure, `main.py` serves as the entry point executed by Docker. It provides a compact CLI utility with various options that can be utilized through pre-created shell files in the `bin/` directory.
-`mybot.py` is the base of MyBot, with the `MyBot` class, instantiated once at launch, and available in many places in the code.
+In the project structure, `main.py` serves as the entry point executed by Docker. It provides a compact CLI utility with various options that can be used with pre-created shell files in the `bin/` directory.
+`mybot.py` is the base of MyBot, containing the `MyBot` class, instantiated once at launch, and available in many places in the code.
 
 The `MyBot` class has some utility functions like `getch_user`, `getch_channel`, or `get_or_create_db`. Refer to their docstring for more information.
 
-The `core` directory container internally utilized code for MyBot, while `cogs` contains the implementation of features exposed by MyBot. Additionally, `libraries` holds wrappers for external APIs and tools utilized within the project.
+The `core` directory container internally used code for MyBot, while `cogs` contains the implementation of features exposed by MyBot. Additionally, `libraries` holds wrappers for external APIs and tools utilized within the project.
 
 ### i18n
 
-All strings should be inside the `_` function from `core.i18n` to have them translated (e.g., `_("Hello World")`). This functions also supports format options like the `str.format()` function (e.g., `_("Hello {}", name)`).
+All strings should be passed into the `_` function (available in module `core.i18n`), to have them being translated automatically, e.g. `_("Hello World")`.  
+. The function also supports format options like the `str.format()` function (e.g., `_("Hello {}", name)`).
 
-`_` is used to extract the strings from the code automatically, but is also serves as a ✨ magic ✨ function because it walks through the callstack to find an `Interaction` object.  
-Consequently, if you use `_` outside a command callback, it will not be able to retrieve the language. You can then specify it with the `_locale` argument. Set `_locale` to `None` if the string should not be translated at this time in the execution.
+`_` allows `msgfmt` to extract the strings from the code automatically, but it will also ✨ magically ✨ translate the strings in the good language by walking through the callstack to find an `Interaction` object. (This is generally not recommended, but in this case it is justified in my opinion.)  
+Consequently, using `_` outside a command callback will not retrieve the language. You can then specify it using `_locale` argument. Set `_locale` to `None` if the string should not be translated at this time in the execution.
 
 Additionally, `_` also accepts a `_l` parameter to set a maximum size, to avoid any bugs due to translations being too long.
 
