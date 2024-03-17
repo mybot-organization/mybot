@@ -4,14 +4,15 @@ services:
   mybot:
     image: airopi/mybot:stable
     build:
-      context: .
       dockerfile: ./Dockerfile
-      target: prod
+      target: production
     develop:
       watch:
         - action: sync
           path: ./src
           target: /app
+        - action: rebuild
+          path: ./requirements.txt
     env_file:
       - .env
     tty: true

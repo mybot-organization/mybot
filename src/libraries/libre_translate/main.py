@@ -49,4 +49,4 @@ class LibreTranslate:
         return raw["translatedText"]
 
     async def detect(self) -> Never:
-        raise NotImplementedError()
+        raise NotImplementedError

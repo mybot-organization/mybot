@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import enum
+from collections.abc import Iterable, Sequence
 from datetime import datetime
 from functools import partial
-from typing import Annotated, Any, Iterable, Sequence, TypeVar
+from typing import Annotated, Any, ClassVar, TypeVar
 
 from sqlalchemy import ARRAY, BigInteger, DateTime, Enum, ForeignKey
 from sqlalchemy.dialects.postgresql import BIGINT, BOOLEAN, INTEGER, JSONB, SMALLINT, VARCHAR
@@ -30,7 +31,7 @@ class MutableList(Mutable, list[T]):
         self.changed()
 
     def clear(self):
-        list.clear(self)
+        list[T].clear(self)
         self.changed()
 
     def extend(self, value: Iterable[T]):
@@ -59,7 +60,7 @@ class PremiumType(enum.Enum):
 
 
 class Base(MappedAsDataclass, AsyncAttrs, DeclarativeBase):
-    type_annotation_map = {
+    type_annotation_map: ClassVar = {
         bool: BOOLEAN,
         int: INTEGER,
     }

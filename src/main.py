@@ -53,7 +53,7 @@ def bot(
     kwargs: dict[str, Any] = {}
 
     if missing_env_var := required_env_var - set(os.environ):
-        raise RuntimeError(f"The following environment variables are missing: {', '.join(missing_env_var)}")
+        raise RuntimeError(f"The following environment variables are missing: {", ".join(missing_env_var)}")
 
     if len({"MS_TRANSLATE_KEY", "MS_TRANSLATE_REGION"} & set(os.environ)) == 1:
         raise RuntimeError("MS_TRANSLATE_KEY and MS_TRANSLATE_REGION should be either both defined or both undefined.")

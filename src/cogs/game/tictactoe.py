@@ -14,4 +14,4 @@ logger = logging.getLogger(__name__)
 
 class GameTictactoe(ExtendedCog, name="game_tictactoe"):
     async def tictactoe(self, inter: Interaction) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError

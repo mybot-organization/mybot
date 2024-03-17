@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class Config:
     SUPPORT_GUILD_ID: int = 332209340780118016
     BOT_ID: int = 500023552905314304  # this should be retrieved from bot.client.id, but anyway.
-    OWNERS_IDS: list[int] = [341550709193441280, 329710312880340992]
+    OWNERS_IDS: ClassVar[list[int]] = [341550709193441280, 329710312880340992]
     POSTGRES_USER: str = "postgres"
     POSTGRES_DB: str = "mybot"
     POSTGRES_PASSWORD: str | None = None
@@ -61,7 +61,7 @@ class Config:
 
 def define_config(config_path: str | None = None, **kwargs: Any):
     if config_path:
-        with open(config_path, mode="r", encoding="utf-8") as f:
+        with open(config_path, encoding="utf-8") as f:
             kwargs |= tomllib.load(f.buffer)
 
     Config(**kwargs)  # it is a singleton, so it will directly affect the instance.

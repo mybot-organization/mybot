@@ -13,7 +13,6 @@ from discord import ButtonStyle, app_commands, ui
 from discord.app_commands import locale_str as __
 
 from core import ExtendedCog
-from core.i18n import _
 
 from .calcul import Calcul, UnclosedParentheses
 
@@ -28,11 +27,25 @@ logger = logging.getLogger(__name__)
 
 def display_calcul(calcul: Calcul) -> str:
     if calcul.just_calculated:
-        display = f"> ```py\n" f"> {calcul.expr} =\n" f"> {calcul.answer: <41}\n" f"> ```"
+        # fmt: off
+        display = (
+            f"> ```py\n"
+            f"> {calcul.expr} =\n"
+            f"> {calcul.answer: <41}\n"
+            f"> ```"
+        )
+        # fmt: on
         calcul.expr = calcul.answer
         calcul.new = True
     else:
-        display = f"> ```py\n" f"> Ans = {calcul.answer}\n" f"> {calcul.expr: <41}\n" f"> ```"
+        # fmt: off
+        display = (
+            f"> ```py\n"
+            f"> Ans = {calcul.answer}\n"
+            f"> {calcul.expr: <41}\n"
+            f"> ```"
+        )
+        # fmt: on
     return display
 
 
@@ -99,7 +112,7 @@ class CalculatorView(ui.View):
             (ButtonStyle.secondary, "3", "3"),
             (ButtonStyle.danger, "+", " + "),
             (ButtonStyle.primary, "Ans", "Ans"),
-            (ButtonStyle.secondary, "⁺∕₋", "opposite"),
+            (ButtonStyle.secondary, "⁺∕₋", "opposite"),  # noqa: RUF001
             (ButtonStyle.secondary, "0", "0"),
             (ButtonStyle.secondary, ",", "."),
             (ButtonStyle.success, "=", "result"),
@@ -137,7 +150,7 @@ class CalculatorView(ui.View):
 
         avertissements: list[str] = []
 
-        if selection in numbers + ("π", "Ans"):
+        if selection in (*numbers, "π", "Ans"):
             if calcul.new:
                 calcul.expr = ""
                 calcul.new = False
@@ -147,7 +160,7 @@ class CalculatorView(ui.View):
             if calcul.new:
                 calcul.expr = ""
                 calcul.new = False
-            if any(calcul.expr.endswith(nb) for nb in numbers + (".",)):
+            if any(calcul.expr.endswith(nb) for nb in (*numbers, ".")):
                 if "." not in calcul.expr.split(" ")[-1]:
                     calcul.expr += "."
             else:

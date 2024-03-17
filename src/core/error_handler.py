@@ -54,7 +54,7 @@ class ErrorHandler:
     async def handle(self, ctx: Interaction | MiscCommandContext[MyBot], error: Exception) -> None | Literal[False]:
         match error:
             case CommandNotFound():  # Interactions only
-                return
+                return None
             case NonSpecificError():
                 return await self.send_error(ctx, str(error))
             case MaxConcurrencyReached():  # Interactions only (atm)

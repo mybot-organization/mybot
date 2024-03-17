@@ -33,8 +33,8 @@ class DateTransformer(Transformer):
         if value.isdigit():
             if len(value) > 17:
                 return snowflake_time(int(value))
-            return datetime.datetime.fromtimestamp(int(value), tz=datetime.timezone.utc)
+            return datetime.datetime.fromtimestamp(int(value), tz=datetime.UTC)
         dt = parse(value)
         if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=datetime.timezone.utc)
+            dt = dt.replace(tzinfo=datetime.UTC)
         return dt

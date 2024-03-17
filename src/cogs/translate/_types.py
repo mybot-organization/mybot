@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Protocol, Sequence
+from collections.abc import Sequence
+from typing import Any, Protocol
 
 from discord import Embed, ui
 from discord.utils import MISSING

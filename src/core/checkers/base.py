@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any, Callable, TypeVar
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import discord
 from discord.app_commands import Command, ContextMenu, check as app_check
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
 def add_extra(type_: CommandType, func: T, name: str, value: Any) -> T:
     copy_func = func  # typing behavior
     if type_ is CommandType.APP:
-        if isinstance(func, (Command, ContextMenu)):
+        if isinstance(func, Command | ContextMenu):
             func.extras[name] = value
         else:
             logger.critical(
@@ -66,7 +67,7 @@ def _bot_required_permissions_predicate(perms: dict[str, bool]) -> Callable[...,
 def bot_required_permissions_base(type_: CommandType, **perms: bool) -> Callable[[T], T]:
     invalid = set(perms) - set(discord.Permissions.VALID_FLAGS)
     if invalid:
-        raise TypeError(f"Invalid permission(s): {', '.join(invalid)}")
+        raise TypeError(f"Invalid permission(s): {", ".join(invalid)}")
 
     def decorator(func: T) -> T:
         match type_:

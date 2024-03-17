@@ -9,7 +9,6 @@ class TranslatorAdapter(ABC):
         """
         The method is called if the Cog is closed.
         """
-        pass
 
     @abstractmethod
     async def translate(self, text: str, to: Language, from_: Language | None = None) -> str: ...

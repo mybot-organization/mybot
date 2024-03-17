@@ -14,4 +14,4 @@ logger = logging.getLogger(__name__)
 
 class ConfigGuild(ExtendedCog, name="config_guild"):
     async def emote(self, inter: Interaction) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
