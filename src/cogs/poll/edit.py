@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Self, Type, cast
+from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING, Self, cast
 
 import discord
 from discord import Interaction, ui
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 class EditPollMenus(ui.Select["EditPoll"]):
     def __init__(self, poll: db.Poll):
         super().__init__(placeholder=_("Select what you want to edit."))
-        self.menus: list[Type[EditSubmenu]] = [
+        self.menus: list[type[EditSubmenu]] = [
             EditTitleAndDescription,
             EditEndingTime,
             EditAllowedRoles,
@@ -236,7 +236,7 @@ class EditEndingTime(EditSubmenu):
         ]
 
         if self.poll.end_date is not None:
-            delta = self.poll.end_date - datetime.now(timezone.utc)
+            delta = self.poll.end_date - datetime.now(UTC)
 
             if delta < timedelta():
                 self.poll.end_date = None
@@ -278,7 +278,7 @@ class EditEndingTime(EditSubmenu):
         if ending_time == timedelta():
             self.poll.end_date = None
         else:
-            self.poll.end_date = datetime.now(timezone.utc) + ending_time
+            self.poll.end_date = datetime.now(UTC) + ending_time
 
     async def callback(self, inter: Interaction):
         self.set_time()

@@ -83,8 +83,7 @@ def fill_features(
     features: list[SlashCommand],
     parent: SlashCommand,
     translations: gettext.GNUTranslations | gettext.NullTranslations = ...,
-) -> None:
-    ...
+) -> None: ...
 
 
 @overload
@@ -93,8 +92,7 @@ def fill_features(
     features: list[Feature],
     parent: SlashCommand | None = None,
     translations: gettext.GNUTranslations | gettext.NullTranslations = ...,
-) -> None:
-    ...
+) -> None: ...
 
 
 def fill_features(
@@ -206,7 +204,7 @@ async def main(filename: str = "./features.json"):
 
         return JSONEncoder().default(o)
 
-    with open(filename, "w", encoding="utf-8") as file:
+    with open(filename, "w", encoding="utf-8") as file:  # noqa: ASYNC101
         json.dump(result, file, indent=4, default=default)
 
 

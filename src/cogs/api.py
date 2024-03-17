@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Awaitable, Callable
 from functools import partial
 from os import getpid
-from typing import TYPE_CHECKING, Awaitable, Callable, Concatenate, ParamSpec, TypeVar, cast
+from typing import TYPE_CHECKING, Concatenate, ParamSpec, TypeVar, cast
 
 from aiohttp import hdrs, web
 from psutil import Process
@@ -49,7 +50,7 @@ class API(ExtendedCog):
         await self.bot.wait_until_ready()
 
         await self.runner.setup()
-        site = web.TCPSite(self.runner, "0.0.0.0", 8080)  # nosec : B104  # in a docker container
+        site = web.TCPSite(self.runner, "0.0.0.0", 8080)  # noqa: S104  # in a docker container
         await site.start()
 
     async def cog_unload(self) -> None:
@@ -59,7 +60,7 @@ class API(ExtendedCog):
     @route(hdrs.METH_GET, "/memory")
     async def test(self, request: web.Request):
         rss = cast(int, Process(getpid()).memory_info().rss)  # pyright: ignore[reportUnknownMemberType]
-        return web.Response(text=f"{round(rss/1024/1024, 2)} MB")
+        return web.Response(text=f"{round(rss / 1024 / 1024, 2)} MB")
 
 
 async def setup(bot: MyBot):

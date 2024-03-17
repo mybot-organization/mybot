@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from enum import Enum
 from functools import wraps
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     ClassVar,
     Concatenate,
     Generic,
@@ -13,7 +13,6 @@ from typing import (
     ParamSpec,
     Protocol,
     Self,
-    Sequence,
     TypeVar,
     cast,
     runtime_checkable,
@@ -41,7 +40,6 @@ if TYPE_CHECKING:
 P = ParamSpec("P")
 T = TypeVar("T")
 C = TypeVar("C", bound="commands.Cog")
-_BotType = TypeVar("_BotType", bound="Bot | AutoShardedBot")
 
 
 LiteralNames = Literal["raw_reaction_add", "message"]
@@ -128,18 +126,22 @@ class MiscCommand(Generic[CogT, P, T]):
     async def do_call(self, cog: CogT, context: UnresolvedContext, *args: P.args, **kwargs: P.kwargs) -> T:
         if self.trigger_condition:
             trigger_condition = await discord.utils.maybe_coroutine(
-                self.trigger_condition, cog, context, *args, **kwargs  # type: ignore
+                self.trigger_condition,
+                cog,
+                context,
+                *args,
+                **kwargs,  # type: ignore
             )
             if not trigger_condition:
-                return  # type: ignore
-        resolved_context = await MiscCommandContext.resolve(self.bot, context, self)
+                return None  # type: ignore
+        resolved_context = await MiscCommandContext[Any].resolve(self.bot, context, self)
         try:
             for checker in self.checks:
                 if not await maybe_coroutine(checker, resolved_context):
-                    raise MiscCheckFailure()
+                    raise MiscCheckFailure
         except MiscCommandError as e:
             self.bot.dispatch("misc_command_error", resolved_context, e)
-            return  # type: ignore
+            return None  # type: ignore
 
         return await self._callback(cog, context, *args, **kwargs)  # type: ignore
 
@@ -269,7 +271,7 @@ class MiscCommandContext(Generic[BotT]):
 def misc_guild_only() -> Callable[[T], T]:
     def predicate(ctx: MiscCommandContext[Any]) -> bool:
         if ctx.channel.guild is None:
-            raise MiscNoPrivateMessage()
+            raise MiscNoPrivateMessage
         return True
 
     def decorator(func: T) -> T:

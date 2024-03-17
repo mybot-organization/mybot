@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class ConfigBot(ExtendedCog, name="config_bot"):
     async def public_translation(self, inter: Interaction, value: bool) -> None:
         if inter.guild_id is None:
-            raise UnexpectedError()
+            raise UnexpectedError
 
         async with self.bot.async_session.begin() as session:
             guild_db = await self.bot.get_or_create_db(session, db.GuildDB, guild_id=inter.guild_id)

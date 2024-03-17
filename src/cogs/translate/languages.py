@@ -1,5 +1,6 @@
+from collections.abc import Iterable, Iterator, Sequence
 from enum import Enum
-from typing import Iterable, Iterator, NamedTuple, Sequence
+from typing import NamedTuple
 
 from discord import Locale
 
@@ -24,7 +25,7 @@ class Language(NamedTuple):
 class LanguagesEnum(Enum):
     # fmt: off
     british_english = Language(
-        name='british english',
+        name="british english",
         discord_locale=Locale.british_english,
         unicode_flag_emotes=("🇦🇮", "🇦🇬", "🇦🇺", "🇧🇸", "🇧🇧", "🇧🇿", "🇧🇲", "🇧🇼", "🇮🇴", "🇨🇦", "🇰🇾",
                              "🇨🇽", "🇨🇨", "🇨🇰", "🇩🇲", "🇫🇰", "🇫🇯", "🇬🇲", "🇬🇭", "🇬🇮", "🇬🇩", "🇬🇺",
@@ -34,51 +35,51 @@ class LanguagesEnum(Enum):
                              "🇹🇴", "🇹🇹", "🇹🇨", "🇹🇻", "🇬🇧", "🇻🇬", "🇻🇮", "🇿🇲", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"),
     )
     american_english = Language(
-        name='american english',
+        name="american english",
         discord_locale=Locale.american_english,
         unicode_flag_emotes=("🇺🇸", "🇺🇲"),
     )
     arabic = Language(
-        name='arabic',
-        ietf_bcp_47='ar-SA',
+        name="arabic",
+        ietf_bcp_47="ar-SA",
         unicode_flag_emotes=("🇩🇿", "🇧🇭", "🇰🇲", "🇩🇯", "🇪🇬", "🇪🇷", "🇯🇴", "🇰🇼", "🇱🇧", "🇱🇾", "🇲🇷",
                              "🇲🇦", "🇴🇲", "🇶🇦", "🇸🇦", "🇸🇩", "🇸🇾", "🇹🇳", "🇦🇪", "🇪🇭", "🇾🇪"),
     )
     chinese = Language(
-        name='chinese',
+        name="chinese",
         discord_locale=Locale.chinese,
         unicode_flag_emotes=("🇨🇳", "🇭🇰", "🇲🇴", "🇹🇼")
     )
     taiwan_chinese = Language(
-        name='chinese (taiwan)',
+        name="chinese (taiwan)",
         discord_locale=Locale.taiwan_chinese,
         unicode_flag_emotes=()
     )
     french = Language(
-        name='french',
+        name="french",
         discord_locale=Locale.french,
         unicode_flag_emotes=("🇧🇯", "🇧🇫", "🇧🇮", "🇨🇲", "🇨🇫", "🇹🇩", "🇨🇩", "🇨🇬", "🇨🇮", "🇬🇶", "🇫🇷",
                              "🇬🇫", "🇵🇫", "🇹🇫", "🇬🇦", "🇬🇵", "🇬🇳", "🇲🇱", "🇲🇶", "🇾🇹", "🇲🇨", "🇳🇨",
                              "🇳🇪", "🇷🇪", "🇧🇱", "🇲🇫", "🇵🇲", "🇸🇳", "🇸🇨", "🇹🇬", "🇻🇺", "🇼🇫")
     )
     german = Language(
-        name='german',
+        name="german",
         discord_locale=Locale.german,
         unicode_flag_emotes=("🇦🇹", "🇩🇪", "🇱🇮", "🇨🇭")
     )
     hindi = Language(
-        name='hindi',
+        name="hindi",
         discord_locale=Locale.hindi,
         unicode_flag_emotes=("🇮🇳",)
     )
     indonesian = Language(
-        name='indonesian',
-        ietf_bcp_47='id-ID',
+        name="indonesian",
+        ietf_bcp_47="id-ID",
         unicode_flag_emotes=("🇮🇩",)
     )
     irish = Language(
-        name='irish',
-        ietf_bcp_47='en-IE',
+        name="irish",
+        ietf_bcp_47="en-IE",
         unicode_flag_emotes=("🇮🇪",)
     )
     italian = Language(

@@ -3,8 +3,9 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from collections.abc import AsyncGenerator, Awaitable, Callable
 from datetime import datetime
-from typing import TYPE_CHECKING, AsyncGenerator, Awaitable, Callable, Self, cast
+from typing import TYPE_CHECKING, Self, cast
 
 import discord
 from discord import app_commands, ui
@@ -60,7 +61,7 @@ class Clear(ExtendedCog):
         user=__("messages from the user {{}}"),
         role=__("messages whose user has the role {{}}"),
         pattern=__("messages that match {{}} (regex, multiline, case sensitive, not anchored)"),
-        has=__("messages that has {{}}"),  # e.g. attachement:image will delete messages that has an image attached.
+        has=__("messages that has {{}}"),  # e.g. attachment:image will delete messages that has an image attached.
         max_length=__("messages longer or equal to {{}} (blank spaces included) (empty messages included)"),
         min_length=__("messages shorter or equal to {{}} (blank spaces included)"),
         before=__("messages sent before {{}} (yyyy-mm-dd or message ID)"),

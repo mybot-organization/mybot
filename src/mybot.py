@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import re
 import sys
-from typing import TYPE_CHECKING, Any, Type, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import discord
 import topgg as topggpy
@@ -126,7 +126,7 @@ class MyBot(AutoShardedBot):
             try:
                 await self.topgg.post_guild_count(guild_count=len(self.guilds), shard_count=self.shard_count)
             except Exception as e:
-                logger.error("Failed to post guild count to top.gg.", exc_info=e)
+                logger.exception("Failed to post guild count to top.gg.", exc_info=e)
 
     async def topgg_endpoint(self, vote_data: topggpy.types.BotVoteData) -> None:
         logger.debug("Received vote from top.gg", extra=vote_data)
@@ -154,7 +154,7 @@ class MyBot(AutoShardedBot):
             try:
                 await self.tree.sync(guild=discord.Object(guild_id))
             except discord.Forbidden as e:
-                logger.error("Failed to sync guild %s.", guild_id, exc_info=e)
+                logger.exception("Failed to sync guild %s.", guild_id, exc_info=e)
         self.app_commands = await self.tree.sync()
 
     async def on_ready(self) -> None:
@@ -268,10 +268,7 @@ class MyBot(AutoShardedBot):
             self._invite = get(await self.support.invites(), max_age=0, max_uses=0, inviter=self.user)
 
         if self._invite is None:  # If invite is STILL None
-            if tmp := self.support.rules_channel:
-                channel = tmp
-            else:
-                channel = self.support.channels[0]
+            channel = tmp if (tmp := self.support.rules_channel) else self.support.channels[0]
 
             self._invite = await channel.create_invite(reason="Support guild invite.")
 
@@ -285,7 +282,7 @@ class MyBot(AutoShardedBot):
             try:
                 await self.load_extension(ext)
             except errors.ExtensionError as e:
-                logger.error("Failed to load extension %s.", ext, exc_info=e)
+                logger.exception("Failed to load extension %s.", ext, exc_info=e)
             else:
                 logger.info("Extension %s loaded successfully.", ext)
 
@@ -319,11 +316,11 @@ class MyBot(AutoShardedBot):
             return None
         return channel
 
-    async def get_or_create_db[T: Type[Base]](self, session: AsyncSession, table: T, **key: Any) -> T:
+    async def get_or_create_db[T: type[Base]](self, session: AsyncSession, table: T, **key: Any) -> T:
         """Get an object from the database. If it doesn't exist, it is created.
         It is CREATEd if the guild doesn't exist in the database.
         """
-        guild = await session.get(table, tuple(key.values()))  # pyright: ignore[reportGeneralTypeIssues]
+        guild = await session.get(table, tuple(key.values()))  # pyright: ignore[reportArgumentType]
 
         if guild is None:
             guild = table(**key)
@@ -341,8 +338,7 @@ class MyBot(AutoShardedBot):
         misc_commands: list[MiscCommand[Any, ..., Any]] = []
         for cog in self.cogs.values():
             if isinstance(cog, ExtendedCog):
-                for misc_command in cog.get_misc_commands():
-                    misc_commands.append(misc_command)
+                misc_commands.extend(cog.get_misc_commands())
         return misc_commands
 
     async def on_error(self, event_method: str, /, *args: Any, **kwargs: Any) -> None:

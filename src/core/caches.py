@@ -1,21 +1,8 @@
 from collections import OrderedDict
-from collections.abc import Mapping
+from collections.abc import Callable, Iterator, Mapping, MutableMapping, Sequence
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import (
-    Any,
-    Callable,
-    Concatenate,
-    Generic,
-    Iterator,
-    MutableMapping,
-    NamedTuple,
-    ParamSpec,
-    Sequence,
-    SupportsIndex,
-    TypeVar,
-    overload,
-)
+from typing import Any, Concatenate, Generic, NamedTuple, ParamSpec, SupportsIndex, TypeVar, overload
 
 _K = TypeVar("_K")  # Type for Keys
 _V = TypeVar("_V")  # Type for Values
@@ -151,12 +138,10 @@ class SizedSequence(Sequence[T]):
             self._internal = list(init)
 
     @overload
-    def __getitem__(self, i: SupportsIndex) -> T:
-        ...
+    def __getitem__(self, i: SupportsIndex) -> T: ...
 
     @overload
-    def __getitem__(self, i: slice) -> Sequence[T]:
-        ...
+    def __getitem__(self, i: slice) -> Sequence[T]: ...
 
     def __getitem__(self, i: SupportsIndex | slice) -> T | Sequence[T]:
         return self._internal.__getitem__(i)

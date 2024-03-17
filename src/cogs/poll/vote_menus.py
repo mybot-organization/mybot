@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Self, Sequence, cast
+from collections.abc import Sequence
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Self, cast
 
 import discord
 from discord import ui
@@ -65,14 +66,14 @@ class PollPublicMenu(Menu["MyBot"]):
                 )
                 return
 
-            if poll.end_date is not None and poll.end_date < datetime.now(timezone.utc):
+            if poll.end_date is not None and poll.end_date < datetime.now(UTC):
                 await inter.response.send_message(
                     **response_constructor(ResponseType.error, _("Sorry, this poll is over, you can't vote anymore!")),
                     ephemeral=True,
                 )
                 return
             user = cast(discord.Member, inter.user)
-            if poll.allowed_roles and not set(role.id for role in user.roles) & set(poll.allowed_roles):
+            if poll.allowed_roles and not {role.id for role in user.roles} & set(poll.allowed_roles):
                 message_display = response_constructor(
                     ResponseType.error, _("Sorry, you need one of the following roles to vote :")
                 )
