@@ -187,7 +187,7 @@ def extract_features(
 async def features_exporter(filename: str | Path = Path("./features.json")):
     from mybot import MyBot
 
-    mybot = MyBot(False)
+    mybot = MyBot()
     await mybot.load_extensions()
 
     # TODO: find out where the unclosed session comes from.

@@ -62,7 +62,7 @@ def run(
 
     from mybot import MyBot  # MyBot is imported after the config is defined.
 
-    mybot: MyBot = MyBot(True, sync)
+    mybot: MyBot = MyBot(sync)
 
     mybot.run(os.environ["MYBOT_TOKEN"], reconnect=True, log_handler=None)
 

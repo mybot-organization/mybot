@@ -45,9 +45,8 @@ class MyBot(AutoShardedBot):
     db_engine: AsyncEngine
     async_session: async_sessionmaker[AsyncSession]
 
-    def __init__(self, running: bool = True, startup_sync: bool = False) -> None:
+    def __init__(self, startup_sync: bool = False) -> None:
         self.startup_sync: bool = startup_sync
-        self.running = running
         self._invite: discord.Invite | None = None
 
         self.error_handler = ErrorHandler(self)
