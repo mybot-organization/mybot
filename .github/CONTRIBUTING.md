@@ -133,7 +133,7 @@ In the project structure, `main.py` serves as the entry point executed by Docker
 
 The `MyBot` class has some utility functions like `getch_user`, `getch_channel`, or `get_or_create_db`. Refer to their docstring for more information.
 
-The `core` directory container internally used code for MyBot, while `cogs` contains the implementation of features exposed by MyBot. Additionally, `libraries` holds wrappers for external APIs and tools utilized within the project.
+The `core` directory container internally used code for MyBot, while `cogs` contains the implementation of features exposed by MyBot. Additionally, `libraries` holds wrappers for external APIs and tools used by the project.
 
 ### i18n
 
