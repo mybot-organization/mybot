@@ -132,7 +132,9 @@ And a `.vscode/tasks.json` file with:
 ```
 
 `restart` and `wait` tasks are used by the debug task. Waiting 0.1s is a little trick to avoid the debugger to close because debugpy isn't ready yet.  
-The other tasks aren't required, but you can run them from `Terminal > Run Task...` (and `Run Build Task...` for the build task)?
+The other tasks aren't required, but you can run them from `Terminal > Run Task...` (and `Run Build Task...` for the build task).
+
+You have to run the `watch` command before debugging.
 
 More information here: https://code.visualstudio.com/docs/python/debugging
 
