@@ -97,4 +97,4 @@ def allowed_users_bool(*user_ids: int) -> Callable[..., bool]:
     return inner
 
 
-is_me_bool = allowed_users_bool(*config.OWNERS_IDS)
+is_me_bool = allowed_users_bool(*config.owners_ids)

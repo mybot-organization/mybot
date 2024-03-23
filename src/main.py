@@ -3,7 +3,7 @@ import logging
 import os
 from os import environ
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated
 
 import typer
 
@@ -36,15 +36,6 @@ def run(
     ] = False,
 ):
     required_env_var = {"POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB", "MYBOT_TOKEN"}
-    optional_env_var = {
-        "TOPGG_TOKEN",
-        "TOPGG_AUTH",
-        "MS_TRANSLATE_KEY",
-        "MS_TRANSLATE_REGION",
-        "TRANSLATOR_SERVICES",
-        "LOG_WEBHOOK_URL",
-    }
-    kwargs: dict[str, Any] = {}
 
     if missing_env_var := required_env_var - set(os.environ):
         raise RuntimeError(f"The following environment variables are missing: {", ".join(missing_env_var)}")
@@ -54,11 +45,7 @@ def run(
     if len({"TOPGG_TOKEN", "TOPGG_AUTH"} & set(os.environ)) == 1:
         raise RuntimeError("TOPGG_TOKEN and TOPGG_AUTH should be either both defined or both undefined.")
 
-    present_env_var = set(os.environ) & (required_env_var | optional_env_var) - {"MYBOT_TOKEN"}
-    for env_var in present_env_var:
-        kwargs[env_var] = os.environ[env_var]
-
-    define_config(config_path, **kwargs)
+    define_config(config_path)
 
     from mybot import MyBot  # MyBot is imported after the config is defined.
 
@@ -71,7 +58,7 @@ def run(
 def export_features(
     filename: Annotated[Path, typer.Argument(help="The json filename for the output.")] = Path("./features.json"),
 ):
-    define_config(EXPORT_MODE=True)
+    define_config(export_mode=True)
     asyncio.run(features_exporter(filename=filename))
 
 

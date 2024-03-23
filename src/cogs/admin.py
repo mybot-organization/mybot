@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class Admin(ExtendedCog):  # TODO(airo.pi_): add checkers
     @app_commands.command()
-    @app_commands.guilds(config.SUPPORT_GUILD_ID)
+    @app_commands.guilds(config.support_guild_id)
     async def reload_extension(self, inter: Interaction, extension: str):
         await self.bot.reload_extension(extension)
         await inter.response.send_message(f"Extension [{extension}] reloaded successfully")
@@ -31,7 +31,7 @@ class Admin(ExtendedCog):  # TODO(airo.pi_): add checkers
         ]
 
     @app_commands.command()
-    @app_commands.guilds(config.SUPPORT_GUILD_ID)
+    @app_commands.guilds(config.support_guild_id)
     async def sync_tree(self, inter: Interaction):
         await inter.response.defer()
         await self.bot.sync_tree()

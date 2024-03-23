@@ -51,7 +51,7 @@ class MyBot(AutoShardedBot):
 
         self.error_handler = ErrorHandler(self)
         if config.TOPGG_TOKEN is not None:
-            self.topgg = topggpy.DBLClient(config.TOPGG_TOKEN, default_bot_id=config.BOT_ID)
+            self.topgg = topggpy.DBLClient(config.TOPGG_TOKEN, default_bot_id=config.bot_id)
             self.topgg_webhook_manager = topggpy.WebhookManager()
             (
                 self.topgg_webhook_manager.endpoint()
@@ -162,7 +162,7 @@ class MyBot(AutoShardedBot):
         activity = discord.Game("WIP!")
         await self.change_presence(status=discord.Status.online, activity=activity)
 
-        tmp = self.get_guild(self.config.SUPPORT_GUILD_ID)
+        tmp = self.get_guild(self.config.support_guild_id)
         if not tmp:
             logger.critical("Support server cannot be retrieved")
             sys.exit(1)
@@ -247,7 +247,7 @@ class MyBot(AutoShardedBot):
                 label="Invite link",
                 style=discord.ButtonStyle.url,
                 emoji="🔗",
-                url=f"https://discord.com/api/oauth2/authorize?client_id={config.BOT_ID}&scope=bot%20applications.commands",  # NOSONAR noqa: E501
+                url=f"https://discord.com/api/oauth2/authorize?client_id={config.bot_id}&scope=bot%20applications.commands",  # NOSONAR noqa: E501
             )
         )
         view.add_item(

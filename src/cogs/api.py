@@ -43,7 +43,7 @@ class API(ExtendedCog):
         self.app.add_routes(self.routes)
 
     async def cog_load(self):
-        if not config.EXPORT_MODE:
+        if not config.export_mode:
             self.bot.loop.create_task(self.start())
 
     async def start(self) -> None:
