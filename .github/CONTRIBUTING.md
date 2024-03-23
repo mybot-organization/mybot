@@ -126,7 +126,7 @@ Then, create a `config.toml` ([TOML](https://toml.io/en/)) with the following va
 | `translator_services` | [Array](https://toml.io/en/v1.0.0#array) of [String](https://toml.io/en/v1.0.0#string)   | A list of translations services to enable. Names will be imported from [`cogs.translate.adapters`](/src/cogs/translate/adapters/) |
 | `extensions`          | [Array](https://toml.io/en/v1.0.0#array) of [String](https://toml.io/en/v1.0.0#string)   | A list of extensions to enable. Names will be imported from [`cogs`](/src/cogs/)                                                  |
 
-## Extra informations
+## Extra information
 
 In the project structure, `main.py` serves as the entry point executed by Docker. It provides a compact CLI application with various options that can be used with pre-created shell files in the `bin/` directory.
 `mybot.py` is the base of MyBot, containing the `MyBot` class, instantiated once at launch and available in many places in the code.
