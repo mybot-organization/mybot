@@ -42,52 +42,98 @@ Additionally, this will setup `config.DEBUG` to `True` from the code perspective
 
 ### VSCode debug config
 
-As an example, here is a json configuration that can be added inside your local `.vscode/launch.py` to use the integrated debugger:
+To enable debugging inside VSCode, create a `.vscode/launch.json` file with:
 ```json
 {
-    "name": "debug",
-    "type": "debugpy",
-    "request": "attach",
-    "connect": {
-        "host": "localhost",
-        "port": 5678
-    },
-    "pathMappings": [
+    "configurations": [
         {
-            "localRoot": "${workspaceFolder}/src",
-            "remoteRoot": "/app"
+            "name": "debug",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/src",
+                    "remoteRoot": "/app"
+                }
+            ],
+            "preLaunchTask": "wait",
+            "postDebugTask": "restart"
         }
     ]
 }
 ```
 
-After you run the code in debug mode, click on the "play" icon inside VSCode to attach the debug console. You can then use breakpoints, etc.  
-To make the restart button actually restart the bot and not just re-attach the debugger, you can add pre&post tasks:
-```json
-"preLaunchTask": "bot up",
-"postDebugTask": "bot restart",
-```
-And in `.vscode/tasks.json`, add the tasks:
+And a `.vscode/tasks.json` file with:
 ```json
 {
-    "label": "bot up",
-    "type": "shell",
-    "presentation": {
-        "reveal": "silent"
-    },
-    "command": "docker compose -f compose.yml -f compose.debug.yml up -d",
-},
-{
-    "label": "bot restart",
-    "type": "shell",
-    "presentation": {
-        "reveal": "silent"
-    },
-    "command": "docker-compose restart mybot"
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "presentation": {
+                "focus": true,
+            },
+            "command": "docker-compose -f compose.yml -f compose.debug.yml build",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "watch",
+            "type": "shell",
+            "isBackground": true,
+            "presentation": {
+                "focus": true,
+                "panel": "new",
+            },
+            "command": "docker-compose -f compose.yml -f compose.debug.yml watch",
+            "problemMatcher": []
+        },
+        {
+            "label": "down",
+            "type": "shell",
+            "presentation": {
+                "focus": true,
+            },
+            "command": "docker compose down",
+            "problemMatcher": []
+        },
+        {
+            "label": "restart",
+            "type": "shell",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "dedicated",
+                "close": true
+            },
+            "command": "docker-compose -f compose.yml -f compose.debug.yml restart mybot",
+            "problemMatcher": []
+        },
+        {
+            "label": "wait",
+            "type": "shell",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "dedicated",
+                "close": true
+            },
+            "command": "sleep 0.1",
+            "problemMatcher": []
+        }
+    ]
 }
 ```
 
-If the bot is executed with the up task, you should then use the `watch` command with `--no-up`.
+`restart` and `wait` tasks are used by the debug task. Waiting 0.1s is a little trick to avoid the debugger to close because debugpy isn't ready yet.  
+The other tasks aren't required, but you can run them from `Terminal > Run Task...` (and `Run Build Task...` for the build task)?
+
 More information here: https://code.visualstudio.com/docs/python/debugging
 
 ## Database revisions
