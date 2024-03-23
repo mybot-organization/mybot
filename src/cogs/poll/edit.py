@@ -324,6 +324,7 @@ class EditChoices(EditSubmenu):
 
     async def update(self):
         self.remove_choice.disabled = len(self.poll.choices) <= 2
+        self.add_choice.disabled = len(self.poll.choices) >= 10
 
     @ui.button(row=0, style=discord.ButtonStyle.blurple)
     async def add_choice(self, inter: discord.Interaction, button: ui.Button[Self]):

@@ -113,6 +113,21 @@ class Emojis:
     orange_left = Emoji(1077941871009091594)
     orange_right = Emoji(1077960256317042759)
 
+    lime_round = Emoji(1221172679990710424)
+    lime_mid = Emoji(1221172685120208957)
+    lime_left = Emoji(1221172690375938148)
+    lime_right = Emoji(1221173222842826905)
+
+    blue_green_round = Emoji(1221172678686412931)
+    blue_green_mid = Emoji(1221172683434229891)
+    blue_green_left = Emoji(1221172689117380708)
+    blue_green_right = Emoji(1221172692871282798)
+
+    pink_round = Emoji(1221172697351065721)
+    pink_mid = Emoji(1221172682012364951)
+    pink_left = Emoji(1221172687062306846)
+    pink_right = Emoji(1221172691244154971)
+
     thumb_up = "👍"
     thumb_down = "👎"
 
