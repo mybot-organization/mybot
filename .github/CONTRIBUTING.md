@@ -117,13 +117,14 @@ First, a `.env` file with the following values:
 
 
 Then, create a `config.toml` ([TOML](https://toml.io/en/)) with the following values:
-| Key                   | Requirement | Description                                                                                                                                       |
-|-----------------------|-------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| `support_guild_id`    | Required    | The bot needs to be member and administrator of this guild                                                                                        |
-| `bot_id`              | Optional    | Used for top.gg (if enabled)                                                                                                                      |
-| `bot_name`            | Required    | Used for the webhook logs                                                                                                                         |
-| `owners_ids`          | Required    | Grant permissions to these users (e.g. eval command, extensions reloading...) reload...                                                           |
-| `translator_services` | Optional    | A comma separated list of translations services to enable. Names will be imported from [`cogs.translate.adapters`](/src/cogs/translate/adapters/) |
+| Key                   | Description                                                                                                                       |
+|-----------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| `support_guild_id`    | The bot needs to be member and administrator of this guild                                                                        |
+| `bot_id`              | Used for top.gg (if enabled)                                                                                                      |
+| `bot_name`            | Used for the webhook logs                                                                                                         |
+| `owners_ids`          | Grant permissions to these users (e.g. eval command, extensions reloading...) reload...                                           |
+| `translator_services` | A list of translations services to enable. Names will be imported from [`cogs.translate.adapters`](/src/cogs/translate/adapters/) |
+| `extensions`          | A list of extensions to enable. Names will be imported from [`cogs`](/src/cogs/)                                                  |
 
 ## Extra informations
 

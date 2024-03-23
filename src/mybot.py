@@ -82,21 +82,6 @@ class MyBot(AutoShardedBot):
         )
 
         # Keep an alphabetic order, it is more clear.
-        self.extensions_names: list[str] = [
-            "admin",
-            # "api",
-            # "calculator",
-            "clear",
-            "config",
-            # "game",
-            "help",
-            "poll",
-            # "ping",
-            # "restore",
-            "stats",
-            "eval",
-            "translate",
-        ]
         self.config = config
         self.app_commands = []
 
@@ -273,7 +258,7 @@ class MyBot(AutoShardedBot):
         return self._invite
 
     async def load_extensions(self) -> None:
-        for ext in self.extensions_names:
+        for ext in self.config.extensions:
             if not ext.startswith("cogs."):
                 ext = "cogs." + ext
 

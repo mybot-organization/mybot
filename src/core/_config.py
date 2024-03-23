@@ -34,7 +34,8 @@ class Config:
 
     support_guild_id: int = 332209340780118016
     owners_ids: ClassVar[list[int]] = [341550709193441280, 329710312880340992]
-    translator_services: str = "libretranslate"
+    translator_services: ClassVar[list[str]] = ["libretranslate"]
+    extensions: ClassVar[list[str]] = []
     bot_id: int | None = None
     export_mode: bool = False
     # POSTGRES_USER: str = "postgres"

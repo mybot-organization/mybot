@@ -194,7 +194,7 @@ class Translate(ExtendedCog):
         self.tmp_user_usage = TempUsage()
 
         self.translators: list[TranslatorAdapter] = []
-        for adapter in self.bot.config.translator_services.split(","):
+        for adapter in self.bot.config.translator_services:
             adapter_module = importlib.import_module(f".adapters.{adapter}", __name__)
             self.translators.append(adapter_module.get_translator()())
 
