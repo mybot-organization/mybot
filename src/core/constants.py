@@ -9,7 +9,16 @@ if TYPE_CHECKING:
     from ._types import Snowflake
 
 
+def _identity[T](x: T) -> T:
+    return x
+
+
+_ = _identity
+
+
 class Emoji(str):
+    __slots__ = ("_id",)
+
     def __new__(cls, id: Snowflake) -> Self:
         return super().__new__(cls, f"<:_:{id}>")
 
@@ -144,3 +153,54 @@ class TranslationContextLimits(enum.Enum):
             TranslationContextLocation.group_description: TranslationContextLimits.GROUP_DESCRIPTION,
         }
         return translation_context_limits_bind.get(location)
+
+
+# keys are from discord.Permissions, so some can defer from the discord API
+# values are the version showed in the Discord UI.
+human_permissions = {
+    "create_instant_invite": _("Create Invite"),
+    "kick_members": _("Kick Members"),
+    "ban_members": _("Ban Members"),
+    "administrator": _("Administrator"),
+    "manage_channels": _("Manage Channels"),
+    "manage_guild": _("Manage Server"),
+    "add_reactions": _("Add Reactions"),
+    "view_audit_log": _("View Audit Log"),
+    "priority_speaker": _("Priority Speaker"),
+    "stream": _("Video"),
+    "read_messages": _("View Channel"),
+    "send_messages": _("Send Messages"),
+    "send_tts_messages": _("Send Text-to-speech Messages"),
+    "manage_messages": _("Manage Messages"),
+    "embed_links": _("Embed Links"),
+    "attach_files": _("Attach Files"),
+    "read_message_history": _("Read Message History"),
+    "mention_everyone": _("Mention @everyone, @here and All Roles"),
+    "external_emojis": _("Use External Emojis"),
+    "view_guild_insights": _("View Guild Insights"),
+    "connect": _("Connect"),
+    "speak": _("Speak"),
+    "mute_members": _("Mute Members"),
+    "deafen_members": _("Deafen Members"),
+    "move_members": _("Move Members"),
+    "use_voice_activation": _("Use Voice Activity"),
+    "change_nickname": _("Change Nickname"),
+    "manage_nicknames": _("Manage Nicknames"),
+    "manage_roles": _("Manage Roles"),
+    "manage_webhooks": _("Manage Webhooks"),
+    "manage_expressions": _("Manage Expressions"),
+    "use_application_commands": _("Use Application Commands"),
+    "request_to_speak": _("Request to Speak"),
+    "manage_events": _("Manage Events"),
+    "manage_threads": _("Manage Threads"),
+    "create_public_threads": _("Create Public Threads"),
+    "create_private_threads": _("Create Private Threads"),
+    "external_stickers": _("Use External Stickers"),
+    "send_messages_in_threads": _("Send Messages in Threads"),
+    "use_embedded_activities": _("Use Activities"),
+    "moderate_members": _("Time out members"),
+    "use_soundboard": _("Use Soundboard"),
+    "create_expressions": _("Create Expressions"),
+    "use_external_sounds": _("Use External Sounds"),
+    "send_voice_messages": _("Send Voice Messages"),
+}

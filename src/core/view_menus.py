@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import os
 from typing import TYPE_CHECKING, Any, Generic, Self
 
@@ -58,16 +59,14 @@ class Menu(ui.View, AsyncInitMixin):
 
     def disable_view(self):
         for item in self.children:
-            if isinstance(item, (ui.Button, ui.Select)):
+            if isinstance(item, ui.Button | ui.Select):
                 item.disabled = True
 
     async def on_timeout(self) -> None:
         if self.message_attached_to:
             self.disable_view()
-            try:
+            with contextlib.suppress(discord.NotFound, discord.HTTPException):
                 await self.message_attached_to.edit(view=self)
-            except (discord.NotFound, discord.HTTPException):
-                pass
 
     async def message_display(self) -> MessageDisplay | UneditedMessageDisplay:
         """This function can be defined and used in order to add a message content (embeds, etc...) within the menu."""

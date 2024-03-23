@@ -2,23 +2,24 @@ from __future__ import annotations
 
 import logging
 from collections import OrderedDict
-from typing import TYPE_CHECKING, Iterable, Self, Sequence, cast
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING, Self, cast
 
 import discord
 from discord import app_commands, ui
 from discord.app_commands import Choice, locale_str as __
 from discord.utils import get
 
-from commands_exporter import ContextCommand, FeatureType, Misc, MiscCommandsType, SlashCommand
 from core import ExtendedCog, ResponseType, response_constructor
 from core.constants import Emojis
 from core.i18n import _
 from core.utils import splitter
+from features_exporter import ContextCommand, FeatureType, Misc, MiscCommandsType, SlashCommand
 
 if TYPE_CHECKING:
     from discord import Embed, Interaction
 
-    from commands_exporter import Feature
+    from features_exporter import Feature
     from mybot import MyBot
 
 

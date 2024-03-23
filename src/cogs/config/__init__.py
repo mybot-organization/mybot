@@ -42,12 +42,10 @@ class Config(
     )
 
     @cog_property("config_guild")
-    def guild_cog(self) -> ConfigGuild:
-        ...
+    def guild_cog(self) -> ConfigGuild: ...
 
     @cog_property("config_bot")
-    def bot_cog(self) -> ConfigBot:
-        ...
+    def bot_cog(self) -> ConfigBot: ...
 
     @guild_group.command(
         name=__("emote"),

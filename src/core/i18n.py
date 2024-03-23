@@ -63,8 +63,12 @@ def i18n(
     _l: int = -1,  # size limit
     **kwargs: Any,
 ) -> str:
-    if not string:
-        return string  # empty string
+    if string == "":
+        return string
+
+    if _silent:
+        logger.warning("Deprecated usage of _silent parameter in i18n function.")
+        _locale = None
     if _locale is MISSING:
         frame: FrameType | None = inspect.currentframe()
 

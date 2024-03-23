@@ -7,9 +7,8 @@ But could be improved.
 import decimal
 import operator as op
 import re
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from math import pi
-from typing import Callable
 
 Decimal = decimal.Decimal
 
@@ -30,8 +29,7 @@ multiplication = (regex_builder("*"), op.mul)
 power = (regex_builder("^"), op.pow)
 
 
-class UnclosedParentheses(Exception):
-    ...
+class UnclosedParentheses(Exception): ...
 
 
 class Calcul:
@@ -99,7 +97,7 @@ class Calcul:
         decimal.getcontext().prec = 10
 
         if calcul.count("(") != calcul.count(")"):
-            raise UnclosedParentheses()
+            raise UnclosedParentheses
         while match := re.search(r"([)\d])(\()", calcul):
             calcul = match.re.sub(r"\1 * \2", calcul)
         while match := re.search(r"(\))(\d)", calcul):

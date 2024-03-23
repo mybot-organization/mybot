@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import logging
+import os
 import re
-import sys
-from typing import TYPE_CHECKING, Any, Type, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import discord
 import topgg as topggpy
@@ -12,12 +12,12 @@ from discord.ext.commands import AutoShardedBot, errors, when_mentioned  # pyrig
 from discord.utils import get
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from commands_exporter import Feature, extract_features
 from core import ExtendedCog, ResponseType, TemporaryCache, config, response_constructor
 from core.custom_command_tree import CustomCommandTree
 from core.error_handler import ErrorHandler
 from core.extended_commands import MiscCommandContext
 from core.i18n import Translator
+from features_exporter import Feature, extract_features
 
 if TYPE_CHECKING:
     from discord import Guild, Thread, User
@@ -45,20 +45,19 @@ class MyBot(AutoShardedBot):
     db_engine: AsyncEngine
     async_session: async_sessionmaker[AsyncSession]
 
-    def __init__(self, running: bool = True, startup_sync: bool = False) -> None:
+    def __init__(self, startup_sync: bool = False) -> None:
         self.startup_sync: bool = startup_sync
-        self.running = running
         self._invite: discord.Invite | None = None
 
         self.error_handler = ErrorHandler(self)
-        if config.TOPGG_TOKEN is not None:
-            self.topgg = topggpy.DBLClient(config.TOPGG_TOKEN, default_bot_id=config.BOT_ID)
+        if os.getenv("TOPGG_TOKEN") is not None:
+            self.topgg = topggpy.DBLClient(os.environ["TOPGG_TOKEN"], default_bot_id=config.bot_id)
             self.topgg_webhook_manager = topggpy.WebhookManager()
             (
                 self.topgg_webhook_manager.endpoint()
                 .route("/topgg_vote")
                 .type(topggpy.WebhookType.BOT)
-                .auth(config.TOPGG_AUTH or "")
+                .auth(os.environ["TOPGG_AUTH"] or "")
                 .callback(self.topgg_endpoint)
                 .add_to_manager()
             )
@@ -83,21 +82,6 @@ class MyBot(AutoShardedBot):
         )
 
         # Keep an alphabetic order, it is more clear.
-        self.extensions_names: list[str] = [
-            "admin",
-            # "api",
-            # "calculator",
-            "clear",
-            "config",
-            # "game",
-            "help",
-            "poll",
-            # "ping",
-            # "restore",
-            "stats",
-            "eval",
-            "translate",
-        ]
         self.config = config
         self.app_commands = []
 
@@ -126,7 +110,7 @@ class MyBot(AutoShardedBot):
             try:
                 await self.topgg.post_guild_count(guild_count=len(self.guilds), shard_count=self.shard_count)
             except Exception as e:
-                logger.error("Failed to post guild count to top.gg.", exc_info=e)
+                logger.exception("Failed to post guild count to top.gg.", exc_info=e)
 
     async def topgg_endpoint(self, vote_data: topggpy.types.BotVoteData) -> None:
         logger.debug("Received vote from top.gg", extra=vote_data)
@@ -140,12 +124,8 @@ class MyBot(AutoShardedBot):
         return self.topgg_current_votes.get(user_id, False)
 
     async def connect_db(self):
-        if config.POSTGRES_PASSWORD is None:
-            logger.critical("Missing environment variable POSTGRES_PASSWORD.")
-            sys.exit(1)
-
         self.db_engine = create_async_engine(
-            f"postgresql+asyncpg://{config.POSTGRES_USER}:{config.POSTGRES_PASSWORD}@database:5432/{config.POSTGRES_DB}"
+            f"postgresql+asyncpg://{os.environ["POSTGRES_USER"]}:{os.environ["POSTGRES_PASSWORD"]}@database:5432/{os.environ["POSTGRES_DB"]}"
         )
         self.async_session = async_sessionmaker(self.db_engine, expire_on_commit=False)
 
@@ -154,7 +134,7 @@ class MyBot(AutoShardedBot):
             try:
                 await self.tree.sync(guild=discord.Object(guild_id))
             except discord.Forbidden as e:
-                logger.error("Failed to sync guild %s.", guild_id, exc_info=e)
+                logger.exception("Failed to sync guild %s.", guild_id, exc_info=e)
         self.app_commands = await self.tree.sync()
 
     async def on_ready(self) -> None:
@@ -163,10 +143,13 @@ class MyBot(AutoShardedBot):
         activity = discord.Game("WIP!")
         await self.change_presence(status=discord.Status.online, activity=activity)
 
-        tmp = self.get_guild(self.config.SUPPORT_GUILD_ID)
+        tmp = self.get_guild(self.config.support_guild_id)
         if not tmp:
-            logger.critical("Support server cannot be retrieved")
-            sys.exit(1)
+            logger.critical("Support server cannot be retrieved. Set the correct ID in the configuration file.")
+            raise SystemExit(1)
+        if tmp.me.guild_permissions.administrator is False:
+            logger.critical("MyBot doesn't have the administrator permission in the support server.")
+            raise SystemExit(1)
         self.support = tmp
         await self.support_invite  # load the invite
 
@@ -248,7 +231,7 @@ class MyBot(AutoShardedBot):
                 label="Invite link",
                 style=discord.ButtonStyle.url,
                 emoji="🔗",
-                url=f"https://discord.com/api/oauth2/authorize?client_id={config.BOT_ID}&scope=bot%20applications.commands",  # NOSONAR noqa: E501
+                url=f"https://discord.com/api/oauth2/authorize?client_id={self.user.id}&scope=bot%20applications.commands",  # NOSONAR noqa: E501
             )
         )
         view.add_item(
@@ -268,24 +251,21 @@ class MyBot(AutoShardedBot):
             self._invite = get(await self.support.invites(), max_age=0, max_uses=0, inviter=self.user)
 
         if self._invite is None:  # If invite is STILL None
-            if tmp := self.support.rules_channel:
-                channel = tmp
-            else:
-                channel = self.support.channels[0]
+            channel = tmp if (tmp := self.support.rules_channel) else self.support.channels[0]
 
             self._invite = await channel.create_invite(reason="Support guild invite.")
 
         return self._invite
 
     async def load_extensions(self) -> None:
-        for ext in self.extensions_names:
+        for ext in self.config.extensions:
             if not ext.startswith("cogs."):
                 ext = "cogs." + ext
 
             try:
                 await self.load_extension(ext)
             except errors.ExtensionError as e:
-                logger.error("Failed to load extension %s.", ext, exc_info=e)
+                logger.exception("Failed to load extension %s.", ext, exc_info=e)
             else:
                 logger.info("Extension %s loaded successfully.", ext)
 
@@ -319,11 +299,11 @@ class MyBot(AutoShardedBot):
             return None
         return channel
 
-    async def get_or_create_db[T: Type[Base]](self, session: AsyncSession, table: T, **key: Any) -> T:
+    async def get_or_create_db[T: type[Base]](self, session: AsyncSession, table: T, **key: Any) -> T:
         """Get an object from the database. If it doesn't exist, it is created.
         It is CREATEd if the guild doesn't exist in the database.
         """
-        guild = await session.get(table, tuple(key.values()))  # pyright: ignore[reportGeneralTypeIssues]
+        guild = await session.get(table, tuple(key.values()))  # pyright: ignore[reportArgumentType]
 
         if guild is None:
             guild = table(**key)
@@ -341,8 +321,7 @@ class MyBot(AutoShardedBot):
         misc_commands: list[MiscCommand[Any, ..., Any]] = []
         for cog in self.cogs.values():
             if isinstance(cog, ExtendedCog):
-                for misc_command in cog.get_misc_commands():
-                    misc_commands.append(misc_command)
+                misc_commands.extend(cog.get_misc_commands())
         return misc_commands
 
     async def on_error(self, event_method: str, /, *args: Any, **kwargs: Any) -> None:

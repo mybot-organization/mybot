@@ -1,5 +1,6 @@
+from collections.abc import AsyncIterable, Iterator, Sequence
 from enum import Enum, auto
-from typing import Any, AsyncIterable, Iterator, Literal, Self, Sequence, TypeVar
+from typing import Any, Literal, Self, TypeVar
 
 T = TypeVar("T")
 
@@ -46,6 +47,6 @@ def size_text(string: str, size: int, mode: Literal["end", "middle"] = "end") ->
     if len(string) < size:
         return string
     if mode == "end":
-        return f"{string[:size - 1]}…"
+        return f"{string[: size - 1]}…"
     elif mode == "middle":
         return f"{string[: size // 2 - 10]}\n… {len(string) - size} more …{string[-size // 2 :]}"

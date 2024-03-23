@@ -111,7 +111,7 @@ class EvalForm(ui.Modal):
             set_embeds_color(Color.orange())
         else:
             result, errored = task.result()
-            embeds[1].description = f"```py\n{size_text(result, 4000, 'middle')}\n```"
+            embeds[1].description = f"```py\n{size_text(result, 4000, "middle")}\n```"
             if errored:
                 set_embeds_color(Color.red())
             else:
@@ -201,8 +201,8 @@ async def code_evaluation(code: str, inter: Interaction, bot: MyBot) -> tuple[st
         body: Any = parsed.body[0].body
         insert_returns(body)
 
-        exec(compile(parsed, "<ast>", "exec"), env)  # nosec
-        output: Any = await eval("_eval()", env)  # nosec
+        exec(compile(parsed, "<ast>", "exec"), env)  # noqa: S102
+        output: Any = await eval("_eval()", env)  # noqa: S307
     except Exception as _:
         lines = [line + "\n" for line in str_body.splitlines()]
 

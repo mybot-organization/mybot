@@ -5,14 +5,14 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum, auto
 from itertools import chain, permutations
-from typing import TypeAlias, cast
+from typing import cast
 
-height: TypeAlias = int
-width: TypeAlias = int
-row: TypeAlias = int
-column: TypeAlias = int
+type Height = int
+type Width = int
+type Row = int
+type Column = int
 
-boardT = list[list[int]]
+BoardT = list[list[int]]
 
 
 @dataclass
@@ -20,7 +20,7 @@ class MinesweeperConfig:
     height: int
     width: int
     number_of_mines: int
-    initial_play: tuple[row, column] | None = None
+    initial_play: tuple[Row, Column] | None = None
 
 
 class GameOver(Exception):
@@ -37,23 +37,23 @@ class PlayType(Enum):
 @dataclass
 class Play:
     type: PlayType
-    positions: tuple[tuple[row, column], ...]
+    positions: tuple[tuple[Row, Column], ...]
 
 
 class Minesweeper:
     def __init__(
         self,
-        size: tuple[height, width],
+        size: tuple[Height, Width],
         number_of_mines: int,
-        initial_play: tuple[row, column] | None = None,
+        initial_play: tuple[Row, Column] | None = None,
     ):
-        self.size: tuple[height, width] = size
+        self.size: tuple[Height, Width] = size
         self.number_of_mines: int = number_of_mines
 
-        self.revealed: list[tuple[height, width]] = []
-        self.flags: list[tuple[height, width]] = []
+        self.revealed: list[tuple[Height, Width]] = []
+        self.flags: list[tuple[Height, Width]] = []
         self.game_over: bool = False
-        self._board: boardT = self.create_board(initial_play)
+        self._board: BoardT = self.create_board(initial_play)
         if initial_play is not None:
             self.play(*initial_play)
 
@@ -62,15 +62,15 @@ class Minesweeper:
         return cls((config.height, config.width), config.number_of_mines, config.initial_play)
 
     @property
-    def board(self) -> boardT:
+    def board(self) -> BoardT:
         return self._board
 
     @property
-    def positions(self) -> set[tuple[height, width]]:
+    def positions(self) -> set[tuple[Height, Width]]:
         return {(x, y) for x in range(self.size[0]) for y in range(self.size[1])}
 
     @property
-    def mines_positions(self) -> set[tuple[height, width]]:
+    def mines_positions(self) -> set[tuple[Height, Width]]:
         return {(x, y) for x in range(self.size[0]) for y in range(self.size[1]) if self._board[x][y] == -1}
 
     def is_inside(self, x: int, y: int) -> bool:
@@ -104,10 +104,10 @@ class Minesweeper:
             self.revealed.append((x, y))
             return Play(PlayType.NUMBERED_SPOT, ((x, y),))
 
-    def diffuse_empty_places(self, x: int, y: int, is_corner: bool = False) -> tuple[tuple[row, column], ...]:
+    def diffuse_empty_places(self, x: int, y: int, is_corner: bool = False) -> tuple[tuple[Row, Column], ...]:
         """Diffuse the empty place at the given position. This function is recursive."""
         if (x, y) in self.revealed or not self.is_inside(x, y):
-            return tuple()
+            return ()
 
         self.revealed.append((x, y))
 
@@ -115,24 +115,24 @@ class Minesweeper:
             gen: Iterable[tuple[int, int]] = cast(
                 Iterable[tuple[int, int]], chain(permutations(range(-1, 2, 1), 2), ((1, 1), (-1, -1)))
             )
-            return ((x, y),) + tuple(
-                cpl for dx, dy in gen for cpl in self.diffuse_empty_places(x + dx, y + dy, dx != 0 and dy != 0)
+            return (
+                (x, y),
+                *tuple(cpl for dx, dy in gen for cpl in self.diffuse_empty_places(x + dx, y + dy, dx != 0 and dy != 0)),
             )
 
         else:
             return ((x, y),)
 
-    def create_board(self, initial_play: tuple[row, column] | None) -> boardT:
-        board: boardT = [[0 for _ in range(self.size[1])] for _ in range(self.size[0])]
+    def create_board(self, initial_play: tuple[Row, Column] | None) -> BoardT:
+        board: BoardT = [[0 for _ in range(self.size[1])] for _ in range(self.size[0])]
 
         def increment_around(x: int, y: int):
             """Increment the value of the cells around the given position."""
 
             # I think this can be done in a more elegant way
             def incr(x: int, y: int):
-                if 0 <= x < self.size[0] and 0 <= y < self.size[1]:
-                    if board[x][y] != -1:
-                        board[x][y] += 1
+                if 0 <= x < self.size[0] and 0 <= y < self.size[1] and board[x][y] != -1:
+                    board[x][y] += 1
 
             relative_positions: Iterable[tuple[int, int]] = cast(
                 Iterable[tuple[int, int]], chain(permutations(range(-1, 2, 1), 2), ((1, 1), (-1, -1)))

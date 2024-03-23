@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import importlib
 import logging
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from functools import partial
-from typing import TYPE_CHECKING, Any, NamedTuple, Sequence, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 import discord
 from discord import Embed, Message, app_commands, ui
@@ -78,7 +79,7 @@ class TranslationTask:
             self.content = translation[0][: EmbedsCharLimits.DESCRIPTION.value - 1]
             i += 1
         for tr_embed in self.tr_embeds:
-            tr_embed.reconstruct(translation[i : i + len(tr_embed)])  # noqa: E203
+            tr_embed.reconstruct(translation[i : i + len(tr_embed)])
             i += len(tr_embed)
 
 
@@ -152,7 +153,7 @@ class EmbedTranslation:
                 obj = obj[key]
 
             try:
-                limit = EmbedsCharLimits["_".join(char_lim_key + [keys[-1]]).upper()]
+                limit = EmbedsCharLimits["_".join([*char_lim_key, keys[-1]]).upper()]
             except KeyError:
                 limit = None
 
@@ -193,7 +194,7 @@ class Translate(ExtendedCog):
         self.tmp_user_usage = TempUsage()
 
         self.translators: list[TranslatorAdapter] = []
-        for adapter in self.bot.config.TRANSLATOR_SERVICES.split(","):
+        for adapter in self.bot.config.translator_services:
             adapter_module = importlib.import_module(f".adapters.{adapter}", __name__)
             self.translators.append(adapter_module.get_translator()())
 
@@ -207,6 +208,10 @@ class Translate(ExtendedCog):
                 },
             )
         )
+
+    async def cog_unload(self) -> None:
+        for translator in self.translators:
+            await translator.close()
 
     async def public_translations(self, guild_id: int | None):
         if guild_id is None:  # we are in private channels, IG
@@ -229,7 +234,9 @@ class Translate(ExtendedCog):
         if from_ is not None:
             from_language = available_languages.from_code(from_)
             if from_language is None:
-                raise BadArgument(_(f"The language you provided under the argument `from_` is not supported : {from_}"))
+                raise BadArgument(
+                    _("The language you provided under the argument `from_` is not supported : {}", from_)
+                )
         else:
             from_language = None
 
@@ -348,7 +355,7 @@ class Translate(ExtendedCog):
             ui.Button(
                 style=discord.ButtonStyle.url,
                 label=_("Vote for the bot", _locale=None),
-                url=f"https://top.gg/bot/{self.bot.config.BOT_ID}/vote",
+                url=f"https://top.gg/bot/{self.bot.user.id}/vote",  # pyright: ignore[reportOptionalMemberAccess]
             )
         )
         await strategy(

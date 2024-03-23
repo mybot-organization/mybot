@@ -11,11 +11,13 @@ RUN --mount=type=cache,target=/var/cache/apk/ \
     --mount=type=bind,source=./bin/msgfmt.py,target=./msgfmt.py \
     : \
     && apk add gcc musl-dev linux-headers \
+    && pip install -U pip \
     && pip install -U -r requirements.txt \
     && python ./msgfmt.py ./locale/**/LC_MESSAGES/*.po \
     && :
 
 FROM python:3.12.0-alpine as base
+# https://docs.docker.com/reference/dockerfile/#copy---parents
 COPY --parents --from=build /opt/venv /app/locale/**/LC_MESSAGES/*.mo /
 WORKDIR /app
 COPY ./src ./
@@ -24,12 +26,12 @@ ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONUNBUFFERED=0
 
 
-FROM base as prod
-CMD ["/bin/sh", "-c", "alembic upgrade head && python ./main.py bot --sync -c ./config.toml"]
+FROM base as production
+CMD ["/bin/sh", "-c", "alembic upgrade head && python ./main.py run --sync -c ./config.toml"]
 
 
 FROM base as debug
 ENV DEBUG=1
 ENV LOG_LEVEL=DEBUG
 RUN pip install debugpy
-CMD ["/bin/sh", "-c", "alembic upgrade head && python -m debugpy --wait-for-client --listen 0.0.0.0:5678 ./main.py bot -c ./config.toml"]
+CMD ["/bin/sh", "-c", "alembic upgrade head && python -m debugpy --wait-for-client --listen 0.0.0.0:5678 ./main.py run -c ./config.toml"]

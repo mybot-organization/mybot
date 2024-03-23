@@ -1,5 +1,0 @@
-black
-bandit
-tox
-pyright
-isort

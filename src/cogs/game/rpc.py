@@ -14,4 +14,4 @@ logger = logging.getLogger(__name__)
 
 class GameRPC(ExtendedCog, name="game_rpc"):
     async def rpc(self, inter: Interaction) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError

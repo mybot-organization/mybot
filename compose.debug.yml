@@ -6,9 +6,8 @@ services:
       target: debug
     restart: "no"
     ports:
-      - 5678:5678  # for debugging
-      - 8080:8080
+      - 5678:5678  # for debugpy; see .github/CONTRIBUTING/md
 
   database:
     ports:
-      - 5432:5432
+      - 5432:5432  # publish database port to the host
