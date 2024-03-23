@@ -360,26 +360,21 @@ class RemoveChoices(SubMenu[EditChoices]):
     async def __init__(self, parent: EditChoices) -> None:
         await super().__init__(parent=parent)
         self.old_value = self.parent.poll.choices.copy()
-        print(self.old_value)
-        self.linked_choice = {choice: i for i, choice in enumerate(self.old_value)}
 
         self.choices_to_remove.placeholder = _("Select the choices you want to remove.", _l=100)
-        for choice, i in self.linked_choice.items():
+        for i, choice in enumerate(self.old_value):
             label = choice.label[:99] + "…" if len(choice.label) > 100 else choice.label
             self.choices_to_remove.add_option(label=label, value=str(i), emoji=LEGEND_EMOJIS[i])
         self.choices_to_remove.max_values = len(self.old_value) - 2
         self.choices_to_remove.min_values = 0
 
     async def update(self):
-        for option in self.choices_to_remove.options:
-            option.default = option.value in self.choices_to_remove.values
+        for i, option in enumerate(self.choices_to_remove.options):
+            option.default = str(i) in self.choices_to_remove.values
 
     @ui.select(cls=ui.Select[Self])
     async def choices_to_remove(self, inter: Interaction, select: ui.Select[Self]):
-        # warning: corresponding answers are not removed from the database
-        self.parent.poll.choices = [
-            choice for choice in self.old_value if str(self.linked_choice[choice]) not in select.values
-        ]
+        self.parent.poll.choices = [choice for i, choice in enumerate(self.old_value) if str(i) not in select.values]
         await self.update()
         await self.parent.update_poll_display(inter, view=self)
 

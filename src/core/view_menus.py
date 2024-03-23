@@ -99,6 +99,7 @@ class SubMenu(Menu, Generic[P]):
         self.validate_btn.label = _("Validate")
 
     async def set_back(self, inter: Interaction) -> None:
+        await self.parent.update()
         await inter.response.edit_message(**(await self.parent.message_display()), view=self.parent)
 
     async def cancel(self):
