@@ -114,16 +114,17 @@ First, a `.env` file with the following values:
 | `TRANSLATOR_SERVICES` | Optional    | Will be deprecated                                                             |
 | `MS_TRANSLATE_KEY`    | Optional    | Required if "microsoft" is set in `TRANSLATOR_SERVICES`                        |
 | `MS_TRANSLATE_REGION` | Optional    | Required if "microsoft" is set in `TRANSLATOR_SERVICES`                        |
+| `LOG_WEBHOOK_URL`     | Optional    | Used to send bot logs using a webhook                                          |
 
 
 Then, create a `config.toml` ([TOML](https://toml.io/en/)) with the following values:
-| Key                | Requirement | Description                                                |
-|--------------------|-------------|------------------------------------------------------------|
-| `SUPPORT_GUILD_ID` | Required    | The bot needs to be member and administrator of this guild |
-| `BOT_ID`           | Required    | Used for links and top.gg (if enabled)                     |
-| `BOT_NAME`         | Required    | Used for the webhook logs                                  |
-| `LOG_WEBHOOK_URL`  | Optional    | Used to send bot logs using a webhook                      |
-| `OWNER_IDS`        | Required    | Grant permissions such eval, extensions reload...          |
+| Key                   | Requirement | Description                                                                                                                                       |
+|-----------------------|-------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| `support_guild_id`    | Required    | The bot needs to be member and administrator of this guild                                                                                        |
+| `bot_id`              | Optional    | Used for top.gg (if enabled)                                                                                                                      |
+| `bot_name`            | Required    | Used for the webhook logs                                                                                                                         |
+| `owners_ids`          | Required    | Grant permissions to these users (e.g. eval command, extensions reloading...) reload...                                                           |
+| `translator_services` | Optional    | A comma separated list of translations services to enable. Names will be imported from [`cogs.translate.adapters`](/src/cogs/translate/adapters/) |
 
 ## Extra informations
 
