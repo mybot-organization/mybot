@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import tomllib
+from pathlib import Path
 from typing import Any, ClassVar, Self
 
 logger = logging.getLogger(__name__)
@@ -59,7 +60,7 @@ class Config:
             return None
 
 
-def define_config(config_path: str | None = None, **kwargs: Any):
+def define_config(config_path: Path | str | None = None, **kwargs: Any):
     if config_path:
         with open(config_path, encoding="utf-8") as f:
             kwargs |= tomllib.load(f.buffer)

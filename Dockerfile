@@ -27,11 +27,11 @@ ENV PYTHONUNBUFFERED=0
 
 
 FROM base as production
-CMD ["/bin/sh", "-c", "alembic upgrade head && python ./main.py bot --sync -c ./config.toml"]
+CMD ["/bin/sh", "-c", "alembic upgrade head && python ./main.py run --sync -c ./config.toml"]
 
 
 FROM base as debug
 ENV DEBUG=1
 ENV LOG_LEVEL=DEBUG
 RUN pip install debugpy
-CMD ["/bin/sh", "-c", "alembic upgrade head && python -m debugpy --wait-for-client --listen 0.0.0.0:5678 ./main.py bot -c ./config.toml"]
+CMD ["/bin/sh", "-c", "alembic upgrade head && python -m debugpy --wait-for-client --listen 0.0.0.0:5678 ./main.py run -c ./config.toml"]
