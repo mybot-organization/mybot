@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import logging
+import os
 import re
-import sys
 from typing import TYPE_CHECKING, Any, cast
 
 import discord
@@ -50,14 +50,14 @@ class MyBot(AutoShardedBot):
         self._invite: discord.Invite | None = None
 
         self.error_handler = ErrorHandler(self)
-        if config.TOPGG_TOKEN is not None:
-            self.topgg = topggpy.DBLClient(config.TOPGG_TOKEN, default_bot_id=config.BOT_ID)
+        if os.getenv("TOPGG_TOKEN") is not None:
+            self.topgg = topggpy.DBLClient(os.environ["TOPGG_TOKEN"], default_bot_id=config.bot_id)
             self.topgg_webhook_manager = topggpy.WebhookManager()
             (
                 self.topgg_webhook_manager.endpoint()
                 .route("/topgg_vote")
                 .type(topggpy.WebhookType.BOT)
-                .auth(config.TOPGG_AUTH or "")
+                .auth(os.environ["TOPGG_AUTH"] or "")
                 .callback(self.topgg_endpoint)
                 .add_to_manager()
             )
@@ -82,21 +82,6 @@ class MyBot(AutoShardedBot):
         )
 
         # Keep an alphabetic order, it is more clear.
-        self.extensions_names: list[str] = [
-            "admin",
-            # "api",
-            # "calculator",
-            "clear",
-            "config",
-            # "game",
-            "help",
-            "poll",
-            # "ping",
-            # "restore",
-            "stats",
-            "eval",
-            "translate",
-        ]
         self.config = config
         self.app_commands = []
 
@@ -139,12 +124,8 @@ class MyBot(AutoShardedBot):
         return self.topgg_current_votes.get(user_id, False)
 
     async def connect_db(self):
-        if config.POSTGRES_PASSWORD is None:
-            logger.critical("Missing environment variable POSTGRES_PASSWORD.")
-            sys.exit(1)
-
         self.db_engine = create_async_engine(
-            f"postgresql+asyncpg://{config.POSTGRES_USER}:{config.POSTGRES_PASSWORD}@database:5432/{config.POSTGRES_DB}"
+            f"postgresql+asyncpg://{os.environ["POSTGRES_USER"]}:{os.environ["POSTGRES_PASSWORD"]}@database:5432/{os.environ["POSTGRES_DB"]}"
         )
         self.async_session = async_sessionmaker(self.db_engine, expire_on_commit=False)
 
@@ -162,10 +143,13 @@ class MyBot(AutoShardedBot):
         activity = discord.Game("WIP!")
         await self.change_presence(status=discord.Status.online, activity=activity)
 
-        tmp = self.get_guild(self.config.SUPPORT_GUILD_ID)
+        tmp = self.get_guild(self.config.support_guild_id)
         if not tmp:
-            logger.critical("Support server cannot be retrieved")
-            sys.exit(1)
+            logger.critical("Support server cannot be retrieved. Set the correct ID in the configuration file.")
+            raise SystemExit(1)
+        if tmp.me.guild_permissions.administrator is False:
+            logger.critical("MyBot doesn't have the administrator permission in the support server.")
+            raise SystemExit(1)
         self.support = tmp
         await self.support_invite  # load the invite
 
@@ -247,7 +231,7 @@ class MyBot(AutoShardedBot):
                 label="Invite link",
                 style=discord.ButtonStyle.url,
                 emoji="🔗",
-                url=f"https://discord.com/api/oauth2/authorize?client_id={config.BOT_ID}&scope=bot%20applications.commands",  # NOSONAR noqa: E501
+                url=f"https://discord.com/api/oauth2/authorize?client_id={self.user.id}&scope=bot%20applications.commands",  # NOSONAR noqa: E501
             )
         )
         view.add_item(
@@ -274,7 +258,7 @@ class MyBot(AutoShardedBot):
         return self._invite
 
     async def load_extensions(self) -> None:
-        for ext in self.extensions_names:
+        for ext in self.config.extensions:
             if not ext.startswith("cogs."):
                 ext = "cogs." + ext
 

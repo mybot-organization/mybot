@@ -194,7 +194,7 @@ class Translate(ExtendedCog):
         self.tmp_user_usage = TempUsage()
 
         self.translators: list[TranslatorAdapter] = []
-        for adapter in self.bot.config.TRANSLATOR_SERVICES.split(","):
+        for adapter in self.bot.config.translator_services:
             adapter_module = importlib.import_module(f".adapters.{adapter}", __name__)
             self.translators.append(adapter_module.get_translator()())
 
@@ -355,7 +355,7 @@ class Translate(ExtendedCog):
             ui.Button(
                 style=discord.ButtonStyle.url,
                 label=_("Vote for the bot", _locale=None),
-                url=f"https://top.gg/bot/{self.bot.config.BOT_ID}/vote",
+                url=f"https://top.gg/bot/{self.bot.user.id}/vote",  # pyright: ignore[reportOptionalMemberAccess]
             )
         )
         await strategy(
