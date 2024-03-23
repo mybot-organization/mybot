@@ -34,4 +34,4 @@ FROM base as debug
 ENV DEBUG=1
 ENV LOG_LEVEL=DEBUG
 RUN pip install debugpy
-CMD ["/bin/sh", "-c", "alembic upgrade head && python -m debugpy --wait-for-client --listen 0.0.0.0:5678 ./main.py run -c ./config.toml"]
+CMD ["/bin/sh", "-c", "alembic upgrade head && python -Xfrozen_modules=off -m debugpy --wait-for-client --listen 0.0.0.0:5678 ./main.py run -c ./config.toml"]

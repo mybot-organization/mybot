@@ -42,52 +42,100 @@ Additionally, this will setup `config.DEBUG` to `True` from the code perspective
 
 ### VSCode debug config
 
-As an example, here is a json configuration that can be added inside your local `.vscode/launch.py` to use the integrated debugger:
+To enable debugging inside VSCode, create a `.vscode/launch.json` file with:
 ```json
 {
-    "name": "debug",
-    "type": "debugpy",
-    "request": "attach",
-    "connect": {
-        "host": "localhost",
-        "port": 5678
-    },
-    "pathMappings": [
+    "configurations": [
         {
-            "localRoot": "${workspaceFolder}/src",
-            "remoteRoot": "/app"
+            "name": "debug",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/src",
+                    "remoteRoot": "/app"
+                }
+            ],
+            "preLaunchTask": "wait",
+            "postDebugTask": "restart"
         }
     ]
 }
 ```
 
-After you run the code in debug mode, click on the "play" icon inside VSCode to attach the debug console. You can then use breakpoints, etc.  
-To make the restart button actually restart the bot and not just re-attach the debugger, you can add pre&post tasks:
-```json
-"preLaunchTask": "bot up",
-"postDebugTask": "bot restart",
-```
-And in `.vscode/tasks.json`, add the tasks:
+And a `.vscode/tasks.json` file with:
 ```json
 {
-    "label": "bot up",
-    "type": "shell",
-    "presentation": {
-        "reveal": "silent"
-    },
-    "command": "docker compose -f compose.yml -f compose.debug.yml up -d",
-},
-{
-    "label": "bot restart",
-    "type": "shell",
-    "presentation": {
-        "reveal": "silent"
-    },
-    "command": "docker-compose restart mybot"
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "presentation": {
+                "focus": true,
+            },
+            "command": "docker-compose -f compose.yml -f compose.debug.yml build",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "watch",
+            "type": "shell",
+            "isBackground": true,
+            "presentation": {
+                "focus": true,
+                "panel": "new",
+            },
+            "command": "docker-compose -f compose.yml -f compose.debug.yml watch",
+            "problemMatcher": []
+        },
+        {
+            "label": "down",
+            "type": "shell",
+            "presentation": {
+                "focus": true,
+            },
+            "command": "docker compose down",
+            "problemMatcher": []
+        },
+        {
+            "label": "restart",
+            "type": "shell",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "dedicated",
+                "close": true
+            },
+            "command": "docker-compose -f compose.yml -f compose.debug.yml restart mybot",
+            "problemMatcher": []
+        },
+        {
+            "label": "wait",
+            "type": "shell",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "dedicated",
+                "close": true
+            },
+            "command": "sleep 0.1",
+            "problemMatcher": []
+        }
+    ]
 }
 ```
 
-If the bot is executed with the up task, you should then use the `watch` command with `--no-up`.
+The `restart` and `wait` tasks are used by the debug task. Waiting 0.1s is a little trick to avoid the debugger to close because debugpy isn't ready yet.  
+The other tasks aren't required, but you can run them from `Terminal > Run Task...` (and `Run Build Task...` for the build task).
+
+You must run the `watch` command before debugging.
+
 More information here: https://code.visualstudio.com/docs/python/debugging
 
 ## Database revisions
@@ -117,16 +165,16 @@ First, a `.env` file with the following values:
 
 
 Then, create a `config.toml` ([TOML](https://toml.io/en/)) with the following values:
-| Key                   | Description                                                                                                                       |
-|-----------------------|-----------------------------------------------------------------------------------------------------------------------------------|
-| `support_guild_id`    | The bot needs to be member and administrator of this guild                                                                        |
-| `bot_id`              | Used for top.gg (if enabled)                                                                                                      |
-| `bot_name`            | Used for the webhook logs                                                                                                         |
-| `owners_ids`          | Grant permissions to these users (e.g. eval command, extensions reloading...) reload...                                           |
-| `translator_services` | A list of translations services to enable. Names will be imported from [`cogs.translate.adapters`](/src/cogs/translate/adapters/) |
-| `extensions`          | A list of extensions to enable. Names will be imported from [`cogs`](/src/cogs/)                                                  |
+| Key                   | Type                                                                                     | Description                                                                                                                       |
+|-----------------------|------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| `support_guild_id`    | [Integer](https://toml.io/en/v1.0.0#integer)                                             | The bot needs to be member and administrator of this guild                                                                        |
+| `bot_id`              | [Integer](https://toml.io/en/v1.0.0#integer)                                             | Used for top.gg (if enabled)                                                                                                      |
+| `bot_name`            | [String](https://toml.io/en/v1.0.0#string)                                               | Used for the webhook logs                                                                                                         |
+| `owners_ids`          | [Array](https://toml.io/en/v1.0.0#array) of [Integer](https://toml.io/en/v1.0.0#integer) | Grant permissions to these users (e.g. eval command, extensions reloading...)                                                     |
+| `translator_services` | [Array](https://toml.io/en/v1.0.0#array) of [String](https://toml.io/en/v1.0.0#string)   | A list of translations services to enable. Names will be imported from [`cogs.translate.adapters`](/src/cogs/translate/adapters/) |
+| `extensions`          | [Array](https://toml.io/en/v1.0.0#array) of [String](https://toml.io/en/v1.0.0#string)   | A list of extensions to enable. Names will be imported from [`cogs`](/src/cogs/)                                                  |
 
-## Extra informations
+## Extra information
 
 In the project structure, `main.py` serves as the entry point executed by Docker. It provides a compact CLI application with various options that can be used with pre-created shell files in the `bin/` directory.
 `mybot.py` is the base of MyBot, containing the `MyBot` class, instantiated once at launch and available in many places in the code.
