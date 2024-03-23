@@ -127,23 +127,23 @@ Then, create a `config.toml` ([TOML](https://toml.io/en/)) with the following va
 
 ## Extra informations
 
-In the project structure, `main.py` serves as the entry point executed by Docker. It provides a compact CLI utility with various options that can be used with pre-created shell files in the `bin/` directory.
-`mybot.py` is the base of MyBot, containing the `MyBot` class, instantiated once at launch, and available in many places in the code.
+In the project structure, `main.py` serves as the entry point executed by Docker. It provides a compact CLI application with various options that can be used with pre-created shell files in the `bin/` directory.
+`mybot.py` is the base of MyBot, containing the `MyBot` class, instantiated once at launch and available in many places in the code.
 
-The `MyBot` class has some utility functions like `getch_user`, `getch_channel`, or `get_or_create_db`. Refer to their docstring for more information.
+The `MyBot` class has some utility functions like `getch_user`, `getch_channel`, and `get_or_create_db`. Refer to their docstring for more information.
 
-The `core` directory container internally used code for MyBot, while `cogs` contains the implementation of features exposed by MyBot. Additionally, `libraries` holds wrappers for external APIs and tools used by the project.
+The `core` directory contains internally used code for MyBot, while `cogs` contains the implementation of features exposed by MyBot. Additionally, `libraries` holds wrappers for external APIs and tools used by the project.
 
 ### i18n
 
-All strings should be passed into the `_` function (available in module `core.i18n`), to have them being translated automatically, e.g. `_("Hello World")`. The function also supports format options like the `str.format()` function (e.g., `_("Hello {}", name)`).
+All strings should be passed to the `_` function (available in module `core.i18n`), to have them being translated automatically, e.g. `_("Hello World")`. The function also supports format options like the `str.format()` function (e.g., `_("Hello {}", name)`).
 
-`_` allows `msgfmt` to extract the strings from the code automatically, but it will also ✨ magically ✨ translate the strings in the good language by walking through the callstack to find an `Interaction` object. (This is generally not recommended, but in this case it is justified in my opinion.)  
-Consequently, using `_` outside a command callback will not retrieve the language. You can then specify it using `_locale` argument. Set `_locale` to `None` if the string should not be translated at this time in the execution.
+`_` allows `msgfmt` to extract the strings from the code automatically, but it will also ✨ magically ✨ translate the strings in the correct language by walking through the callstack to find an `Interaction` object (this is generally not recommended, but in this case it is justified in my opinion).  
+Consequently, using `_` outside a command callback will not retrieve the language. You should then specify it using `_locale` argument. Set `_locale` to `None` if the string should not be translated at this time in the execution.
 
 Additionally, `_` also accepts a `_l` parameter to set a maximum size, to avoid any bugs due to translations being too long.
 
-Strings in command parameters, descriptions, etc., should be surrounded with the `discord.app_commands.locale_str` (aliased as `__`), to make `discord.py` send the translations directly to Discord.
+Strings in command parameters, descriptions, etc., should be surrounded by the `discord.app_commands.locale_str` (aliased as `__`), to make `discord.py` send the translations directly to Discord.
 
 ## Translations contributions
 
