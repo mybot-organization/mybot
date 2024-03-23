@@ -165,16 +165,16 @@ First, a `.env` file with the following values:
 
 
 Then, create a `config.toml` ([TOML](https://toml.io/en/)) with the following values:
-| Key                   | Description                                                                                                                       |
-|-----------------------|-----------------------------------------------------------------------------------------------------------------------------------|
-| `support_guild_id`    | The bot needs to be member and administrator of this guild                                                                        |
-| `bot_id`              | Used for top.gg (if enabled)                                                                                                      |
-| `bot_name`            | Used for the webhook logs                                                                                                         |
-| `owners_ids`          | Grant permissions to these users (e.g. eval command, extensions reloading...) reload...                                           |
-| `translator_services` | A list of translations services to enable. Names will be imported from [`cogs.translate.adapters`](/src/cogs/translate/adapters/) |
-| `extensions`          | A list of extensions to enable. Names will be imported from [`cogs`](/src/cogs/)                                                  |
+| Key                   | Type                                                                                     | Description                                                                                                                       |
+|-----------------------|------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| `support_guild_id`    | [Integer](https://toml.io/en/v1.0.0#integer)                                             | The bot needs to be member and administrator of this guild                                                                        |
+| `bot_id`              | [Integer](https://toml.io/en/v1.0.0#integer)                                             | Used for top.gg (if enabled)                                                                                                      |
+| `bot_name`            | [String](https://toml.io/en/v1.0.0#string)                                               | Used for the webhook logs                                                                                                         |
+| `owners_ids`          | [Array](https://toml.io/en/v1.0.0#array) of [Integer](https://toml.io/en/v1.0.0#integer) | Grant permissions to these users (e.g. eval command, extensions reloading...)                                                     |
+| `translator_services` | [Array](https://toml.io/en/v1.0.0#array) of [String](https://toml.io/en/v1.0.0#string)   | A list of translations services to enable. Names will be imported from [`cogs.translate.adapters`](/src/cogs/translate/adapters/) |
+| `extensions`          | [Array](https://toml.io/en/v1.0.0#array) of [String](https://toml.io/en/v1.0.0#string)   | A list of extensions to enable. Names will be imported from [`cogs`](/src/cogs/)                                                  |
 
-## Extra informations
+## Extra information
 
 In the project structure, `main.py` serves as the entry point executed by Docker. It provides a compact CLI application with various options that can be used with pre-created shell files in the `bin/` directory.
 `mybot.py` is the base of MyBot, containing the `MyBot` class, instantiated once at launch and available in many places in the code.
