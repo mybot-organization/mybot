@@ -38,15 +38,6 @@ class Config:
     extensions: ClassVar[list[str]] = []
     bot_id: int | None = None
     export_mode: bool = False
-    # POSTGRES_USER: str = "postgres"
-    # POSTGRES_DB: str = "mybot"
-    # POSTGRES_PASSWORD: str | None = None
-    # TOPGG_TOKEN: str | None = None
-    # TOPGG_AUTH: str | None = None
-    # MS_TRANSLATE_KEY: str | None = None
-    # MS_TRANSLATE_REGION: str | None = None
-    # comma separated list of services to use for translation. Corresponding files should be in cogs/translate/adapters.
-    # LOG_WEBHOOK_URL: str | None = None
 
     _instance: ClassVar[Self] | None = None
     _defined: ClassVar[bool] = False
