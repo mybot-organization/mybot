@@ -18,7 +18,9 @@ asyncpg==0.29.0
 attrs==23.2.0
     # via aiohttp
 click==8.1.7
-    # via -r requirements.in
+    # via typer
+colorama==0.4.6
+    # via typer
 discord-py==2.3.2
     # via -r requirements.in
 frozenlist==1.4.1
@@ -33,8 +35,12 @@ lingua-language-detector==1.3.4
     # via -r requirements.in
 mako==1.3.2
     # via alembic
+markdown-it-py==3.0.0
+    # via rich
 markupsafe==2.1.5
     # via mako
+mdurl==0.1.2
+    # via markdown-it-py
 multidict==6.0.5
     # via
     #   aiohttp
@@ -43,10 +49,16 @@ numpy==1.26.4
     # via lingua-language-detector
 psutil==5.9.8
     # via -r requirements.in
+pygments==2.17.2
+    # via rich
 python-dateutil==2.9.0.post0
     # via -r requirements.in
 regex==2023.12.25
     # via lingua-language-detector
+rich==13.7.1
+    # via typer
+shellingham==1.5.4
+    # via typer
 six==1.16.0
     # via python-dateutil
 sqlalchemy[asyncio]==2.0.28
@@ -57,11 +69,14 @@ topggpy==2.0.0a0
     # via -r requirements.in
 two048==1.0.2
     # via -r requirements.in
+typer[all]==0.9.0
+    # via -r requirements.in
 typing-extensions==4.10.0
     # via
     #   -r requirements.in
     #   alembic
     #   sqlalchemy
+    #   typer
 wheel==0.43.0
     # via -r requirements.in
 yarl==1.9.4

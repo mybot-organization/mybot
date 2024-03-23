@@ -209,6 +209,10 @@ class Translate(ExtendedCog):
             )
         )
 
+    async def cog_unload(self) -> None:
+        for translator in self.translators:
+            await translator.close()
+
     async def public_translations(self, guild_id: int | None):
         if guild_id is None:  # we are in private channels, IG
             return True
