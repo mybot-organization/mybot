@@ -13,6 +13,8 @@ services:
           target: /app
         - action: rebuild
           path: ./requirements.txt
+        - action: restart
+          path: ./config.toml
     env_file:
       - .env
     tty: true
