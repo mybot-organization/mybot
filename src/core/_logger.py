@@ -105,10 +105,10 @@ class DiscordLogHandler(logging.Handler):
         if getattr(record, "ignore_discord", False):
             return
 
-        if config.LOG_WEBHOOK_URL is None:
+        if os.getenv("LOG_WEBHOOK_URL") is None:
             return
 
-        self.send_to_discord(record, config.LOG_WEBHOOK_URL)
+        self.send_to_discord(record, os.environ["LOG_WEBHOOK_URL"])
 
 
 class _ColorFormatter(logging.Formatter):

@@ -1,8 +1,8 @@
+import os
 from collections.abc import Sequence
 
 from lingua import Language as LinguaLanguage, LanguageDetectorBuilder
 
-from core import config
 from libraries.microsoft_translation import MicrosoftTranslator
 
 from ..languages import Language, Languages, LanguagesEnum
@@ -31,9 +31,7 @@ lingua_to_language = {
 
 class Translator(TranslatorAdapter):
     def __init__(self) -> None:
-        if config.MS_TRANSLATE_KEY is None or config.MS_TRANSLATE_REGION is None:
-            raise ValueError("Missing Microsoft Translator configuration")
-        self.instance = MicrosoftTranslator(config.MS_TRANSLATE_KEY, config.MS_TRANSLATE_REGION)
+        self.instance = MicrosoftTranslator(os.environ["MS_TRANSLATE_KEY"], os.environ["MS_TRANSLATE_REGION"])
         self.detector = (
             LanguageDetectorBuilder.from_languages(*lingua_to_language.keys())
             .with_low_accuracy_mode()

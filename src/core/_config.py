@@ -33,9 +33,9 @@ class Config:
     """
 
     support_guild_id: int = 332209340780118016
-    bot_id: int = 500023552905314304  # this should be retrieved from bot.client.id, but anyway.
     owners_ids: ClassVar[list[int]] = [341550709193441280, 329710312880340992]
     translator_services: str = "libretranslate"
+    bot_id: int | None = None
     export_mode: bool = False
     # POSTGRES_USER: str = "postgres"
     # POSTGRES_DB: str = "mybot"

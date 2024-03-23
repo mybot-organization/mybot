@@ -355,7 +355,7 @@ class Translate(ExtendedCog):
             ui.Button(
                 style=discord.ButtonStyle.url,
                 label=_("Vote for the bot", _locale=None),
-                url=f"https://top.gg/bot/{self.bot.config.bot_id}/vote",
+                url=f"https://top.gg/bot/{self.bot.user.id}/vote",  # pyright: ignore[reportOptionalMemberAccess]
             )
         )
         await strategy(
