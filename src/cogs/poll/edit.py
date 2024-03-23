@@ -148,7 +148,7 @@ class EditPollToggleSelect(ui.Select[EditPoll]):
 class EditPollMenus(ui.Select[EditPoll]):
     def __init__(self, poll: db.Poll):
         super().__init__(placeholder=_("Edit poll"))
-        self.menus: list[Type[EditSubmenu]] = [
+        self.menus: list[type[EditSubmenu]] = [
             EditTitleAndDescription,
             EditEndingTime,
             EditAllowedRoles,
