@@ -14,7 +14,7 @@ from sqlalchemy.orm import selectinload
 from core import Menu, ResponseType, db, response_constructor
 from core.constants import Emojis
 from core.i18n import _
-from core.view_menus import SubMenu
+from core.view_menus import SubMenuWithoutButtons
 
 from .constants import LEGEND_EMOJIS
 from .display import PollDisplay
@@ -112,7 +112,7 @@ class PollPublicMenu(Menu):
         )
 
 
-class VoteMenu(SubMenu[PollPublicMenu]):
+class VoteMenu(SubMenuWithoutButtons[PollPublicMenu]):
     async def __init__(
         self, parent: PollPublicMenu, poll: db.Poll, user_votes: Sequence[db.PollAnswer], base_inter: Interaction
     ):
@@ -132,7 +132,7 @@ class VoteMenu(SubMenu[PollPublicMenu]):
             try:
                 message = cast(discord.Message, self.base_inter.message)  # type: ignore
                 old_embed = message.embeds[0] if message.embeds else None
-                await message.edit(**(await PollDisplay.build(self.poll, self.parent.bot, old_embed)))
+                await message.edit(**await PollDisplay(self.poll, self.parent.bot, old_embed))
             except discord.NotFound:
                 pass
 
@@ -174,7 +174,7 @@ class ChoicePollVote(VoteMenu):
     @ui.select(cls=ui.Select[Self])
     async def choice(self, inter: Interaction, select: ui.Select[Self]):
         del select  # unused
-        await self.message_refresh(inter, False)
+        await self.edit_message(inter, False)
 
     @ui.button(style=discord.ButtonStyle.red)
     async def remove_vote(self, inter: Interaction, button: ui.Button[Self]):

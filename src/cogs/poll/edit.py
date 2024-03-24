@@ -52,7 +52,7 @@ class EditPoll(Menu):
             self.toggle_poll.style = discord.ButtonStyle.red
 
     async def message_display(self) -> MessageDisplay:
-        return await PollDisplay.build(self.poll, self.bot)
+        return await PollDisplay(self.poll, self.bot)
 
     @ui.button(row=4, style=discord.ButtonStyle.red)
     async def reset_votes(self, inter: discord.Interaction, button: ui.Button[Self]):
@@ -63,7 +63,7 @@ class EditPoll(Menu):
     async def toggle_poll(self, inter: discord.Interaction, button: ui.Button[Self]):
         del button  # unused
         self.poll.closed = not self.poll.closed
-        await self.message_refresh(inter)
+        await self.edit_message(inter)
 
     @ui.button(row=4, style=discord.ButtonStyle.green)
     async def save(self, inter: discord.Interaction, button: ui.Button[Self]):
@@ -74,7 +74,7 @@ class EditPoll(Menu):
             # channel can be other type of channels like voice, but it's ok.
             channel = cast(discord.TextChannel, inter.channel)
             message = await channel.send(
-                **(await PollDisplay.build(self.poll, self.bot)), view=await PollPublicMenu(self.cog, self.poll)
+                **(await PollDisplay(self.poll, self.bot)), view=await PollPublicMenu(self.cog, self.poll)
             )
             self.poll.message_id = message.id
 
@@ -91,7 +91,7 @@ class EditPoll(Menu):
             await inter.delete_original_response()
 
             await self.poll_message.edit(
-                **(await PollDisplay.build(self.poll, self.bot)), view=await PollPublicMenu(self.cog, self.poll)
+                **(await PollDisplay(self.poll, self.bot)), view=await PollPublicMenu(self.cog, self.poll)
             )
 
             currents = self.cog.current_votes.pop(self.poll.id, None)
@@ -137,12 +137,12 @@ class EditPollToggleSelect(ui.Select[EditPoll]):
         # )
 
     async def callback(self, inter: Interaction[MyBot]) -> None:  # pyright: ignore [reportIncompatibleMethodOverride]
-        view = cast(EditPoll, self.view)
+        menu = cast(EditPoll, self.view)
         if self.values[0] == "public_results":
-            view.poll.public_results = not view.poll.public_results
+            menu.poll.public_results = not menu.poll.public_results
         elif self.values[0] == "users_can_change_answer":
-            view.poll.users_can_change_answer = not view.poll.users_can_change_answer
-        await view.message_refresh(inter)
+            menu.poll.users_can_change_answer = not menu.poll.users_can_change_answer
+        await menu.edit_message(inter)
 
 
 class EditPollMenus(ui.Select[EditPoll]):
@@ -180,12 +180,8 @@ class EditSubmenu(SubMenu[EditPoll]):
         await super().__init__(parent)
         self.poll = parent.poll
 
-    async def set_back(self, inter: discord.Interaction):
-        await self.parent.update()
-        await super().set_back(inter)
-
     async def update_poll_display(self, inter: discord.Interaction, view: ui.View | None = None):
-        await inter.response.edit_message(**(await PollDisplay.build(self.poll, self.bot)), view=view or self)
+        await inter.response.edit_message(**(await PollDisplay(self.poll, self.bot)), view=view or self)
 
 
 class EditTitleAndDescription(EditSubmenu, ui.Modal):
@@ -219,7 +215,7 @@ class EditTitleAndDescription(EditSubmenu, ui.Modal):
     async def on_submit(self, inter: discord.Interaction) -> None:
         self.poll.title = self.question.value
         self.poll.description = self.description.value
-        await self.set_back(inter)
+        await super().on_submit(inter)
 
 
 class EditEndingTime(EditSubmenu):
@@ -269,7 +265,7 @@ class EditEndingTime(EditSubmenu):
                     option = next(opt for opt in self.select_minutes.options if opt.value == default_minutes)
                     option.default = True
 
-    async def cancel(self):
+    async def on_cancel(self):
         self.poll.end_date = self.old_value
 
     def set_time(self):
@@ -319,7 +315,7 @@ class EditChoices(EditSubmenu):
         self.add_choice.label = _("Add a choice")
         self.remove_choice.label = _("Remove a choice")
 
-    async def cancel(self):
+    async def on_cancel(self):
         self.poll.choices = self.old_value
 
     async def update(self):
@@ -378,7 +374,7 @@ class RemoveChoices(SubMenu[EditChoices]):
         await self.update()
         await self.parent.update_poll_display(inter, view=self)
 
-    async def cancel(self):
+    async def on_cancel(self):
         self.parent.poll.choices = self.old_value
 
 
@@ -401,9 +397,9 @@ class EditMaxChoices(EditSubmenu):
     @ui.select(cls=ui.Select[Self])
     async def max_choices(self, inter: Interaction, select: ui.Select[Self]):
         self.parent.poll.max_answers = int(select.values[0])
-        await self.message_refresh(inter)
+        await self.edit_message(inter)
 
-    async def cancel(self):
+    async def on_cancel(self):
         self.parent.poll.max_answers = self.old_value
 
 
@@ -422,9 +418,9 @@ class EditAllowedRoles(EditSubmenu):
     @ui.select(cls=ui.RoleSelect[Self], max_values=25)
     async def allowed_roles(self, inter: Interaction, select: ui.RoleSelect[Self]):
         self.parent.poll.allowed_roles = [role.id for role in select.values]
-        await self.message_refresh(inter)
+        await self.edit_message(inter)
 
-    async def cancel(self):
+    async def on_cancel(self):
         self.parent.poll.allowed_roles = self.old_value
 
 
@@ -445,4 +441,4 @@ class Reset(EditSubmenu):
         del button  # unused
         async with self.bot.async_session.begin() as session:
             await session.execute(delete(db.PollAnswer).where(db.PollAnswer.poll_id == self.parent.poll.id))
-        await self.set_back(inter)
+        await self.set_menu(inter, self.parent)
