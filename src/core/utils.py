@@ -1,8 +1,18 @@
 from collections.abc import AsyncIterable, Iterator, Sequence
 from enum import Enum, auto
-from typing import Literal, TypeVar
+from typing import Any, Literal, Self, TypeVar
 
 T = TypeVar("T")
+
+
+class AsyncInitMixin:
+    async def __new__(cls, *args: Any, **kwargs: Any) -> Self:
+        instance = super().__new__(cls)
+        await instance.__init__(*args, **kwargs)
+        return instance
+
+    async def __init__(self, *args: Any, **kwargs: Any):
+        pass
 
 
 class CommandType(Enum):

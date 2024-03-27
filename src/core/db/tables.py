@@ -112,6 +112,9 @@ class PollChoice(Base):
     poll_id: Mapped[int] = mapped_column(ForeignKey(Poll.id))
     label: Mapped[str] = mapped_column(VARCHAR)  # todo: define max length
 
+    def __hash__(self):
+        return hash(self.id)
+
 
 class PollAnswer(Base):
     """

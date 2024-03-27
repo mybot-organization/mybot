@@ -1,6 +1,6 @@
 from core import Emojis
 
-COLORS_ORDER = ["blue", "red", "yellow", "purple", "brown", "green", "orange"]
+COLORS_ORDER = ["blue", "red", "yellow", "purple", "brown", "green", "orange", "pink", "lime", "blue_green"]
 COLOR_TO_HEX = {
     "blue": 0x54ACEE,
     "red": 0xDD2D44,
@@ -9,6 +9,9 @@ COLOR_TO_HEX = {
     "brown": 0xC1694F,
     "green": 0x78B159,
     "orange": 0xF4900E,
+    "pink": 0xFFB7CE,
+    "lime": 0xBEFD73,
+    "blue_green": 0x9ADEDB,
 }
 LEGEND_EMOJIS = [getattr(Emojis, f"{color}_round") for color in COLORS_ORDER]
 GRAPH_EMOJIS = [getattr(Emojis, f"{color}_mid") for color in COLORS_ORDER]

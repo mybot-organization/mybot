@@ -43,11 +43,11 @@ pyproject-hooks==1.0.0
     # via
     #   build
     #   pip-tools
-pyright==1.1.354
+pyright==1.1.355
     # via -r requirements.dev.in
-ruff==0.3.3
+ruff==0.3.4
     # via -r requirements.dev.in
-tox==4.14.1
+tox==4.14.2
     # via -r requirements.dev.in
 virtualenv==20.25.1
     # via tox

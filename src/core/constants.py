@@ -35,6 +35,15 @@ class Emojis:
     beta_1 = Emoji(1083897907981320272)
     beta_2 = Emoji(1083897910728609872)
 
+    soon_1 = Emoji(1083897922522988575)
+    soon_2 = Emoji(1083897924146180198)
+
+    add_date = Emoji(1185978892213825637)
+    plus = Emoji(1185978897146323016)
+    pencil = Emoji(1185978895846097096)
+    role = Emoji(1185978899679690752)
+    gear = Emoji(1185978894571024445)
+
     two048_2 = Emoji(1068989299808292956)
     two048_4 = Emoji(1068989301888663604)
     two048_8 = Emoji(1068989303243415672)
@@ -54,9 +63,6 @@ class Emojis:
     down_arrow = Emoji(1069018464301363240)
     left_arrow = Emoji(1069018466624995439)
     right_arrow = Emoji(1069018468185288834)
-
-    soon_1 = Emoji(1083897922522988575)
-    soon_2 = Emoji(1083897924146180198)
 
     misc_command_reaction = Emoji(1084116094245163141)
     misc_command_text = Emoji(1084118001088999544)
@@ -106,6 +112,21 @@ class Emojis:
     orange_mid = Emoji(1077941867133546566)
     orange_left = Emoji(1077941871009091594)
     orange_right = Emoji(1077960256317042759)
+
+    lime_round = Emoji(1221172679990710424)
+    lime_mid = Emoji(1221172685120208957)
+    lime_left = Emoji(1221172690375938148)
+    lime_right = Emoji(1221173222842826905)
+
+    blue_green_round = Emoji(1221172678686412931)
+    blue_green_mid = Emoji(1221172683434229891)
+    blue_green_left = Emoji(1221172689117380708)
+    blue_green_right = Emoji(1221172692871282798)
+
+    pink_round = Emoji(1221172697351065721)
+    pink_mid = Emoji(1221172682012364951)
+    pink_left = Emoji(1221172687062306846)
+    pink_right = Emoji(1221172691244154971)
 
     thumb_up = "👍"
     thumb_down = "👎"

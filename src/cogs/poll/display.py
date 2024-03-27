@@ -9,6 +9,7 @@ from sqlalchemy import func
 from core import Emojis, db
 from core.i18n import _
 from core.response import MessageDisplay
+from core.utils import AsyncInitMixin
 
 from .constants import (
     BOOLEAN_INDEXES,
@@ -28,48 +29,19 @@ if TYPE_CHECKING:
     from mybot import MyBot
 
 
-class PollDisplay:
-    def __init__(self, poll: Poll, votes: dict[str, int] | None):
-        self.poll: Poll = poll
-        self.votes = votes
+class PollDisplay(AsyncInitMixin, MessageDisplay):
+    async def __init__(self, poll: Poll, bot: MyBot, old_embed: Embed | None = None):
+        self.poll = poll
+        self.votes: dict[str, int] | None = await self.get_votes(bot)
 
-    @classmethod
-    async def build(cls, poll: Poll, bot: MyBot, old_embed: Embed | None = None) -> MessageDisplay:
         content = poll.description
         embed = discord.Embed(title=poll.title)
-
-        votes: dict[str, int] | None
-        if poll.public_results is True:
-            async with bot.async_session.begin() as session:
-                stmt = (
-                    db.select(db.PollAnswer.value, func.count())
-                    .select_from(db.PollAnswer)
-                    .where(db.PollAnswer.poll_id == poll.id)
-                    .group_by(db.PollAnswer.value)
-                )
-
-                votes = {  # noqa: C416, dict comprehension used for typing purposes
-                    key: value
-                    for key, value in (await session.execute(stmt)).all()  # choice_id: vote_count
-                }
-                if poll.type == db.PollType.CHOICE:
-                    # when we delete a choice from a poll, the votes are still in the db before commit
-                    # so we need to filter them
-                    votes = {
-                        key: value for key, value in votes.items() if key in (str(choice.id) for choice in poll.choices)
-                    }
-        else:
-            votes = None
-
-        poll_display = cls(poll, votes)
-
-        description_split: list[str] = [poll_display.build_end_date(), poll_display.build_legend()]
-
+        description_split: list[str] = [self.build_end_date(), self.build_legend()]
         embed.description = "\n".join(description_split)
 
         if poll.public_results:
-            embed.add_field(name="\u200b", value=poll_display.build_graph())
-            embed.color = poll_display.build_color()
+            embed.add_field(name="\u200b", value=self.build_graph())
+            embed.color = self.build_color()
 
         if old_embed:
             embed.set_footer(text=old_embed.footer.text)
@@ -77,7 +49,33 @@ class PollDisplay:
             author = await bot.getch_user(poll.author_id)
             embed.set_footer(text=_("Poll created by {}", author.name if author else "unknown"))
 
-        return MessageDisplay(content=content, embed=embed)
+        MessageDisplay.__init__(self, content=content, embed=embed)
+
+    async def get_votes(self, bot: MyBot) -> dict[str, int] | None:
+        if self.poll.public_results is False:
+            return None
+
+        async with bot.async_session.begin() as session:
+            stmt = (
+                db.select(db.PollAnswer.value, func.count())
+                .select_from(db.PollAnswer)
+                .where(db.PollAnswer.poll_id == self.poll.id)
+                .group_by(db.PollAnswer.value)
+            )
+
+            votes = {  # noqa: C416, dict comprehension used for typing purposes
+                key: value
+                for key, value in (await session.execute(stmt)).all()  # choice_id: vote_count
+            }
+            if self.poll.type == db.PollType.CHOICE:
+                # when we delete a choice from a poll, the votes are still in the db before commit
+                # so we need to filter them
+                votes = {
+                    key: value
+                    for key, value in votes.items()
+                    if key in (str(choice.id) for choice in self.poll.choices)
+                }
+        return votes
 
     @property
     def total_votes(self) -> int:

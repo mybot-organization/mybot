@@ -23,10 +23,10 @@ class MessageDisplay(Mapping[str, Embed | str | None]):
         return self.__dict__[key]
 
     def __iter__(self) -> Iterator[str]:
-        return iter(self.__dict__)
+        return iter(self.__dataclass_fields__)
 
     def __len__(self) -> int:
-        return self.__dict__.__len__()
+        return self.__dataclass_fields__.__len__()
 
 
 class UneditedMessageDisplay(Mapping[str, Any]):
