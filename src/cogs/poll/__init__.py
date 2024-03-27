@@ -103,7 +103,7 @@ class PollCog(ExtendedGroupCog, group_name=__("poll"), group_description=__("Cre
             raise NonSpecificError(_("You are not the author of this poll. You can't edit it.", _l=256))
         await inter.response.send_message(
             **(await PollDisplay(poll, self.bot)),
-            view=await EditPoll(self, poll, message),
+            view=await EditPoll(self, poll, message, inter),
             ephemeral=True,
         )
 
@@ -134,7 +134,7 @@ class PollModal(ui.Modal):
         self.poll.description = self.description.value
         await inter.response.send_message(
             **(await PollDisplay(self.poll, self.bot)),
-            view=await EditPoll(self.cog, self.poll, inter.message),
+            view=await EditPoll(self.cog, self.poll, inter.message, inter),
             ephemeral=True,
         )
 
@@ -174,7 +174,7 @@ class ChoicesPollModal(PollModal):
 
         await inter.response.send_message(
             **(await PollDisplay(self.poll, self.bot)),
-            view=await EditPoll(self.cog, self.poll, inter.message),
+            view=await EditPoll(self.cog, self.poll, inter.message, inter),
             ephemeral=True,
         )
 

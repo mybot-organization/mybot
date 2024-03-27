@@ -45,38 +45,28 @@ class Menu(ui.View, AsyncInitMixin):
     async def __init__(
         self,
         bot: MyBot,
-        message_attached_to: discord.Message | None = None,
         timeout: float | None = 600,
+        inter: Interaction | None = None,
         **kwargs: Any,
     ):
         del kwargs  # unused
 
         super().__init__(timeout=timeout)
         self.bot = bot
-        self.message_attached_to: discord.Message | None = message_attached_to
+        self.inter: Interaction | None = inter
 
-    async def set_menu(self, inter: Interaction, menu: Menu, view_only: bool = False) -> None:
+    async def set_menu(self, inter: Interaction, menu: Menu) -> None:
         """Set the display to a new menu."""
         await menu.update()
+        self.inter = inter
         if isinstance(menu, ui.Modal):
             await inter.response.send_modal(menu)
         else:
             await inter.response.edit_message(**await menu.message_display(), view=menu)
 
-    async def edit_message(self, inter: Interaction, view_only: bool = False):
-        """This edit the message with the view and the message content.
-
-        It is very similar to `set_menu`, and can be considered as a "re-set" of the menu (`menu.set_menu(inter, menu)`)
-
-        Args:
-            inter: the Interaction object
-            refresh_display: when set to False, only the view in updated, not the message content. Defaults to True.
-        """
-        await self.update()
-        if view_only:
-            await inter.response.edit_message(view=self)
-        else:
-            await inter.response.edit_message(view=self, **await self.message_display())
+    async def edit_message(self, inter: Interaction):
+        """A convenient await to update a message with self."""
+        await self.set_menu(inter, self)
 
     async def update(self) -> None:
         """Update the components to match the datas.
@@ -96,10 +86,10 @@ class Menu(ui.View, AsyncInitMixin):
                 item.disabled = True
 
     async def on_timeout(self) -> None:
-        if self.message_attached_to:
+        if self.inter is not None:
             self.disable_view()
             with contextlib.suppress(discord.NotFound, discord.HTTPException):
-                await self.message_attached_to.edit(view=self)
+                await self.inter.edit_original_response(view=self)
 
     async def message_display(self) -> MessageDisplay | UneditedMessageDisplay:
         """This function can be defined and used in order to add a message content (embeds, etc...) within the menu.
@@ -123,6 +113,7 @@ class SubMenuWithoutButtons(Menu, Generic[P]):
         await super().__init__(
             bot=parent.bot,
             timeout=timeout,
+            inter=parent.inter,
         )
         self.parent: P = parent
 
@@ -136,6 +127,7 @@ class SubMenu(Menu, Generic[P]):
         await super().__init__(
             bot=parent.bot,
             timeout=timeout,
+            inter=parent.inter,
         )
         self.parent: P = parent
         self.cancel_btn.label = _("Cancel")

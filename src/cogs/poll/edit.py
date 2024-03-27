@@ -23,8 +23,14 @@ if TYPE_CHECKING:
 
 
 class EditPoll(Menu):
-    async def __init__(self, cog: PollCog, poll: db.Poll, poll_message: discord.Message | None = None):
-        await super().__init__(bot=cog.bot, timeout=600)
+    async def __init__(
+        self,
+        cog: PollCog,
+        poll: db.Poll,
+        poll_message: discord.Message | None = None,
+        inter: Interaction | None = None,
+    ):
+        await super().__init__(bot=cog.bot, timeout=10, inter=inter)
 
         self.poll = poll
         self.cog = cog

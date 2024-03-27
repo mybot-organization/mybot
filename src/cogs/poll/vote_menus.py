@@ -32,7 +32,8 @@ class PollPublicMenu(Menu):
         self.cog = cog
         self.poll = poll
 
-        self.vote.label = _("Vote")
+        # _silent because this view is added to persistent views.
+        self.vote.label = _("Vote", _silent=True)
 
     def get_current_votes(self, poll: db.Poll) -> dict[int, tuple[Interaction, ui.View]]:
         return self.cog.current_votes.setdefault(poll.id, {})
@@ -174,7 +175,7 @@ class ChoicePollVote(VoteMenu):
     @ui.select(cls=ui.Select[Self])
     async def choice(self, inter: Interaction, select: ui.Select[Self]):
         del select  # unused
-        await self.edit_message(inter, False)
+        await self.edit_message(inter)
 
     @ui.button(style=discord.ButtonStyle.red)
     async def remove_vote(self, inter: Interaction, button: ui.Button[Self]):
