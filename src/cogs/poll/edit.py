@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING, Any, Self, cast
+from typing import TYPE_CHECKING, Any, Protocol, Self, cast
 
 import discord
 from discord import Interaction, ui
@@ -30,7 +30,7 @@ class EditPoll(Menu):
         poll_message: discord.Message | None = None,
         inter: Interaction | None = None,
     ):
-        await super().__init__(bot=cog.bot, timeout=10, inter=inter)
+        await super().__init__(bot=cog.bot, inter=inter)
 
         self.poll = poll
         self.cog = cog
@@ -154,7 +154,7 @@ class EditPollToggleSelect(ui.Select[EditPoll]):
 class EditPollMenus(ui.Select[EditPoll]):
     def __init__(self, poll: db.Poll):
         super().__init__(placeholder=_("Edit poll"))
-        self.menus: list[type[EditSubmenu]] = [
+        self.menus: list[type[EditSubmenu | EditSubmenuModal]] = [
             EditTitleAndDescription,
             EditEndingTime,
             EditAllowedRoles,
@@ -177,20 +177,37 @@ class EditPollMenus(ui.Select[EditPoll]):
         await view.set_menu(inter, await self.menus[int(self.values[0])](view))
 
 
-class EditSubmenu(SubMenu[EditPoll]):
+class EditSubmenuProtocol(Protocol):
+    @property
+    def poll(self) -> db.Poll: ...
+
+    @property
+    def bot(self) -> MyBot: ...
+
+
+class EditSubmenuMixin:
     select_name: str
     select_description: str = ""
     select_emoji: str | None = None
 
+    async def update_poll_display(self: EditSubmenuProtocol, inter: discord.Interaction, view: ui.View | None = None):
+        self_as_view = cast(ui.View, self)
+        await inter.response.edit_message(**(await PollDisplay(self.poll, self.bot)), view=view or self_as_view)
+
+
+class EditSubmenu(SubMenu[EditPoll], EditSubmenuMixin):
     async def __init__(self, parent: EditPoll):
         await super().__init__(parent)
         self.poll = parent.poll
 
-    async def update_poll_display(self, inter: discord.Interaction, view: ui.View | None = None):
-        await inter.response.edit_message(**(await PollDisplay(self.poll, self.bot)), view=view or self)
+
+class EditSubmenuModal(ModalSubMenu[EditPoll], EditSubmenuMixin):
+    async def __init__(self, parent: EditPoll):
+        await super().__init__(parent)
+        self.poll = parent.poll
 
 
-class EditTitleAndDescription(EditSubmenu, ui.Modal):
+class EditTitleAndDescription(EditSubmenuModal):
     select_name = _("Edit title and description", _locale=None)
     select_emoji = Emojis.pencil
 
@@ -198,7 +215,7 @@ class EditTitleAndDescription(EditSubmenu, ui.Modal):
         self.title = _("Create a new poll")
         self.custom_id = self.generate_custom_id()
 
-        await EditSubmenu.__init__(self, parent)
+        await super().__init__(parent)
 
         self.question = ui.TextInput[Self](
             label=_("Poll question"),

@@ -50,6 +50,7 @@ class Menu(ui.View, AsyncInitMixin):
         **kwargs: Any,
     ):
         del kwargs  # unused
+        self._default_timeout = timeout
 
         super().__init__(timeout=timeout)
         self.bot = bot
@@ -57,8 +58,13 @@ class Menu(ui.View, AsyncInitMixin):
 
     async def set_menu(self, inter: Interaction, menu: Menu) -> None:
         """Set the display to a new menu."""
-        await menu.update()
         self.inter = inter
+
+        if not isinstance(menu, ui.Modal):
+            self.timeout = None
+        menu.timeout = menu._default_timeout
+
+        await menu.update()
         if isinstance(menu, ui.Modal):
             await inter.response.send_modal(menu)
         else:
@@ -104,6 +110,7 @@ class Menu(ui.View, AsyncInitMixin):
         return os.urandom(16).hex()
 
 
+# TODO: try to implement the following two classes with some sort of Mixin ?
 class SubMenuWithoutButtons(Menu, Generic[P]):
     async def __init__(
         self,
