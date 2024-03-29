@@ -4,6 +4,7 @@ from .constants import Emojis as Emojis
 from .extended_commands import (
     ExtendedCog as ExtendedCog,
     ExtendedGroupCog as ExtendedGroupCog,
+    MiscCommandContext as MiscCommandContext,
     cog_property as cog_property,
     misc_command as misc_command,
 )

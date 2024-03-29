@@ -16,8 +16,8 @@ P = ParamSpec("P")
 T = TypeVar("T")
 
 CogT = TypeVar("CogT", bound="ExtendedCog")
-BotT = TypeVar("BotT", bound="commands.Bot | commands.AutoShardedBot")
-
+type Bot = commands.Bot | commands.AutoShardedBot
+BotT = TypeVar("BotT", bound=Bot)
 
 Snowflake = int
 

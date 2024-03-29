@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 FeatureCodebaseTypes = (
-    app_commands.Command[Any, ..., Any] | app_commands.Group | app_commands.ContextMenu | MiscCommand[Any, ..., Any]
+    app_commands.Command[Any, ..., Any] | app_commands.Group | app_commands.ContextMenu | MiscCommand[Any, Any]
 )
 
 
