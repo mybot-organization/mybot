@@ -69,6 +69,7 @@ class MyBot(AutoShardedBot):
         intents.reactions = True
         intents.guilds = True
         intents.messages = True
+        intents.message_content = True
         logger.debug("Intents : %s", ", ".join(flag[0] for flag in intents if flag[1]))
 
         super().__init__(
@@ -318,7 +319,7 @@ class MyBot(AutoShardedBot):
         Returns:
             _type_: the list of misc commands
         """
-        misc_commands: list[MiscCommand[Any, ..., Any]] = []
+        misc_commands: list[MiscCommand[Any, Any]] = []
         for cog in self.cogs.values():
             if isinstance(cog, ExtendedCog):
                 misc_commands.extend(cog.get_misc_commands())

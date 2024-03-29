@@ -7,10 +7,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     ClassVar,
-    Concatenate,
-    Generic,
     Literal,
-    ParamSpec,
     Protocol,
     Self,
     TypeVar,
@@ -23,23 +20,20 @@ from discord import ClientUser, Member, Permissions, User
 from discord.ext import commands
 from discord.utils import maybe_coroutine
 
-from ._types import BotT, CogT
 from .errors import MiscCheckFailure, MiscCommandError, MiscNoPrivateMessage, UnexpectedError
 
 if TYPE_CHECKING:
     from discord.abc import MessageableChannel, Snowflake
-    from discord.ext.commands.bot import AutoShardedBot, Bot, BotBase  # pyright: ignore[reportMissingTypeStubs]
+    from discord.ext.commands.bot import BotBase  # pyright: ignore[reportMissingTypeStubs]
 
     from mybot import MyBot
 
-    from ._types import CoroT, UnresolvedContext, UnresolvedContextT
+    from ._types import Bot, CogT, CoroT, UnresolvedContext, UnresolvedContextT
 
-    ConditionCallback = Callable[Concatenate["CogT", UnresolvedContextT, "P"], CoroT[bool] | bool]
-    Callback = Callable[Concatenate["CogT", UnresolvedContextT, "P"], CoroT["T"]]
+    type ConditionCallback[CogT, UnresolvedContextT] = Callable[[CogT, UnresolvedContextT], CoroT[bool] | bool]
+    type Callback[CogT, UnresolvedContext, R] = Callable[[CogT, "MiscCommandContext[Any]", UnresolvedContext], CoroT[R]]
 
-P = ParamSpec("P")
-T = TypeVar("T")
-C = TypeVar("C", bound="commands.Cog")
+R = TypeVar("R")
 
 
 LiteralNames = Literal["raw_reaction_add", "message"]
@@ -57,7 +51,7 @@ events_to_type: dict[str, MiscCommandsType] = {
 
 
 class ExtendedCog(commands.Cog):
-    __cog_misc_commands__: list[MiscCommand[Any, ..., Any]]
+    __cog_misc_commands__: list[MiscCommand[Any, Any]]
     bot: MyBot
 
     def __new__(cls, *args: Any, **kwargs: Any) -> Self:
@@ -74,7 +68,7 @@ class ExtendedCog(commands.Cog):
     def __init__(self, bot: MyBot) -> None:
         self.bot = bot
 
-    def get_misc_commands(self) -> list[MiscCommand[Any, ..., Any]]:
+    def get_misc_commands(self) -> list[MiscCommand[Any, Any]]:
         """Return all the misc commands in this cog."""
         return list(self.__cog_misc_commands__)
 
@@ -93,18 +87,18 @@ class ExtendedGroupCog(ExtendedCog):
     __cog_is_app_commands_group__: ClassVar[bool] = True
 
 
-class MiscCommand(Generic[CogT, P, T]):
-    bot: Bot | AutoShardedBot
+class MiscCommand[CogT: ExtendedCog, R]:
+    bot: Bot
 
     def __init__(
         self,
         name: str,
-        callback: Callback[CogT, UnresolvedContextT, P, T],
+        callback: Callback[CogT, UnresolvedContextT, R],
         description: str,
         nsfw: bool,
         type: MiscCommandsType,
         extras: dict[Any, Any],
-        trigger_condition: Callable[Concatenate[CogT, UnresolvedContext, P], bool | CoroT[bool]] | None,
+        trigger_condition: Callable[[CogT, UnresolvedContextT], bool | CoroT[bool]] | None,
     ) -> None:
         self.name = name
         self.type = type
@@ -123,14 +117,12 @@ class MiscCommand(Generic[CogT, P, T]):
         )
         self._callback = callback
 
-    async def do_call(self, cog: CogT, context: UnresolvedContext, *args: P.args, **kwargs: P.kwargs) -> T:
+    async def do_call(self, cog: CogT, context: UnresolvedContext) -> R:
         if self.trigger_condition:
             trigger_condition = await discord.utils.maybe_coroutine(
-                self.trigger_condition,
+                self.trigger_condition,  # type: ignore
                 cog,
-                context,
-                *args,
-                **kwargs,  # type: ignore
+                context,  # type: ignore
             )
             if not trigger_condition:
                 return None  # type: ignore
@@ -143,12 +135,12 @@ class MiscCommand(Generic[CogT, P, T]):
             self.bot.dispatch("misc_command_error", resolved_context, e)
             return None  # type: ignore
 
-        return await self._callback(cog, context, *args, **kwargs)  # type: ignore
+        return await self._callback(cog, resolved_context, context)  # type: ignore
 
     def add_check(self, predicate: Callable[[MiscCommandContext[Any]], CoroT[bool] | bool]) -> None:
         self.checks.append(predicate)
 
-    async def condition(self, func: ConditionCallback[CogT, UnresolvedContextT, P]) -> None:
+    async def condition(self, func: ConditionCallback[CogT, UnresolvedContextT]) -> None:
         self.trigger_condition = func
 
 
@@ -159,8 +151,8 @@ def misc_command(
     nsfw: bool = False,
     listener_name: LiteralNames | None = None,
     extras: dict[Any, Any] | None = None,
-    trigger_condition: ConditionCallback[CogT, UnresolvedContextT, P] | None = None,
-) -> Callable[[Callback[CogT, UnresolvedContextT, P, T]], Callback[CogT, UnresolvedContextT, P, T]]:
+    trigger_condition: ConditionCallback[CogT, UnresolvedContextT] | None = None,
+) -> Callable[[Callback[CogT, UnresolvedContextT, R]], Callable[[CogT, UnresolvedContext], CoroT[R]]]:
     """Register an event listener as a "command" that can be retrieved from the feature exporter.
     Checkers will be called within the second argument of the function (right after the Cog (self))
 
@@ -179,10 +171,12 @@ def misc_command(
         A wrapped function, bound with a MiscCommand.
     """
 
-    def inner(func: Callback[CogT, UnresolvedContextT, P, T]) -> Callback[CogT, UnresolvedContextT, P, T]:
+    def inner(
+        func: Callback[CogT, UnresolvedContextT, R],
+    ) -> Callable[[CogT, UnresolvedContext], CoroT[R]]:
         true_listener_name = "on_" + listener_name if listener_name else func.__name__
 
-        misc_command = MiscCommand[CogT, P, T](
+        misc_command = MiscCommand["CogT", R](
             name=name,
             callback=func,
             description=description,
@@ -193,8 +187,8 @@ def misc_command(
         )
 
         @wraps(func)
-        async def inner(cog: CogT, context: UnresolvedContext, *args: P.args, **kwargs: P.kwargs) -> T:
-            return await misc_command.do_call(cog, context, *args, **kwargs)
+        async def inner(cog: CogT, context: UnresolvedContext) -> R:
+            return await misc_command.do_call(cog, context)
 
         setattr(inner, "__listener_as_command__", misc_command)
 
@@ -218,21 +212,21 @@ class MiscCommandContextFilled(Protocol):
     user: discord.User
 
 
-class MiscCommandContext(Generic[BotT]):
+class MiscCommandContext[B: Bot]:
     def __init__(
         self,
-        bot: BotT,
+        bot: B,
         channel: MessageableChannel,
         user: User | Member,
-        command: MiscCommand[Any, ..., Any],
+        command: MiscCommand[Any, Any],
     ) -> None:
         self.channel: MessageableChannel = channel
         self.user: User | Member = user
-        self.bot: BotT = bot
-        self.command: MiscCommand[Any, ..., Any] = command
+        self.bot: B = bot
+        self.command: MiscCommand[Any, Any] = command
 
     @classmethod
-    async def resolve(cls, bot: BotT, context: UnresolvedContext, command: MiscCommand[Any, ..., Any]) -> Self:
+    async def resolve(cls, bot: B, context: UnresolvedContext, command: MiscCommand[Any, Any]) -> Self:
         channel: MessageableChannel
         user: User | Member
 
@@ -268,15 +262,15 @@ class MiscCommandContext(Generic[BotT]):
         return channel.permissions_for(me)
 
 
-def misc_guild_only() -> Callable[[T], T]:
+def misc_guild_only() -> Callable[[R], R]:
     def predicate(ctx: MiscCommandContext[Any]) -> bool:
         if ctx.channel.guild is None:
             raise MiscNoPrivateMessage
         return True
 
-    def decorator(func: T) -> T:
+    def decorator(func: R) -> R:
         if hasattr(func, "__listener_as_command__"):
-            misc_command: MiscCommand[Any, ..., Any] = getattr(func, "__listener_as_command__")
+            misc_command: MiscCommand[Any, Any] = getattr(func, "__listener_as_command__")
             misc_command.add_check(predicate)
             misc_command.guild_only = True
         else:
@@ -291,10 +285,10 @@ def misc_guild_only() -> Callable[[T], T]:
     return decorator
 
 
-def misc_check(predicate: Callable[[MiscCommandContext[Any]], CoroT[bool] | bool]) -> Callable[[T], T]:
-    def decorator(func: T) -> T:
+def misc_check(predicate: Callable[[MiscCommandContext[Any]], CoroT[bool] | bool]) -> Callable[[R], R]:
+    def decorator(func: R) -> R:
         if hasattr(func, "__listener_as_command__"):
-            misc_command: MiscCommand[Any, ..., Any] = getattr(func, "__listener_as_command__")
+            misc_command: MiscCommand[Any, Any] = getattr(func, "__listener_as_command__")
             misc_command.add_check(predicate)
         else:
             if not hasattr(func, "__misc_commands_checks__"):
@@ -314,10 +308,10 @@ def cog_property(cog_name: str):
         cog_name: the cog name to return
     """
 
-    def inner(_: Callable[..., C]) -> C:
+    def inner(_: Callable[..., CogT]) -> CogT:
         @property
-        def cog_getter(self: Any) -> C:  # self is a cog within the .bot attribute (because every Cog should have it)
-            cog: C | None = self.bot.get_cog(cog_name)
+        def cog_getter(self: Any) -> CogT:  # self is a cog within the .bot attribute (because every Cog should have it)
+            cog: CogT | None = self.bot.get_cog(cog_name)
             if cog is None:
                 raise UnexpectedError(f"Cog named {cog_name} is not loaded.")
             return cog

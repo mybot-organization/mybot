@@ -12,7 +12,7 @@ import discord
 from discord import Embed, Message, app_commands, ui
 from discord.app_commands import locale_str as __
 
-from core import ExtendedCog, ResponseType, TemporaryCache, db, misc_command, response_constructor
+from core import ExtendedCog, MiscCommandContext, ResponseType, TemporaryCache, db, misc_command, response_constructor
 from core.checkers.misc import bot_required_permissions, is_activated, is_user_authorized, misc_check
 from core.constants import EmbedsCharLimits
 from core.errors import BadArgument, NonSpecificError
