@@ -1,0 +1,56 @@
+version: '3'
+
+services:
+  mybot:
+    init: true
+    image: airopi/mybot:stable
+    build:
+      dockerfile: ./Dockerfile
+      target: production
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app
+        - action: rebuild
+          path: ./requirements.txt
+    env_file:
+      - .env
+    tty: true
+    restart: always
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - ./config.toml:/app/config.toml
+
+  database:
+    hostname: database
+    image: timescale/timescaledb:latest-pg14
+    env_file:
+      - .env
+    restart: always
+    volumes:
+      - ./data/database:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  grafana:
+    image: grafana/grafana:latest
+    env_file:
+      - .env
+    restart: always
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      database:
+        condition: service_healthy

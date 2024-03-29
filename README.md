@@ -1,23 +1,40 @@
-# mybot
+<img src="https://bannermd.airopi.dev/banner?title=MyBot&desc=An%20original%20Discord%20bot!&repo=mybot-organization/mybot" width="100%" alt="banner"/>
+<p align="center">
+  <a href="https://www.buymeacoffee.com/airopi" target="_blank">
+    <img alt="Static Badge" src="https://img.shields.io/badge/Buy_me_a_coffee!-grey?style=for-the-badge&logo=buymeacoffee">
+  </a>
+</p>
 
-The official repository of Mybot project!
+<h1 align="center">MyBot</h1>
 
-In order to generate auto-migration scripts using alembic, stop the bot (docker-compose down), run the database (docker-compose up -d database) and enter in shell :
-`docker-compose run --rm -it --entrypoint=/bin/bash mybot -i`
+MyBot is an original Discord bot. It was created to offer useful and little-seen features.
 
-Then, apply eventual migrations :
-`alembic upgrade head`
+This project is motivated by a desire to do things to the maximum possible extent, offering the richest possible functionality!
 
-And finally, create a migration script :
-`alembic revision --autogenerate -m "your message"`
+## Links
 
+- [Support](https://support.mybot.airopi.dev/)
+- [Invite](https://invite.mybot.airopi.dev/)
 
-Commands :
-```bash
-docker-compose down
-docker-compose build
-docker-compose up -d database
-docker-compose run --rm -it --entrypoint=/bin/bash mybot -i
-alembic upgrade head
-alembic revision --autogenerate -m "your message"
-```
+## Using
+
+- [Python 3.12](https://www.python.org/)
+- [discord.py](https://discordpy.readthedocs.io/en/latest/)
+- [PostgreSQL 14](https://www.postgresql.org/)
+- [TimeScale](https://www.timescale.com/)
+
+## Deploy
+
+_Soon_
+
+## Support, Feedback and Community
+
+You can reach me over Discord at `@airo.pi`. Feel free to open an issue if you encounter any problem!
+
+## How to contribute
+
+I would ❤️ to see your contribution! Refer to [CONTRIBUTING.md](.github/CONTRIBUTING.md)
+
+## License
+
+MyBot is under the [MIT Licence](/LICENSE).

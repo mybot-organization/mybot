@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from itertools import starmap
 from typing import TYPE_CHECKING
 
 import discord
@@ -8,6 +9,7 @@ from sqlalchemy import func
 from core import Emojis, db
 from core.i18n import _
 from core.response import MessageDisplay
+from core.utils import AsyncInitMixin
 
 from .constants import (
     BOOLEAN_INDEXES,
@@ -27,49 +29,19 @@ if TYPE_CHECKING:
     from mybot import MyBot
 
 
-class PollDisplay:
-    def __init__(self, poll: Poll, votes: dict[str, int] | None):
-        self.poll: Poll = poll
-        self.votes = votes
+class PollDisplay(AsyncInitMixin, MessageDisplay):
+    async def __init__(self, poll: Poll, bot: MyBot, old_embed: Embed | None = None):
+        self.poll = poll
+        self.votes: dict[str, int] | None = await self.get_votes(bot)
 
-    @classmethod
-    async def build(cls, poll: Poll, bot: MyBot, old_embed: Embed | None = None) -> MessageDisplay:
         content = poll.description
         embed = discord.Embed(title=poll.title)
-
-        votes: dict[str, int] | None
-        if poll.public_results is True:
-            async with bot.async_session.begin() as session:
-                stmt = (
-                    db.select(db.PollAnswer.value, func.count())
-                    .select_from(db.PollAnswer)
-                    .where(db.PollAnswer.poll_id == poll.id)
-                    .group_by(db.PollAnswer.value)
-                )
-                # a generator is used for typing purposes
-                votes = dict(
-                    (key, value) for key, value in (await session.execute(stmt)).all()  # choice_id: vote_count
-                )
-                if poll.type == db.PollType.CHOICE:
-                    # when we delete a choice from a poll, the votes are still in the db before commit
-                    # so we need to filter them
-                    votes = {
-                        key: value for key, value in votes.items() if key in (str(choice.id) for choice in poll.choices)
-                    }
-        else:
-            votes = None
-
-        poll_display = cls(poll, votes)
-
-        description_split: list[str] = []
-        description_split.append(poll_display.build_end_date())
-        description_split.append(poll_display.build_legend())
-
+        description_split: list[str] = [self.build_end_date(), self.build_legend()]
         embed.description = "\n".join(description_split)
 
         if poll.public_results:
-            embed.add_field(name="\u200b", value=poll_display.build_graph())
-            embed.color = poll_display.build_color()
+            embed.add_field(name="\u200b", value=self.build_graph())
+            embed.color = self.build_color()
 
         if old_embed:
             embed.set_footer(text=old_embed.footer.text)
@@ -77,7 +49,33 @@ class PollDisplay:
             author = await bot.getch_user(poll.author_id)
             embed.set_footer(text=_("Poll created by {}", author.name if author else "unknown"))
 
-        return MessageDisplay(content=content, embed=embed)
+        MessageDisplay.__init__(self, content=content, embed=embed)
+
+    async def get_votes(self, bot: MyBot) -> dict[str, int] | None:
+        if self.poll.public_results is False:
+            return None
+
+        async with bot.async_session.begin() as session:
+            stmt = (
+                db.select(db.PollAnswer.value, func.count())
+                .select_from(db.PollAnswer)
+                .where(db.PollAnswer.poll_id == self.poll.id)
+                .group_by(db.PollAnswer.value)
+            )
+
+            votes = {  # noqa: C416, dict comprehension used for typing purposes
+                key: value
+                for key, value in (await session.execute(stmt)).all()  # choice_id: vote_count
+            }
+            if self.poll.type == db.PollType.CHOICE:
+                # when we delete a choice from a poll, the votes are still in the db before commit
+                # so we need to filter them
+                votes = {
+                    key: value
+                    for key, value in votes.items()
+                    if key in (str(choice.id) for choice in self.poll.choices)
+                }
+        return votes
 
     @property
     def total_votes(self) -> int:
@@ -105,7 +103,7 @@ class PollDisplay:
                     percent = self.calculate_proportion(str(choice.id)) * 100
                     return f"{LEGEND_EMOJIS[index]} `{percent:6.2f}%` {choice.label}"
 
-                return "\n".join(format_legend_choice(i, choice) for i, choice in enumerate(self.poll.choices))
+                return "\n".join(starmap(format_legend_choice, enumerate(self.poll.choices)))
             case db.PollType.BOOLEAN:
 
                 def format_legend_boolean(boolean_value: bool) -> str:
@@ -117,9 +115,9 @@ class PollDisplay:
 
                 return "\n".join((format_legend_boolean(True), format_legend_boolean(False)))
             case db.PollType.OPINION:
-                return ""  # TODO(airo.pi_): OPINION
+                return ""
             case db.PollType.ENTRY:
-                return ""  # TODO(airo.pi_): ENTRY
+                return ""
 
     def build_graph(self) -> str:
         if self.votes is None:  # self.votes is None if the poll is not public
@@ -163,7 +161,7 @@ class PollDisplay:
                 graph.insert(0, f"{Emojis.thumb_up} ")
                 graph.append(f" {Emojis.thumb_down}")
             case _:
-                pass  # TODO(airo.pi_): ENTRY, OPINION
+                pass
 
         return "".join(graph)
 

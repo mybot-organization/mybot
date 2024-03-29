@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Self, Sequence, cast
+from collections.abc import Sequence
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, Self, cast
 
 import discord
 from discord import ui
@@ -13,6 +14,7 @@ from sqlalchemy.orm import selectinload
 from core import Menu, ResponseType, db, response_constructor
 from core.constants import Emojis
 from core.i18n import _
+from core.view_menus import SubMenu
 
 from .constants import LEGEND_EMOJIS
 from .display import PollDisplay
@@ -20,24 +22,21 @@ from .display import PollDisplay
 if TYPE_CHECKING:
     from discord import Interaction
 
-    from mybot import MyBot
-
     from . import PollCog
 
 
-class PollPublicMenu(Menu["MyBot"]):
-    def __init__(self, cog: PollCog, poll: db.Poll | None = None):
-        super().__init__(bot=cog.bot, timeout=None)
+class PollPublicMenu(Menu):
+    async def __init__(self, cog: PollCog, poll: db.Poll | None = None):
+        await super().__init__(bot=cog.bot, timeout=None)
 
         self.cog = cog
         self.poll = poll
 
+        # _silent because this view is added to persistent views.
+        self.vote.label = _("Vote", _silent=True)
+
     def get_current_votes(self, poll: db.Poll) -> dict[int, tuple[Interaction, ui.View]]:
         return self.cog.current_votes.setdefault(poll.id, {})
-
-    async def build(self) -> Self:
-        self.vote.label = _("Vote")
-        return self
 
     @ui.button(style=discord.ButtonStyle.blurple, custom_id="poll_vote_button")
     async def vote(self, inter: discord.Interaction, button: ui.Button[Self]):
@@ -50,7 +49,7 @@ class PollPublicMenu(Menu["MyBot"]):
             if poll is None:
                 await inter.response.send_message(
                     **response_constructor(
-                        ResponseType.error, _("Sorry, this poll seems not to exist. Please contact an admin.")
+                        ResponseType.error, _("Sorry, this poll seems not to exist. Please contact an admin.", _l=256)
                     ),
                     ephemeral=True,
                 )
@@ -65,14 +64,14 @@ class PollPublicMenu(Menu["MyBot"]):
                 )
                 return
 
-            if poll.end_date is not None and poll.end_date < datetime.now(timezone.utc):
+            if poll.end_date is not None and poll.end_date < datetime.now(UTC):
                 await inter.response.send_message(
                     **response_constructor(ResponseType.error, _("Sorry, this poll is over, you can't vote anymore!")),
                     ephemeral=True,
                 )
                 return
             user = cast(discord.Member, inter.user)
-            if poll.allowed_roles and not set(role.id for role in user.roles) & set(poll.allowed_roles):
+            if poll.allowed_roles and not {role.id for role in user.roles} & set(poll.allowed_roles):
                 message_display = response_constructor(
                     ResponseType.error, _("Sorry, you need one of the following roles to vote :")
                 )
@@ -106,21 +105,19 @@ class PollPublicMenu(Menu["MyBot"]):
             db.PollType.ENTRY: EntryPollVote,
         }
 
-        vote_menu = vote_menu_types[poll.type](self, poll, votes, inter)
+        vote_menu = await vote_menu_types[poll.type](self, poll, votes, inter)
         await inter.response.send_message(
             **(await vote_menu.message_display()),
-            view=await vote_menu.build(),
+            view=vote_menu,
             ephemeral=True,
         )
 
 
-class VoteMenu(Menu["MyBot"]):
-    parent: PollPublicMenu
-
-    def __init__(
+class VoteMenu(SubMenu[PollPublicMenu]):
+    async def __init__(
         self, parent: PollPublicMenu, poll: db.Poll, user_votes: Sequence[db.PollAnswer], base_inter: Interaction
     ):
-        super().__init__(parent=parent, timeout=180)
+        await super().__init__(parent=parent, timeout=180)
 
         self.user_votes = user_votes
         self.poll = poll
@@ -136,7 +133,7 @@ class VoteMenu(Menu["MyBot"]):
             try:
                 message = cast(discord.Message, self.base_inter.message)  # type: ignore
                 old_embed = message.embeds[0] if message.embeds else None
-                await message.edit(**(await PollDisplay.build(self.poll, self.parent.bot, old_embed)))
+                await message.edit(**await PollDisplay(self.poll, self.parent.bot, old_embed))
             except discord.NotFound:
                 pass
 
@@ -149,7 +146,8 @@ class VoteMenu(Menu["MyBot"]):
 
 
 class ChoicePollVote(VoteMenu):
-    async def build(self) -> Self:
+    async def __init__(self, *args: Any, **kwargs: Any):
+        await super().__init__(*args, **kwargs)
         self.remove_vote.label = _("Remove vote")
         self.validate.label = _("Validate")
 
@@ -170,16 +168,14 @@ class ChoicePollVote(VoteMenu):
             if default:
                 self.choice._values.append(str(choice.id))  # pyright: ignore [reportPrivateUsage]
 
-        return await super().build()
-
     async def update(self):
         await super().update()
         self.remove_vote.disabled = len(self.choice.values) == 0
 
-    @ui.select()
+    @ui.select(cls=ui.Select[Self])
     async def choice(self, inter: Interaction, select: ui.Select[Self]):
         del select  # unused
-        await self.message_refresh(inter, False)
+        await self.edit_message(inter)
 
     @ui.button(style=discord.ButtonStyle.red)
     async def remove_vote(self, inter: Interaction, button: ui.Button[Self]):
@@ -217,10 +213,10 @@ class ChoicePollVote(VoteMenu):
 
 
 class BooleanPollVote(VoteMenu):
-    async def build(self) -> Self:
+    async def __init__(self, *args: Any, **kwargs: Any):
+        await super().__init__(*args, **kwargs)
         self.yes.label = _("Yes")
         self.no.label = _("No")
-        return await super().build()
 
     async def update(self):
         self.yes.style = self.no.style = discord.ButtonStyle.grey
@@ -260,9 +256,7 @@ class BooleanPollVote(VoteMenu):
 
 class OpinionPollVote(VoteMenu):
     pass
-    # TODO(airo.pi_): OPINION
 
 
 class EntryPollVote(VoteMenu):
     pass
-    # TODO(airo.pi_): ENTRY

@@ -1,3 +1,6 @@
+project_id: "532668"
+api_token_env: CROWDIN_API_KEY
+
 files:
-  - source: /data/locale/*.pot
-    translation: /data/locale/%locale%/LC_MESSAGES/%file_name%.po
+  - source: /resources/locale/*.pot
+    translation: /resources/locale/%locale%/LC_MESSAGES/%file_name%.po

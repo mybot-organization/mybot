@@ -1,7 +1,18 @@
+from collections.abc import AsyncIterable, Iterator, Sequence
 from enum import Enum, auto
-from typing import AsyncIterable, Iterator, Sequence, TypeVar
+from typing import Any, Literal, Self, TypeVar
 
 T = TypeVar("T")
+
+
+class AsyncInitMixin:
+    async def __new__(cls, *args: Any, **kwargs: Any) -> Self:
+        instance = super().__new__(cls)
+        await instance.__init__(*args, **kwargs)
+        return instance
+
+    async def __init__(self, *args: Any, **kwargs: Any):
+        pass
 
 
 class CommandType(Enum):
@@ -30,3 +41,12 @@ async def async_all(iterable: AsyncIterable[bool]) -> bool:
         if not element:
             return False
     return True
+
+
+def size_text(string: str, size: int, mode: Literal["end", "middle"] = "end") -> str:
+    if len(string) < size:
+        return string
+    if mode == "end":
+        return f"{string[: size - 1]}…"
+    elif mode == "middle":
+        return f"{string[: size // 2 - 10]}\n… {len(string) - size} more …{string[-size // 2 :]}"

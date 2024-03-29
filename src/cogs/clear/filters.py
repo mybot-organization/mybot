@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import datetime
 import re
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Callable, cast
+from collections.abc import Callable
+from typing import TYPE_CHECKING, cast
 
 import discord
 from discord.utils import get
@@ -95,10 +95,8 @@ class HasFilter(Filter):
     video_content_type_re = re.compile(r"^video\/.*")
     audio_content_type_re = re.compile(r"^audio\/.*")
     has_link_re = re.compile(
-        (
-            r"(?i)\b(?:(?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\((?:[^\s()<>]+|"
-            r"(?:\([^\s()<>]+\)))*\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
-        )
+        r"(?i)\b(?:(?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\((?:[^\s()<>]+|"
+        r"(?:\([^\s()<>]+\)))*\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"  # noqa: RUF001
     )
     has_discord_invite_re = re.compile(r"discord(?:app)?\.(?:gg|com/invite)\/([a-zA-Z0-9]+)")
 
@@ -113,10 +111,7 @@ class HasFilter(Filter):
                 continue
             if content_type_re.match(attachment.content_type):
                 return True
-        for embed in message.embeds:
-            if any(embed.type == t for t in embed_types):
-                return True
-        return False
+        return any(any(embed.type == t for t in embed_types) for embed in message.embeds)
 
     async def test(self, message: discord.Message) -> bool:
         match self.has:
@@ -147,12 +142,3 @@ class LengthFilter(Filter):
 
     async def test(self, message: discord.Message) -> bool:
         return self.length_test(len(message.content), self.length)
-
-
-class DateFilter(Filter):
-    def __init__(self, date_test: Callable[[datetime.datetime, datetime.datetime], bool], date: datetime.datetime):
-        self.date_test = date_test
-        self.date = date
-
-    async def test(self, message: discord.Message) -> bool:
-        return self.date_test(message.created_at, self.date)

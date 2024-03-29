@@ -1,7 +1,8 @@
 import logging
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Iterator, Literal, Mapping, overload
+from typing import Any
 
 import discord
 from discord import Color, Embed
@@ -9,23 +10,23 @@ from discord import Color, Embed
 logger = logging.getLogger(__name__)
 
 
-@dataclass()
+@dataclass
 class MessageDisplay(Mapping[str, Embed | str | None]):
     """
     Used to represent the "display" of a message. It contains the content, the embeds, etc...
     """
 
-    embed: Embed | None = None
+    embed: Embed
     content: str | None = None
 
     def __getitem__(self, key: str) -> Any:
         return self.__dict__[key]
 
     def __iter__(self) -> Iterator[str]:
-        return iter(self.__dict__)
+        return iter(self.__dataclass_fields__)
 
     def __len__(self) -> int:
-        return self.__dict__.__len__()
+        return self.__dataclass_fields__.__len__()
 
 
 class UneditedMessageDisplay(Mapping[str, Any]):
@@ -41,11 +42,6 @@ class UneditedMessageDisplay(Mapping[str, Any]):
 
     def __len__(self) -> int:
         return 0
-
-
-class _ResponseEmbed(MessageDisplay):
-    embed: Embed
-    content: str | None = None
 
 
 class ResponseType(Enum):
@@ -68,20 +64,6 @@ _embed_author_icon_urls = {
     ResponseType.error: "https://cdn.discordapp.com/attachments/584397334608084992/1007741455483281479/error.png",
     ResponseType.warning: "https://cdn.discordapp.com/attachments/584397334608084992/1007741457819516999/warning.png",
 }
-
-
-@overload
-def response_constructor(
-    response_type: ResponseType, message: str, embedded: Literal[True] = ..., author_url: str | None = ...
-) -> _ResponseEmbed:
-    ...
-
-
-@overload
-def response_constructor(
-    response_type: ResponseType, message: str, embedded: Literal[False] = ..., author_url: str | None = ...
-) -> MessageDisplay:
-    ...
 
 
 def response_constructor(

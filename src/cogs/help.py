@@ -2,24 +2,24 @@ from __future__ import annotations
 
 import logging
 from collections import OrderedDict
-from typing import TYPE_CHECKING, Iterable, Self, Sequence, cast
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING, Self, cast
 
 import discord
 from discord import app_commands, ui
 from discord.app_commands import Choice, locale_str as __
-from discord.ext.commands import Cog  # pyright: ignore[reportMissingTypeStubs]
 from discord.utils import get
 
-from commands_exporter import ContextCommand, FeatureType, Misc, MiscCommandsType, SlashCommand
-from core import ResponseType, response_constructor
+from core import ExtendedCog, ResponseType, response_constructor
 from core.constants import Emojis
 from core.i18n import _
 from core.utils import splitter
+from features_exporter import ContextCommand, FeatureType, Misc, MiscCommandsType, SlashCommand
 
 if TYPE_CHECKING:
     from discord import Embed, Interaction
 
-    from commands_exporter import Feature
+    from features_exporter import Feature
     from mybot import MyBot
 
 
@@ -33,10 +33,7 @@ friendly_commands_types = {
 }
 
 
-class Help(Cog):
-    def __init__(self, bot: MyBot) -> None:
-        self.bot = bot
-
+class Help(ExtendedCog):
     @app_commands.command(name=__("help"), description=__("Get help about the bot."), extras={"beta": True})
     @app_commands.rename(feature_identifier=__("feature"))
     async def _help(self, inter: Interaction, feature_identifier: str | None = None):
@@ -69,7 +66,7 @@ class Help(Cog):
         )
 
     def general_embed(self) -> Embed:
-        embed = response_constructor(ResponseType.info, _("Commands of MyBot"))["embed"]
+        embed = response_constructor(ResponseType.info, _("Commands of MyBot", _l=256))["embed"]
 
         feature_types_ui = OrderedDict(
             (
@@ -100,15 +97,16 @@ class Help(Cog):
                     if app_command is None:
                         logger.warning("Feature %s didn't get its app_command for some reason.", feature.name)
                         continue
+
                     if not feature.sub_commands:
                         description[feature.type].insert(
                             0,
-                            f"{Emojis.slash_command} </{feature.name}:{app_command.id}> {set_tags(feature)}\n"
+                            f"{Emojis.slash_command} {app_command.mention} {set_tags(feature)}\n"
                             f"{_(feature.description)}",
                         )
                     else:
                         description[feature.type].append(
-                            f"{Emojis.slash_command} `{feature.name}` {set_tags(feature)}\n{_(feature.description)}"
+                            f"{Emojis.slash_command} `/{feature.name}` {set_tags(feature)}\n{_(feature.description)}"
                         )
                 case ContextCommand():
                     prefix = {
@@ -176,7 +174,7 @@ class HelpView(ui.View):
             else:
                 option.default = False
 
-    @ui.select()  # type: ignore  # TODO : check for fix
+    @ui.select(cls=ui.Select[Self])
     async def select_feature(self, inter: Interaction, select: ui.Select[Self]):
         feature_identifier = select.values[0]
         feature = cast("Feature", self.cog.retrieve_feature_from_identifier(feature_identifier))

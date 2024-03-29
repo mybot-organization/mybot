@@ -1,0 +1,13 @@
+version: '3.4'
+
+services:
+  mybot:
+    build:
+      target: debug
+    restart: "no"
+    ports:
+      - 5678:5678  # for debugpy; see .github/CONTRIBUTING/md
+
+  database:
+    ports:
+      - 5432:5432  # publish database port to the host

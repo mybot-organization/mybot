@@ -1,65 +1,78 @@
 from __future__ import annotations
 
+import contextlib
 import os
-from typing import TYPE_CHECKING, Any, Generic, Self
+from typing import TYPE_CHECKING, Any, Protocol
 
 import discord
 from discord import ui
-from typing_extensions import TypeVar
+
+from core import AsyncInitMixin
+from core.i18n import _
 
 from .response import MessageDisplay, UneditedMessageDisplay
 
 if TYPE_CHECKING:
     from discord import Interaction
 
-BotT = TypeVar("BotT", bound=discord.Client, default=discord.Client)
+    from mybot import MyBot
 
 
-class Menu(ui.View, Generic[BotT]):
-    bot: BotT
+class Menu(ui.View, AsyncInitMixin):
+    """Menus are special views that can be used to create interactive menus.
 
-    def __init__(
+    For example, when you use the /poll command, the menu is the view that allow to chose what you want to edit.
+    Each edit menu (edit title, edit choices...) is a sub-menu of the main menu.
+    These sub-menu have by default a "Cancel" and a "Validate" button.
+
+    When clicking Validate button, the parent menu is displayed again.
+    When clicking Cancel button, the method `cancel` is called and the parent menu is displayed again.
+    A sub-menu can have multiple sub-menus, creating a tree of menus.
+
+    When the Validate or Cancel button is clicked, the parent's method `update` is called to update the view.
+
+    A sub-menu can be a Modal.
+
+    We can attach a message to a menu. This is useful to edit the view when the menu timeout.
+    """
+
+    async def __init__(
         self,
-        bot: BotT | None = None,
-        parent: Menu[BotT] | None = None,
-        message_attached_to: discord.Message | None = None,
+        bot: MyBot,
         timeout: float | None = 600,
+        inter: Interaction | None = None,
         **kwargs: Any,
     ):
-        """
-        While building the view needs to be async, you shouldn't use __init__ to create a new Menu.
-        Instead, always use the `new` method.
-        """
         del kwargs  # unused
-        if parent is None and bot is None:
-            raise ValueError("You must provide a parent or the bot.")
+        self._default_timeout = timeout
 
         super().__init__(timeout=timeout)
-        self.bot = bot or parent.bot  # pyright: ignore[reportOptionalMemberAccess]
-        self.parent = parent
-        self.message_attached_to: discord.Message | None = message_attached_to
+        self.bot = bot
+        self.inter: Interaction | None = inter
 
-    async def set_back(self, inter: Interaction) -> None:
-        if not self.parent:
-            raise ValueError(f"This menu has no parent. Menu : {self}")
-        await inter.response.edit_message(**(await self.parent.message_display()), view=self.parent)
+    async def set_menu(self, inter: Interaction, menu: Menu) -> None:
+        """Set the display to a new menu."""
+        self.inter = inter
 
-    async def set_menu(self, inter: Interaction, menu: Menu[BotT]) -> None:
+        if not isinstance(menu, ui.Modal):
+            self.timeout = None
+        menu.timeout = menu._default_timeout
+
+        await menu.update()
         if isinstance(menu, ui.Modal):
             await inter.response.send_modal(menu)
         else:
-            await inter.response.edit_message(**(await menu.message_display()), view=menu)
+            await inter.response.edit_message(**await menu.message_display(), view=menu)
 
-    async def build(self) -> Self:
-        """
-        Add buttons label, selects values, etc... Called with the `new` method.
-        """
-        await self.update()
-        return self
+    async def edit_message(self, inter: Interaction):
+        """A convenient await to update a message with self."""
+        await self.set_menu(inter, self)
 
     async def update(self) -> None:
-        """
-        Update the view with new values. Will set selected values as default for selects by default.
+        """Update the components to match the datas.
+
+        The default behavior is to set the selected values as default for ui.Select children, so the user can see what
+        he selected.
         """
         for item in self.children:
             if isinstance(item, ui.Select):
@@ -67,47 +80,90 @@ class Menu(ui.View, Generic[BotT]):
                     option.default = option.value in item.values
 
     def disable_view(self):
+        """A utility method to disable all buttons and selects in the view."""
         for item in self.children:
-            if isinstance(item, (ui.Button, ui.Select)):
+            if isinstance(item, ui.Button | ui.Select):
                 item.disabled = True
 
     async def on_timeout(self) -> None:
-        if self.message_attached_to:
+        if self.inter is not None:
             self.disable_view()
-            try:
-                await self.message_attached_to.edit(view=self)
-            except (discord.NotFound, discord.HTTPException):
-                pass
+            with contextlib.suppress(discord.NotFound, discord.HTTPException):
+                await self.inter.edit_original_response(view=self)
 
     async def message_display(self) -> MessageDisplay | UneditedMessageDisplay:
-        """This function can be defined and used in order to add a message content (embeds, etc...) within the menu."""
-        return UneditedMessageDisplay()
+        """This function can be defined and used in order to add a message content (embeds, etc...) within the menu.
 
-    async def message_refresh(self, inter: Interaction, refresh_display: bool = True):
-        await self.update()
-        if refresh_display:
-            await inter.response.edit_message(view=self, **await self.message_display())
-        else:
-            await inter.response.edit_message(view=self)
+        Then the message content is synchronized with the view.
+        """
+        return UneditedMessageDisplay()
 
     @staticmethod
     def generate_custom_id() -> str:
+        """A utility method to generate a random custom id for the menu."""
         return os.urandom(16).hex()
 
 
-class ModalMenu(Menu[BotT], ui.Modal):
-    def __init__(
+class SubMenuProtocol(Protocol):
+    @property
+    def parent(self) -> Menu: ...
+
+    async def set_menu(self, inter: Interaction, menu: Menu) -> None: ...
+
+    async def on_cancel(self) -> None: ...
+
+    async def on_validate(self) -> None: ...
+
+
+class SubMenuDefaultButtonsMixin:
+    def __init__(self):
+        self.cancel_btn.label = _("Cancel")
+        self.validate_btn.label = _("Validate")
+
+    async def on_cancel(self):
+        """Method called when the cancel button is clicked."""
+
+    async def on_validate(self):
+        """Method called when the validate button is clicked."""
+
+    @ui.button(style=discord.ButtonStyle.grey, row=4)
+    async def cancel_btn(self: SubMenuProtocol, inter: discord.Interaction, button: ui.Button[Any]):
+        del button  # unused
+        await self.on_cancel()
+        await self.set_menu(inter, self.parent)
+
+    @ui.button(style=discord.ButtonStyle.green, row=4)
+    async def validate_btn(self: SubMenuProtocol, inter: discord.Interaction, button: ui.Button[Any]):
+        del button  # unused
+        await self.on_validate()
+        await self.set_menu(inter, self.parent)
+
+
+class SubMenu[P: Menu](Menu):
+    async def __init__(
         self,
-        bot: BotT | None = None,
-        parent: Menu[BotT] | None = None,
+        parent: P,
         timeout: float | None = 600,
-        **kwargs: Any,
     ):
-        self.custom_id: str = self.generate_custom_id()
-        Menu[BotT].__init__(
-            self,
-            bot=bot,
+        await super().__init__(
+            bot=parent.bot,
+            timeout=timeout,
+            inter=parent.inter,
+        )
+        self.parent: P = parent
+
+
+class ModalSubMenu[P: Menu](SubMenu[P], ui.Modal):
+    async def __init__(
+        self,
+        parent: P,
+        timeout: float | None = 600,
+    ):
+        await super().__init__(
             parent=parent,
             timeout=timeout,
-            **kwargs,
         )
+        self.custom_id: str = self.generate_custom_id()
+
+    async def on_submit(self, inter: discord.Interaction) -> None:
+        await self.set_menu(inter, self.parent)

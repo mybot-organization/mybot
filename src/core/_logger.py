@@ -5,7 +5,7 @@ import logging
 import os
 import sys
 import traceback
-from typing import Any, NamedTuple, cast
+from typing import Any, ClassVar, NamedTuple, cast
 
 import aiohttp
 import discord
@@ -36,7 +36,7 @@ class AdditionalContext(NamedTuple):
 
 
 class DiscordLogHandler(logging.Handler):
-    bind_colors = {
+    bind_colors: ClassVar = {
         logging.WARNING: discord.Color.yellow(),
         logging.INFO: discord.Color.blue(),
         logging.ERROR: discord.Color.red(),
@@ -44,7 +44,7 @@ class DiscordLogHandler(logging.Handler):
         logging.DEBUG: discord.Color.orange(),
     }
 
-    tasks: list[asyncio.Task[Any]] = []
+    tasks: ClassVar[list[asyncio.Task[Any]]] = []
 
     def __init__(self) -> None:
         super().__init__(level=logging.WARNING)
@@ -105,10 +105,10 @@ class DiscordLogHandler(logging.Handler):
         if getattr(record, "ignore_discord", False):
             return
 
-        if config.LOG_WEBHOOK_URL is None:
+        if os.getenv("LOG_WEBHOOK_URL") is None:
             return
 
-        self.send_to_discord(record, config.LOG_WEBHOOK_URL)
+        self.send_to_discord(record, os.environ["LOG_WEBHOOK_URL"])
 
 
 class _ColorFormatter(logging.Formatter):
@@ -121,7 +121,7 @@ class _ColorFormatter(logging.Formatter):
     # 100-107 are the same as the bright ones but for the background.
     # 1 means bold, 2 means dim, 0 means reset, and 4 means underline.
 
-    LEVEL_COLOURS = [
+    LEVEL_COLOURS: ClassVar = [
         (logging.DEBUG, "\x1b[40;1m"),
         (logging.INFO, "\x1b[34;1m"),
         (logging.WARNING, "\x1b[33;1m"),
@@ -129,7 +129,7 @@ class _ColorFormatter(logging.Formatter):
         (logging.CRITICAL, "\x1b[41m"),
     ]
 
-    FORMATS = {
+    FORMATS: ClassVar = {
         level: logging.Formatter(
             f"\x1b[30;1m%(asctime)s\x1b[0m {colour}%(levelname)-8s\x1b[0m \x1b[35m%(name)s\x1b[0m %(message)s",
             dt_fmt,
