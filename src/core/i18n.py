@@ -94,7 +94,7 @@ def i18n(
             return _("Hello, World!", _locale=Locale.french)
         ```
 
-    Or, if when you define the string, you don't know the locale, you can set `_locale` to `None`.
+    Or, if you don't know the locale when you define the string, you can set `_locale` to `None`.
 
         ```py
         my_strings = {
@@ -107,7 +107,7 @@ def i18n(
             await inter.response.send_message(_(my_strings[color]))  # note the use of the `_` function here
         ```
 
-    The last special case is you your context can have an interaction in the stack, **OR** not. Then you can use the
+    The last special case is when your context can have an interaction in the stack, **OR** not. Then you can use the
     `_silent` argument to silent the warning message if the interaction was not found.
     This is useful for persistant view, that will be loaded at startup and when sending new views.
 
@@ -117,9 +117,9 @@ def i18n(
                 super().__init__()
                 self.click_me.label = _("Click me!", _silent=True)
 
-        @ui.button(custom_id="click_me")
-        async def click_me(self, inter: Interaction, button: Button):
-            await inter.response.send_message(_("You clicked me!"))
+            @ui.button(custom_id="click_me")
+            async def click_me(self, inter: Interaction, button: Button):
+                await inter.response.send_message(_("You clicked me!"))
         ```
 
     Args:
