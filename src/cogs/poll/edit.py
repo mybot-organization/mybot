@@ -11,7 +11,7 @@ from cogs.poll.vote_menus import PollPublicMenu
 from core import Menu, MessageDisplay, ResponseType, db, response_constructor
 from core.constants import Emojis
 from core.i18n import _
-from core.view_menus import ModalSubMenu, SubMenu
+from core.view_menus import ModalSubMenu, SubMenu, SubMenuDefaultButtonsMixin
 
 from .constants import LEGEND_EMOJIS, TOGGLE_EMOTES
 from .display import PollDisplay
@@ -195,9 +195,10 @@ class EditSubmenuMixin:
         await inter.response.edit_message(**(await PollDisplay(self.poll, self.bot)), view=view or self_as_view)
 
 
-class EditSubmenu(SubMenu[EditPoll], EditSubmenuMixin):
+class EditSubmenu(SubMenu[EditPoll], SubMenuDefaultButtonsMixin, EditSubmenuMixin):
     async def __init__(self, parent: EditPoll):
         await super().__init__(parent)
+        SubMenuDefaultButtonsMixin.__init__(self)
         self.poll = parent.poll
 
 
@@ -375,9 +376,10 @@ class AddChoice(ModalSubMenu[EditChoices]):
         await self.parent.update_poll_display(inter)
 
 
-class RemoveChoices(SubMenu[EditChoices]):
+class RemoveChoices(SubMenu[EditChoices], SubMenuDefaultButtonsMixin):
     async def __init__(self, parent: EditChoices) -> None:
         await super().__init__(parent=parent)
+        SubMenuDefaultButtonsMixin.__init__(self)
         self.old_value = self.parent.poll.choices.copy()
 
         self.choices_to_remove.placeholder = _("Select the choices you want to remove.", _l=100)

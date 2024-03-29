@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import contextlib
 import os
-from typing import TYPE_CHECKING, Any, Generic, Self
+from typing import TYPE_CHECKING, Any, Protocol
 
 import discord
 from discord import ui
-from typing_extensions import TypeVar
 
 from core import AsyncInitMixin
 from core.i18n import _
@@ -17,9 +16,6 @@ if TYPE_CHECKING:
     from discord import Interaction
 
     from mybot import MyBot
-
-
-P = TypeVar("P", bound="Menu")
 
 
 class Menu(ui.View, AsyncInitMixin):
@@ -39,8 +35,6 @@ class Menu(ui.View, AsyncInitMixin):
 
     We can attach a message to a menu. This is useful to edit the view when the menu timeout.
     """
-
-    parent = None
 
     async def __init__(
         self,
@@ -110,33 +104,19 @@ class Menu(ui.View, AsyncInitMixin):
         return os.urandom(16).hex()
 
 
-# TODO: try to implement the following two classes with some sort of Mixin ?
-class SubMenuWithoutButtons(Menu, Generic[P]):
-    async def __init__(
-        self,
-        parent: P,
-        timeout: float | None = 600,
-    ):
-        await super().__init__(
-            bot=parent.bot,
-            timeout=timeout,
-            inter=parent.inter,
-        )
-        self.parent: P = parent
+class SubMenuProtocol(Protocol):
+    @property
+    def parent(self) -> Menu: ...
+
+    async def set_menu(self, inter: Interaction, menu: Menu) -> None: ...
+
+    async def on_cancel(self) -> None: ...
+
+    async def on_validate(self) -> None: ...
 
 
-class SubMenu(Menu, Generic[P]):
-    async def __init__(
-        self,
-        parent: P,
-        timeout: float | None = 600,
-    ):
-        await super().__init__(
-            bot=parent.bot,
-            timeout=timeout,
-            inter=parent.inter,
-        )
-        self.parent: P = parent
+class SubMenuDefaultButtonsMixin:
+    def __init__(self):
         self.cancel_btn.label = _("Cancel")
         self.validate_btn.label = _("Validate")
 
@@ -147,34 +127,43 @@ class SubMenu(Menu, Generic[P]):
         """Method called when the validate button is clicked."""
 
     @ui.button(style=discord.ButtonStyle.grey, row=4)
-    async def cancel_btn(self, inter: discord.Interaction, button: ui.Button[Self]):
+    async def cancel_btn(self: SubMenuProtocol, inter: discord.Interaction, button: ui.Button[Any]):
         del button  # unused
         await self.on_cancel()
         await self.set_menu(inter, self.parent)
 
     @ui.button(style=discord.ButtonStyle.green, row=4)
-    async def validate_btn(self, inter: discord.Interaction, button: ui.Button[Self]):
+    async def validate_btn(self: SubMenuProtocol, inter: discord.Interaction, button: ui.Button[Any]):
         del button  # unused
         await self.on_validate()
         await self.set_menu(inter, self.parent)
 
 
-class ModalSubMenu(Generic[P], Menu, ui.Modal):
+class SubMenu[P: Menu](Menu):
     async def __init__(
         self,
         parent: P,
         timeout: float | None = 600,
-        **kwargs: Any,
     ):
-        self.custom_id: str = self.generate_custom_id()
-        await Menu.__init__(
-            self,
+        await super().__init__(
             bot=parent.bot,
             timeout=timeout,
-            **kwargs,
+            inter=parent.inter,
         )
-
         self.parent: P = parent
+
+
+class ModalSubMenu[P: Menu](SubMenu[P], ui.Modal):
+    async def __init__(
+        self,
+        parent: P,
+        timeout: float | None = 600,
+    ):
+        await super().__init__(
+            parent=parent,
+            timeout=timeout,
+        )
+        self.custom_id: str = self.generate_custom_id()
 
     async def on_submit(self, inter: discord.Interaction) -> None:
         await self.set_menu(inter, self.parent)
