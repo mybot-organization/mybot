@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from discord import app_commands
 
 from core import ExtendedCog, config
+from core.checkers import is_me
 
 if TYPE_CHECKING:
     from discord import Interaction
@@ -15,9 +16,10 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class Admin(ExtendedCog):  # TODO(airo.pi_): add checkers
+class Admin(ExtendedCog):
     @app_commands.command()
     @app_commands.guilds(config.support_guild_id)
+    @is_me
     async def reload_extension(self, inter: Interaction, extension: str):
         await self.bot.reload_extension(extension)
         await inter.response.send_message(f"Extension [{extension}] reloaded successfully")
@@ -32,6 +34,7 @@ class Admin(ExtendedCog):  # TODO(airo.pi_): add checkers
 
     @app_commands.command()
     @app_commands.guilds(config.support_guild_id)
+    @is_me
     async def sync_tree(self, inter: Interaction):
         await inter.response.defer()
         await self.bot.sync_tree()

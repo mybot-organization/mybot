@@ -48,7 +48,7 @@ class Clear(ExtendedCog):
 
         self.clear_max_concurrency = checkers.MaxConcurrency(1, key=channel_bucket, wait=False)
 
-    @checkers.app.bot_required_permissions(
+    @checkers.bot_required_permissions(
         manage_messages=True, read_message_history=True, read_messages=True, connect=True
     )
     @app_commands.command(
