@@ -4,8 +4,10 @@ import logging
 import re
 from typing import TYPE_CHECKING
 
+from discord import Interaction, app_commands
+
 from core import ExtendedCog, MiscCommandContext, misc_command
-from core.checkers.misc import bot_required_permissions, is_activated, is_user_authorized, misc_check
+from core.checkers import bot_required_permissions, check, is_activated_predicate, is_user_authorized_predicate
 
 if TYPE_CHECKING:
     from discord import Message
@@ -27,10 +29,14 @@ class Restore(ExtendedCog):
         trigger_condition=contains_message_link,
     )
     @bot_required_permissions(manage_webhooks=True)
-    @misc_check(is_activated)
-    @misc_check(is_user_authorized)
+    @check(is_activated_predicate)
+    @check(is_user_authorized_predicate)
     async def on_message(self, ctx: MiscCommandContext[MyBot], message: Message) -> None:
         raise NotImplementedError("Restore is not implemented.")
+
+    @app_commands.command()
+    async def test(self, inter: Interaction):
+        pass
 
 
 async def setup(bot: MyBot):

@@ -13,7 +13,7 @@ from discord.app_commands import locale_str as __
 from sqlalchemy.orm import selectinload
 
 from core import ExtendedGroupCog, db
-from core.checkers.app import bot_required_permissions
+from core.checkers import bot_required_permissions
 from core.errors import NonSpecificError
 from core.i18n import _
 

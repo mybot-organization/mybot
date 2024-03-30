@@ -285,7 +285,7 @@ def misc_guild_only() -> Callable[[R], R]:
     return decorator
 
 
-def misc_check(predicate: Callable[[MiscCommandContext[Any]], CoroT[bool] | bool]) -> Callable[[R], R]:
+def check(predicate: Callable[[MiscCommandContext[Any]], CoroT[bool] | bool]) -> Callable[[R], R]:
     def decorator(func: R) -> R:
         if hasattr(func, "__listener_as_command__"):
             misc_command: MiscCommand[Any, Any] = getattr(func, "__listener_as_command__")

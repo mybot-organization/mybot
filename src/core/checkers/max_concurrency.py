@@ -7,7 +7,6 @@ from collections.abc import Callable, Hashable
 from typing import TYPE_CHECKING, Any, Self, TypeVar
 
 from ..errors import MaxConcurrencyReached
-from ..extended_commands import misc_check as misc_check
 
 T = TypeVar("T")
 

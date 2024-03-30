@@ -17,8 +17,7 @@ from discord.interactions import Interaction
 
 from core import ExtendedCog
 from core._config import config
-from core.checkers.app import is_me
-from core.checkers.base import is_me_bool
+from core.checkers import is_me, is_me_test
 from core.utils import size_text
 
 if TYPE_CHECKING:
@@ -32,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 class Eval(ExtendedCog):
     @commands.command(name="+eval")
-    @commands.check(lambda ctx: is_me_bool(ctx.author.id))
+    @commands.check(lambda ctx: is_me_test(ctx.author.id))
     async def add_eval(self, ctx: commands.Context[MyBot]) -> None:
         try:
             self.bot.tree.add_command(self._eval, guild=ctx.guild)
@@ -44,7 +43,7 @@ class Eval(ExtendedCog):
                 await ctx.send("Command added.")
 
     @commands.command(name="-eval")
-    @commands.check(lambda ctx: is_me_bool(ctx.author.id))
+    @commands.check(lambda ctx: is_me_test(ctx.author.id))
     async def remove_eval(self, ctx: commands.Context[MyBot]) -> None:
         if self.bot.tree.remove_command("eval", guild=ctx.guild) is None:
             await ctx.send("Command not registered. Cleaning eventual leftovers...")
