@@ -34,6 +34,7 @@ class Admin(ExtendedCog):
 
     @app_commands.command()
     @app_commands.guilds(config.support_guild_id)
+    @is_me
     async def sync_tree(self, inter: Interaction):
         await inter.response.defer()
         await self.bot.sync_tree()
