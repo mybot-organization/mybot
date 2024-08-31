@@ -2,6 +2,7 @@ version: '3'
 
 services:
   mybot:
+    hostname: mybot
     init: true
     image: airopi/mybot:stable
     build:
@@ -23,6 +24,10 @@ services:
         condition: service_healthy
     volumes:
       - ./config.toml:/app/config.toml
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
 
   database:
     hostname: database
