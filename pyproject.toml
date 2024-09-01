@@ -1,18 +1,41 @@
-[tool.tox]
-legacy_tox_ini = """
-[tox]
-skipsdist = true
+[project]
+name = "MyBot"
+version = "2.0b3"
+dependencies = [
+    "wheel",
+    "asyncpg",
+    "sqlalchemy[asyncio]",
+    "typing_extensions",
+    "discord.py",
+    "psutil",
+    "alembic",
+    "two048",
+    "topggpy==2.0.0a0",
+    "lingua-language-detector",
+    "aiohttp",
+    "python-dateutil",
+    "typer",
+]
+requires-python = ">=3.12"
 
-[testenv]
-deps = 
-    -r requirements.txt
-    -r requirements.dev.txt
-commands =
-    # pytest
-    ruff format --check src
-    ruff check src
-    pyright src/
-"""
+[tool.uv]
+dev-dependencies = ["tox-uv", "pyright", "pip-tools", "debugpy", "ruff"]
+
+# [tool.tox]
+# legacy_tox_ini = """
+# [tox]
+# skipsdist = true
+
+# [testenv]
+# deps = 
+#     -r requirements.txt
+#     -r requirements.dev.txt
+# commands =
+#     # pytest
+#     ruff format --check src
+#     ruff check src
+#     pyright src/
+# """
 
 [tool.ruff]
 line-length = 120

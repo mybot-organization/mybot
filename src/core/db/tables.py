@@ -60,7 +60,7 @@ class PremiumType(enum.Enum):
 
 
 class Base(MappedAsDataclass, AsyncAttrs, DeclarativeBase):
-    type_annotation_map: ClassVar = {
+    type_annotation_map: ClassVar[dict[Any, Any]] = {
         bool: BOOLEAN,
         int: INTEGER,
     }

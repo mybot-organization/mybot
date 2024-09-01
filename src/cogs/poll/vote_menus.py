@@ -35,6 +35,15 @@ class PollPublicMenu(Menu):
         # _silent because this view is added to persistent views.
         self.vote.label = _("Vote", _silent=True)
 
+        if poll is not None:
+            self.add_item(
+                ui.Button(
+                    style=discord.ButtonStyle.url,
+                    label=_("Results", _silent=True),
+                    url=f"http://localhost:8000/poll/{poll.message_id}",
+                )
+            )
+
     def get_current_votes(self, poll: db.Poll) -> dict[int, tuple[Interaction, ui.View]]:
         return self.cog.current_votes.setdefault(poll.id, {})
 
@@ -98,7 +107,7 @@ class PollPublicMenu(Menu):
             await current_votes[inter.user.id][0].delete_original_response()
         current_votes[inter.user.id] = (inter, self)
 
-        vote_menu_types = {
+        vote_menu_types: dict[db.PollType, type[VoteMenu]] = {
             db.PollType.CHOICE: ChoicePollVote,
             db.PollType.BOOLEAN: BooleanPollVote,
             db.PollType.OPINION: OpinionPollVote,

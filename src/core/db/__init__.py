@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 
-from sqlalchemy import select as select
+from sqlalchemy import Integer as Integer, String as String, cast as cast, func as func, select as select
 from sqlalchemy.orm import selectinload as selectinload
 
 from .tables import (

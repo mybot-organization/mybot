@@ -39,7 +39,7 @@ class Menu(ui.View, AsyncInitMixin):
     async def __init__(
         self,
         bot: MyBot,
-        timeout: float | None = 600,
+        timeout: float | None = 600,  # noqa: ASYNC109
         inter: Interaction | None = None,
         **kwargs: Any,
     ):
@@ -126,13 +126,13 @@ class SubMenuDefaultButtonsMixin:
     async def on_validate(self):
         """Method called when the validate button is clicked."""
 
-    @ui.button(style=discord.ButtonStyle.grey, row=4)
+    @ui.button(style=discord.ButtonStyle.grey, row=4)  # type: ignore
     async def cancel_btn(self: SubMenuProtocol, inter: discord.Interaction, button: ui.Button[Any]):
         del button  # unused
         await self.on_cancel()
         await self.set_menu(inter, self.parent)
 
-    @ui.button(style=discord.ButtonStyle.green, row=4)
+    @ui.button(style=discord.ButtonStyle.green, row=4)  # type: ignore
     async def validate_btn(self: SubMenuProtocol, inter: discord.Interaction, button: ui.Button[Any]):
         del button  # unused
         await self.on_validate()
@@ -157,7 +157,7 @@ class ModalSubMenu[P: Menu](SubMenu[P], ui.Modal):
     async def __init__(
         self,
         parent: P,
-        timeout: float | None = 600,
+        timeout: float | None = 600,  # noqa: ASYNC109
     ):
         await super().__init__(
             parent=parent,

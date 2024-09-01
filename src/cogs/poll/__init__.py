@@ -61,7 +61,7 @@ class PollCog(ExtendedGroupCog, group_name=__("poll"), group_description=__("Cre
             creation_date=inter.created_at,
         )
 
-        poll_menu_from_type = {
+        poll_menu_from_type: dict[db.PollType, type[PollModal]] = {
             db.PollType.CHOICE: ChoicesPollModal,
             db.PollType.BOOLEAN: PollModal,
             db.PollType.OPINION: PollModal,

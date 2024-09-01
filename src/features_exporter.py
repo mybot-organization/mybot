@@ -197,14 +197,14 @@ async def features_exporter(filename: str | Path = Path("./features.json")):
         result[locale.value] = extract_features(mybot, translator)
 
     def default(o: Any):
-        if is_dataclass(o):
+        if is_dataclass(o) and not isinstance(o, type):
             return asdict(o)
         elif isinstance(o, Enum):
             return o.value
 
         return JSONEncoder().default(o)
 
-    with open(filename, "w", encoding="utf-8") as file:  # noqa: ASYNC101
+    with open(filename, "w", encoding="utf-8") as file:  # noqa: ASYNC230
         json.dump(result, file, indent=4, default=default)
 
     for ext in tuple(mybot.extensions):
