@@ -78,6 +78,8 @@ class UserDB(Base):
     __tablename__ = "user"
 
     user_id: Mapped[Snowflake] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(default="unknown")
+    avatar: Mapped[str | None] = mapped_column(default=None)
 
 
 class Poll(Base, kw_only=True):

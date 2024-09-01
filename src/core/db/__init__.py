@@ -2,9 +2,23 @@ from __future__ import annotations
 
 import logging
 
-from sqlalchemy import Integer as Integer, String as String, cast as cast, func as func, select as select
-from sqlalchemy.orm import selectinload as selectinload
+from sqlalchemy import (
+    Integer as Integer,
+    String as String,
+    and_ as and_,
+    cast as cast,
+    func as func,
+    literal_column as literal_column,
+    select as select,
+)
+from sqlalchemy.orm import noload as noload, selectinload as selectinload
 
+from .queries.poll import (
+    get_poll_informations as get_poll_informations,
+)
+from .queries.user import (
+    update_or_create_user as update_or_create_user,
+)
 from .tables import (
     Base as Base,
     GuildDB as GuildDB,

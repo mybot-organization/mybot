@@ -13,7 +13,7 @@ RUN --mount=type=cache,target=/var/cache/apk/ \
     --mount=type=bind,source=./bin/msgfmt.py,target=./msgfmt.py \
     : \
     && apk add gcc musl-dev linux-headers \
-    && uv sync --no-dev --locked \
+    && uv sync --no-dev --frozen \
     && python ./msgfmt.py ./locale/**/LC_MESSAGES/*.po \
     && :
 

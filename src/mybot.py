@@ -70,6 +70,7 @@ class MyBot(AutoShardedBot):
         intents.guilds = True
         intents.messages = True
         intents.message_content = True
+        intents.members = True
         logger.debug("Intents : %s", ", ".join(flag[0] for flag in intents if flag[1]))
 
         super().__init__(

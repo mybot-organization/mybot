@@ -18,7 +18,7 @@ services:
     env_file:
       - .env
     tty: true
-    restart: always
+    restart: on-failure
     depends_on:
       database:
         condition: service_healthy
@@ -38,11 +38,7 @@ services:
     volumes:
       - ./data/database:/var/lib/postgresql/data
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"
-        ]
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 5s
       timeout: 5s
       retries: 5

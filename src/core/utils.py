@@ -1,3 +1,4 @@
+import functools
 from collections.abc import AsyncIterable, Iterator, Sequence
 from enum import Enum, auto
 from typing import Any, Literal, Self, TypeVar
@@ -50,3 +51,19 @@ def size_text(string: str, size: int, mode: Literal["end", "middle"] = "end") ->
         return f"{string[: size - 1]}…"
     elif mode == "middle":
         return f"{string[: size // 2 - 10]}\n… {len(string) - size} more …{string[-size // 2 :]}"
+
+
+def rgetattr(obj: Any, attr: str, *args: Any) -> Any:
+    def _getattr(obj: Any, attr: str):
+        return getattr(obj, attr, *args)
+
+    return functools.reduce(_getattr, [obj, *attr.split(".")])
+
+
+def fbgetattr(obj: Any, attr: str | tuple[str, ...]) -> Any:
+    if isinstance(attr, str):
+        return rgetattr(obj, attr)
+    else:
+        for fb in attr:
+            if (v := rgetattr(obj, fb)) is not None:
+                return v

@@ -70,7 +70,7 @@ class Config:
 
 def define_config(config_path: Path | str | None = None, **kwargs: Any):
     if config_path:
-        with open(config_path, "rb", encoding="utf-8") as f:
+        with open(config_path, "rb") as f:
             kwargs |= tomllib.load(f)
 
     Config(**kwargs)  # it is a singleton, so it will directly affect the instance.

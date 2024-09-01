@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import discord
 from discord import app_commands
@@ -53,7 +53,7 @@ class Stats(ExtendedCog):
         if app_command is None:
             return
 
-        payload = {
+        payload: dict[str, Any] = {
             "command": parent.name,
             "exact_command": inter.command.qualified_name,
             "type": app_command.type.name,
