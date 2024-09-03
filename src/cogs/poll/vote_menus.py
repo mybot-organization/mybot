@@ -40,7 +40,7 @@ class PollPublicMenu(Menu):
                 ui.Button(
                     style=discord.ButtonStyle.url,
                     label=_("Results", _silent=True),
-                    url=f"http://localhost:8000/poll/{poll.message_id}",
+                    url=f"http://localhost:8000/poll/{poll.url}",
                 )
             )
 

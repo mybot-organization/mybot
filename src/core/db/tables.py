@@ -100,6 +100,7 @@ class Poll(Base, kw_only=True):
     public_results: Mapped[bool] = mapped_column(default=True)
     closed: Mapped[bool] = mapped_column(default=False)
     anonymous_allowed: Mapped[bool] = mapped_column(default=False)
+    url: Mapped[str] = mapped_column(VARCHAR(21))
     allowed_roles: Mapped[list[Snowflake]] = _mapped_column(
         MutableList.as_mutable(ARRAY(BigInteger)), default_factory=list
     )

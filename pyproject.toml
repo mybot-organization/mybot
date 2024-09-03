@@ -15,6 +15,7 @@ dependencies = [
     "aiohttp",
     "python-dateutil",
     "typer",
+    "fastnanoid",
 ]
 requires-python = ">=3.12"
 

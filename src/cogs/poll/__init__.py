@@ -8,6 +8,7 @@ import logging
 from typing import TYPE_CHECKING, Self, cast
 
 import discord
+import fastnanoid
 from discord import app_commands, ui
 from discord.app_commands import locale_str as __
 from sqlalchemy.orm import selectinload
@@ -59,6 +60,7 @@ class PollCog(ExtendedGroupCog, group_name=__("poll"), group_description=__("Cre
             author_id=inter.user.id,
             type=db.PollType(poll_type.value),
             creation_date=inter.created_at,
+            url=fastnanoid.generate(),
         )
 
         poll_menu_from_type: dict[db.PollType, type[PollModal]] = {
